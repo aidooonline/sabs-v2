@@ -1,0 +1,83 @@
+# Example Terraform configuration for Sabs v2 Infrastructure
+# Copy this file to terraform.tfvars and update with your values
+
+# Project Configuration
+project_id               = "your-gcp-project-id"
+project_name            = "sabs-v2"
+environment             = "development"
+
+# Location Configuration
+region = "us-central1"
+zone   = "us-central1-a"
+
+# Domain Configuration
+domain_name = "api.sabsv2.com"
+
+# Database Configuration
+database_tier           = "db-f1-micro"         # For development, use larger for production
+database_disk_size      = 20                    # GB
+database_max_disk_size  = 100                   # GB
+
+# External Service Keys (Store securely!)
+sms_api_key     = "your-sms-provider-api-key"   # Leave empty for placeholder
+openai_api_key  = "your-openai-api-key"         # Leave empty for placeholder
+
+# Terraform State Configuration
+terraform_state_bucket = "your-terraform-state-bucket"
+
+# Network Configuration
+enable_private_google_access = true
+enable_flow_logs             = false             # Enable for production
+
+# Security Configuration
+allowed_ip_ranges = ["0.0.0.0/0"]               # Restrict for production
+enable_binary_authorization = false              # Enable for production
+
+# Monitoring Configuration
+notification_channels     = []                   # Add notification channel IDs
+enable_detailed_monitoring = true
+
+# Backup Configuration
+backup_retention_days = 7                        # Increase for production
+
+# Scaling Configuration
+min_instances = 0                                # Set to 1+ for production
+max_instances = 10                               # Increase for production
+
+# Resource Limits
+cpu_limit    = "1"                               # 1, 2, 4, or 8
+memory_limit = "1Gi"                             # 512Mi, 1Gi, 2Gi, etc.
+
+# Feature Flags
+enable_ai_features      = true
+enable_sms_notifications = true
+enable_audit_logging    = true
+
+# Development Configuration
+enable_debug_mode = false                        # Set to true for development
+
+# Environment-specific Examples:
+
+# Development Environment
+# environment = "development"
+# database_tier = "db-f1-micro"
+# min_instances = 0
+# enable_detailed_monitoring = false
+# enable_debug_mode = true
+
+# Staging Environment
+# environment = "staging"
+# database_tier = "db-g1-small"
+# min_instances = 1
+# max_instances = 5
+# enable_detailed_monitoring = true
+
+# Production Environment
+# environment = "production"
+# database_tier = "db-n1-standard-2"
+# min_instances = 2
+# max_instances = 20
+# enable_detailed_monitoring = true
+# enable_audit_logging = true
+# enable_binary_authorization = true
+# backup_retention_days = 30
