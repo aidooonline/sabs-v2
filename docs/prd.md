@@ -12,6 +12,7 @@
 * **Story 1.6: Local Development Environment Setup**
 * **Story 1.7: Onboard and Configure Third-Party Services**
 * **Story 1.8: Implement Platform Master Key Mechanism**
+* **Story 1.9: Configure Cloud Development Environment**
 
 ## Epic 2: Multi-Tenancy, User, & Access Control
 * **Goal:** To build the core systems that manage who can use the platform (companies and users) and what they are allowed to do (roles and permissions).

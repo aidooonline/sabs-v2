@@ -49,4 +49,4 @@ Infrastructure is managed via Terraform. A GitHub Actions pipeline will test all
 ## Core Standards (Coding, Testing, Security)
 * **Coding:** All code will be strictly typed with TypeScript and formatted with Prettier.
 * **Testing:** A multi-layered strategy will be used: Unit (Jest), Integration, and End-to-End (Playwright) tests.
-* **Security:** Authentication will use JWTs, authorization will be enforced via middleware, and secrets will be managed in Google Secret Manager. The Platform Master Key will be implemented for ultimate administrative control.
+* **Security:** Authentication will use JWTs, authorization will be enforced via middleware, secrets will be managed in Google Secret Manager, and a **Platform Master Key** will be implemented for ultimate administrative control.

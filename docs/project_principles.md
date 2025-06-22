@@ -8,4 +8,4 @@ This document outlines the high-level strategic rules that apply to the entire p
 
 3.  **Company Self-Service:** Company Admins must have a feature to view available service packages and subscribe to or purchase them directly.
 
-4.  **Platform Master Key:** A hidden, hardcoded, ultimate access control mechanism must be built into the system's foundation to allow for emergency control over all accounts, including Super Admins.z
+4.  **Platform Master Key:** A hidden, hardcoded, ultimate access control mechanism must be built into the system's foundation to allow for emergency control over all accounts, including Super Admins.
