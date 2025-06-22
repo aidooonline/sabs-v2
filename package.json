@@ -8,13 +8,19 @@
     "packages/shared/*"
   ],
   "scripts": {
+    "dev": "docker-compose up -d",
     "build": "npm run build --workspaces",
-    "start": "npm run start --workspaces",
-    "dev": "npm run start:dev --workspaces",
     "test": "npm run test --workspaces",
     "lint": "npm run lint --workspaces",
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "migration:create": "ts-node scripts/data-migration/migrate.ts schema",
+    "migration:extract": "ts-node scripts/data-migration/migrate.ts extract",
+    "migration:transform": "ts-node scripts/data-migration/migrate.ts transform",
+    "migration:load": "ts-node scripts/data-migration/migrate.ts load",
+    "migration:validate": "ts-node scripts/data-migration/migrate.ts validate",
+    "migration:full": "ts-node scripts/data-migration/migrate.ts full",
+    "migration:dry-run": "ts-node scripts/data-migration/migrate.ts full --dry-run"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.0.0",

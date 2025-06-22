@@ -28,6 +28,26 @@ services:
     networks:
       - sabs-network
 
+  # Legacy MySQL database for migration testing
+  legacy-db:
+    image: mysql:8.0
+    container_name: sabs-legacy-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: sabs_legacy
+      MYSQL_USER: sabs_user
+      MYSQL_PASSWORD: sabs_password
+    volumes:
+      - legacy_mysql_data:/var/lib/mysql
+      - ./scripts/init-legacy-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - sabs-network
+    profiles:
+      - migration
+
   # Identity Service
   identity-service:
     build:
@@ -85,6 +105,8 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  legacy_mysql_data:
     driver: local
 
 networks:
