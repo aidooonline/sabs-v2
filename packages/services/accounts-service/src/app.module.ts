@@ -17,12 +17,14 @@ import { CustomerOnboardingService } from './services/onboarding.service';
 import { TransactionService } from './services/transaction.service';
 import { ApprovalService } from './services/approval.service';
 import { TransactionProcessingService } from './services/transaction-processing.service';
+import { TransactionHistoryService } from './services/transaction-history.service';
 
 // Controllers
 import { OnboardingController } from './controllers/onboarding.controller';
 import { TransactionController } from './controllers/transaction.controller';
 import { ApprovalController } from './controllers/approval.controller';
 import { TransactionProcessingController } from './controllers/transaction-processing.controller';
+import { TransactionHistoryController } from './controllers/transaction-history.controller';
 
 // Shared modules
 import { DatabaseModule } from '@sabs/database';
@@ -141,18 +143,21 @@ import { CommonModule } from '@sabs/common';
     TransactionController,
     ApprovalController,
     TransactionProcessingController,
+    TransactionHistoryController,
   ],
   providers: [
     CustomerOnboardingService,
     TransactionService,
     ApprovalService,
     TransactionProcessingService,
+    TransactionHistoryService,
   ],
   exports: [
     CustomerOnboardingService,
     TransactionService,
     ApprovalService,
     TransactionProcessingService,
+    TransactionHistoryService,
     TypeOrmModule,
   ],
 })
