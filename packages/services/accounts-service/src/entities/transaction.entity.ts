@@ -422,6 +422,9 @@ export class Transaction {
   @JoinColumn({ name: 'account_id' })
   account: Account;
 
+  @OneToMany('ApprovalWorkflow', 'transaction')
+  approvalWorkflows: any[];
+
   // Computed properties
   get isWithdrawal(): boolean {
     return this.type === TransactionType.WITHDRAWAL;

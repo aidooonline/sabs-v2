@@ -10,14 +10,17 @@ import { Customer } from './entities/customer.entity';
 import { Account } from './entities/account.entity';
 import { CustomerOnboarding } from './entities/customer-onboarding.entity';
 import { Transaction } from './entities/transaction.entity';
+import { ApprovalWorkflow } from './entities/approval-workflow.entity';
 
 // Services
 import { CustomerOnboardingService } from './services/onboarding.service';
 import { TransactionService } from './services/transaction.service';
+import { ApprovalService } from './services/approval.service';
 
 // Controllers
 import { OnboardingController } from './controllers/onboarding.controller';
 import { TransactionController } from './controllers/transaction.controller';
+import { ApprovalController } from './controllers/approval.controller';
 
 // Shared modules
 import { DatabaseModule } from '@sabs/database';
@@ -42,7 +45,7 @@ import { CommonModule } from '@sabs/common';
         username: configService.get('DB_USERNAME', 'postgres'),
         password: configService.get('DB_PASSWORD', 'password'),
         database: configService.get('DB_NAME', 'sabs_accounts'),
-        entities: [Customer, Account, CustomerOnboarding, Transaction],
+        entities: [Customer, Account, CustomerOnboarding, Transaction, ApprovalWorkflow],
         synchronize: configService.get('NODE_ENV') !== 'production',
         logging: configService.get('NODE_ENV') === 'development',
         ssl: configService.get('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
@@ -64,6 +67,7 @@ import { CommonModule } from '@sabs/common';
       Account,
       CustomerOnboarding,
       Transaction,
+      ApprovalWorkflow,
     ]),
 
     // Event system for inter-service communication
@@ -122,6 +126,7 @@ import { CommonModule } from '@sabs/common';
       { name: 'transactions' },
       { name: 'notifications' },
       { name: 'compliance' },
+      { name: 'approvals' },
     ),
 
     // Shared modules (when available)
@@ -131,14 +136,17 @@ import { CommonModule } from '@sabs/common';
   controllers: [
     OnboardingController,
     TransactionController,
+    ApprovalController,
   ],
   providers: [
     CustomerOnboardingService,
     TransactionService,
+    ApprovalService,
   ],
   exports: [
     CustomerOnboardingService,
     TransactionService,
+    ApprovalService,
     TypeOrmModule,
   ],
 })
