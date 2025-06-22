@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseModule } from '@sabs/database';
 import { CompaniesModule } from './companies/companies.module';
 import { ServiceCreditsModule } from './service-credits/service-credits.module';
+import { StaffModule } from './staff/staff.module';
 import { HealthModule } from './health/health.module';
 
 @Module({
@@ -19,6 +20,7 @@ import { HealthModule } from './health/health.module';
     // Feature modules
     CompaniesModule,
     ServiceCreditsModule,
+    StaffModule,
     HealthModule,
   ],
 })
