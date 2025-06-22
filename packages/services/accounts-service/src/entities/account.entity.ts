@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany, Index, BeforeInsert } from 'typeorm';
 import { Customer } from './customer.entity';
+import { Transaction } from './transaction.entity';
 import { nanoid } from 'nanoid';
 
 export enum AccountType {
@@ -313,6 +314,9 @@ export class Account {
   @ManyToOne(() => Customer, customer => customer.accounts, { eager: true })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
+
+  @OneToMany(() => Transaction, transaction => transaction.account)
+  transactions: Transaction[];
 
   // Computed properties
   get accountAge(): number {
