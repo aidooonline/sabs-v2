@@ -18,6 +18,7 @@ import { TransactionService } from './services/transaction.service';
 import { ApprovalService } from './services/approval.service';
 import { TransactionProcessingService } from './services/transaction-processing.service';
 import { TransactionHistoryService } from './services/transaction-history.service';
+import { NotificationService } from './services/notification.service';
 
 // Controllers
 import { OnboardingController } from './controllers/onboarding.controller';
@@ -25,6 +26,7 @@ import { TransactionController } from './controllers/transaction.controller';
 import { ApprovalController } from './controllers/approval.controller';
 import { TransactionProcessingController } from './controllers/transaction-processing.controller';
 import { TransactionHistoryController } from './controllers/transaction-history.controller';
+import { NotificationController } from './controllers/notification.controller';
 
 // Shared modules
 import { DatabaseModule } from '@sabs/database';
@@ -144,6 +146,7 @@ import { CommonModule } from '@sabs/common';
     ApprovalController,
     TransactionProcessingController,
     TransactionHistoryController,
+    NotificationController,
   ],
   providers: [
     CustomerOnboardingService,
@@ -151,6 +154,7 @@ import { CommonModule } from '@sabs/common';
     ApprovalService,
     TransactionProcessingService,
     TransactionHistoryService,
+    NotificationService,
   ],
   exports: [
     CustomerOnboardingService,
@@ -158,6 +162,7 @@ import { CommonModule } from '@sabs/common';
     ApprovalService,
     TransactionProcessingService,
     TransactionHistoryService,
+    NotificationService,
     TypeOrmModule,
   ],
 })
@@ -165,5 +170,6 @@ export class AppModule {
   constructor() {
     console.log('🏦 Accounts Service Module Initialized');
     console.log('📊 Features: Customer Onboarding, Account Management, KYC Processing');
+    console.log('📱 Communication: Multi-channel Notifications, Template Management, Real-time Alerts');
   }
 }
