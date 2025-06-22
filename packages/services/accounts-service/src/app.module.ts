@@ -16,11 +16,13 @@ import { ApprovalWorkflow } from './entities/approval-workflow.entity';
 import { CustomerOnboardingService } from './services/onboarding.service';
 import { TransactionService } from './services/transaction.service';
 import { ApprovalService } from './services/approval.service';
+import { TransactionProcessingService } from './services/transaction-processing.service';
 
 // Controllers
 import { OnboardingController } from './controllers/onboarding.controller';
 import { TransactionController } from './controllers/transaction.controller';
 import { ApprovalController } from './controllers/approval.controller';
+import { TransactionProcessingController } from './controllers/transaction-processing.controller';
 
 // Shared modules
 import { DatabaseModule } from '@sabs/database';
@@ -127,6 +129,7 @@ import { CommonModule } from '@sabs/common';
       { name: 'notifications' },
       { name: 'compliance' },
       { name: 'approvals' },
+      { name: 'processing' },
     ),
 
     // Shared modules (when available)
@@ -137,16 +140,19 @@ import { CommonModule } from '@sabs/common';
     OnboardingController,
     TransactionController,
     ApprovalController,
+    TransactionProcessingController,
   ],
   providers: [
     CustomerOnboardingService,
     TransactionService,
     ApprovalService,
+    TransactionProcessingService,
   ],
   exports: [
     CustomerOnboardingService,
     TransactionService,
     ApprovalService,
+    TransactionProcessingService,
     TypeOrmModule,
   ],
 })
