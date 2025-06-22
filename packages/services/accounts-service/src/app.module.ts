@@ -19,6 +19,7 @@ import { ApprovalService } from './services/approval.service';
 import { TransactionProcessingService } from './services/transaction-processing.service';
 import { TransactionHistoryService } from './services/transaction-history.service';
 import { NotificationService } from './services/notification.service';
+import { AuditComplianceService } from './services/audit-compliance.service';
 
 // Controllers
 import { OnboardingController } from './controllers/onboarding.controller';
@@ -27,6 +28,7 @@ import { ApprovalController } from './controllers/approval.controller';
 import { TransactionProcessingController } from './controllers/transaction-processing.controller';
 import { TransactionHistoryController } from './controllers/transaction-history.controller';
 import { NotificationController } from './controllers/notification.controller';
+import { AuditComplianceController } from './controllers/audit-compliance.controller';
 
 // Shared modules
 import { DatabaseModule } from '@sabs/database';
@@ -147,6 +149,7 @@ import { CommonModule } from '@sabs/common';
     TransactionProcessingController,
     TransactionHistoryController,
     NotificationController,
+    AuditComplianceController,
   ],
   providers: [
     CustomerOnboardingService,
@@ -155,6 +158,7 @@ import { CommonModule } from '@sabs/common';
     TransactionProcessingService,
     TransactionHistoryService,
     NotificationService,
+    AuditComplianceService,
   ],
   exports: [
     CustomerOnboardingService,
@@ -163,6 +167,7 @@ import { CommonModule } from '@sabs/common';
     TransactionProcessingService,
     TransactionHistoryService,
     NotificationService,
+    AuditComplianceService,
     TypeOrmModule,
   ],
 })
@@ -171,5 +176,6 @@ export class AppModule {
     console.log('🏦 Accounts Service Module Initialized');
     console.log('📊 Features: Customer Onboarding, Account Management, KYC Processing');
     console.log('📱 Communication: Multi-channel Notifications, Template Management, Real-time Alerts');
+    console.log('🔍 Compliance: Comprehensive Audit Trails, Regulatory Compliance, Risk Assessment');
   }
 }
