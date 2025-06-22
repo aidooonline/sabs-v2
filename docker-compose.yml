@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: sabs-v2-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: sabs_v2
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - sabs-network
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    container_name: sabs-v2-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - sabs-network
+
+  # Identity Service
+  identity-service:
+    build:
+      context: .
+      dockerfile: packages/services/identity-service/Dockerfile
+    container_name: sabs-v2-identity
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_NAME: sabs_v2
+      JWT_SECRET: your-super-secret-jwt-key-here
+      REDIS_URL: redis://redis:6379
+    networks:
+      - sabs-network
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./packages/services/identity-service/src:/app/src
+      - /app/node_modules
+
+  # Company Service
+  company-service:
+    build:
+      context: .
+      dockerfile: packages/services/company-service/Dockerfile
+    container_name: sabs-v2-company
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_NAME: sabs_v2
+      REDIS_URL: redis://redis:6379
+    networks:
+      - sabs-network
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./packages/services/company-service/src:/app/src
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  sabs-network:
+    driver: bridge

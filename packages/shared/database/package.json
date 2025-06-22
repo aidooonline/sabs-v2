@@ -1,0 +1,31 @@
+{
+  "name": "@sabs/database",
+  "version": "1.0.0",
+  "description": "Shared database entities and configuration for Sabs v2",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "start:dev": "ts-node src/index.ts",
+    "test": "jest",
+    "lint": "eslint \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/typeorm": "^10.0.0",
+    "typeorm": "^0.3.17",
+    "pg": "^8.11.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
+    "@sabs/common": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.1",
+    "@types/pg": "^8.10.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.3"
+  }
+}
