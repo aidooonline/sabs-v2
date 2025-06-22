@@ -4,110 +4,126 @@ services:
   # Database
   postgres:
     image: postgres:15-alpine
-    container_name: sabs-v2-postgres
-    restart: unless-stopped
+    container_name: sabs-postgres
+    environment:
+      POSTGRES_DB: sabs_dev
+      POSTGRES_USER: sabs_user
+      POSTGRES_PASSWORD: sabs_dev_password
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_DB: sabs_v2
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init-db.sql
+      - ./scripts/init-legacy-db.sql:/docker-entrypoint-initdb.d/02-init-legacy-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sabs_user -d sabs_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - sabs-network
 
   # Redis for caching and sessions
   redis:
     image: redis:7-alpine
-    container_name: sabs-v2-redis
-    restart: unless-stopped
+    container_name: sabs-redis
     ports:
       - "6379:6379"
-    networks:
-      - sabs-network
-
-  # Legacy MySQL database for migration testing
-  legacy-db:
-    image: mysql:8.0
-    container_name: sabs-legacy-mysql
-    restart: unless-stopped
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: sabs_legacy
-      MYSQL_USER: sabs_user
-      MYSQL_PASSWORD: sabs_password
     volumes:
-      - legacy_mysql_data:/var/lib/mysql
-      - ./scripts/init-legacy-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - sabs-network
-    profiles:
-      - migration
 
   # Identity Service
   identity-service:
     build:
       context: .
       dockerfile: packages/services/identity-service/Dockerfile
-    container_name: sabs-v2-identity
-    restart: unless-stopped
+    container_name: sabs-identity-service
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://sabs_user:sabs_dev_password@postgres:5432/sabs_dev
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=dev_jwt_secret_key_123456789
     ports:
       - "3001:3001"
-    environment:
-      NODE_ENV: development
-      PORT: 3001
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USERNAME: postgres
-      DB_PASSWORD: password
-      DB_NAME: sabs_v2
-      JWT_SECRET: your-super-secret-jwt-key-here
-      REDIS_URL: redis://redis:6379
-    networks:
-      - sabs-network
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ./packages/services/identity-service/src:/app/src
-      - /app/node_modules
+      - ./packages/shared:/app/packages/shared
+    command: npm run start:dev
+    networks:
+      - sabs-network
 
   # Company Service
   company-service:
     build:
       context: .
       dockerfile: packages/services/company-service/Dockerfile
-    container_name: sabs-v2-company
-    restart: unless-stopped
+    container_name: sabs-company-service
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - DATABASE_URL=postgresql://sabs_user:sabs_dev_password@postgres:5432/sabs_dev
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=dev_jwt_secret_key_123456789
+      - IDENTITY_SERVICE_URL=http://identity-service:3001
     ports:
       - "3002:3002"
-    environment:
-      NODE_ENV: development
-      PORT: 3002
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USERNAME: postgres
-      DB_PASSWORD: password
-      DB_NAME: sabs_v2
-      REDIS_URL: redis://redis:6379
-    networks:
-      - sabs-network
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      identity-service:
+        condition: service_started
     volumes:
       - ./packages/services/company-service/src:/app/src
-      - /app/node_modules
+      - ./packages/shared:/app/packages/shared
+    command: npm run start:dev
+    networks:
+      - sabs-network
+
+  # PgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: sabs-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@sabs.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - sabs-network
+
+  # Redis Commander for Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: sabs-redis-commander
+    environment:
+      REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - sabs-network
 
 volumes:
   postgres_data:
-    driver: local
-  legacy_mysql_data:
-    driver: local
+  redis_data:
 
 networks:
   sabs-network:
