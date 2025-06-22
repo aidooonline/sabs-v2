@@ -1,0 +1,73 @@
+# Staging Environment Configuration
+# This file defines environment-specific settings for the staging deployment
+
+environment:
+  name: staging
+  url: https://staging.sabs-v2.com
+  
+# Protection rules
+protection_rules:
+  required_reviewers: 1
+  prevent_self_review: true
+  dismiss_stale_reviews: true
+  require_code_owner_reviews: false
+  
+# Environment variables
+variables:
+  NODE_ENV: staging
+  LOG_LEVEL: debug
+  ENABLE_SWAGGER: true
+  RATE_LIMIT_ENABLED: true
+  RATE_LIMIT_WINDOW_MS: 900000  # 15 minutes
+  RATE_LIMIT_MAX_REQUESTS: 1000
+  
+# Deployment configuration
+deployment:
+  strategy: rolling
+  auto_deploy: true
+  require_approval: false
+  auto_promote: true
+  
+# Resource limits
+resources:
+  memory: 2Gi
+  cpu: 2
+  min_instances: 1
+  max_instances: 10
+  
+# Health checks
+health_checks:
+  enabled: true
+  path: /health
+  interval: 30s
+  timeout: 10s
+  healthy_threshold: 2
+  unhealthy_threshold: 3
+  
+# Monitoring
+monitoring:
+  enabled: true
+  alerts_enabled: true
+  log_retention_days: 30
+  metrics_enabled: true
+  
+# Database configuration
+database:
+  instance_class: db-g1-small
+  storage_gb: 20
+  backup_enabled: true
+  backup_retention_days: 7
+  maintenance_window: "sun:03:00-sun:04:00"
+  
+# Security settings
+security:
+  ssl_enabled: true
+  cors_enabled: true
+  cors_origins: 
+    - "https://staging-admin.sabs-v2.com"
+    - "https://staging-app.sabs-v2.com"
+  headers:
+    strict_transport_security: true
+    content_type_options: true
+    frame_options: true
+    xss_protection: true

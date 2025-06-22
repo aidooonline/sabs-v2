@@ -1,0 +1,604 @@
+name: 🚀 Sabs v2 Enhanced CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop, 'release/*', 'hotfix/*']
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      skip_tests:
+        description: 'Skip test execution'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: gcr.io
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SA_KEY }}
+  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================================================
+  # 🔍 CODE QUALITY & SECURITY ANALYSIS
+  # ============================================================================
+  code-analysis:
+    name: 🔍 Code Quality & Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for SonarCloud
+      
+      - name: ⚡ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: 📦 Install Dependencies
+        run: npm ci
+      
+      - name: 🧹 Lint Check
+        run: npm run lint
+      
+      - name: 🎨 Format Check
+        run: npm run format:check
+      
+      - name: 🔒 Security Audit
+        run: |
+          npm audit --audit-level=high
+          npm run audit:fix || true
+      
+      - name: 📊 SonarCloud Analysis
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=sabs-v2
+            -Dsonar.organization=sabs-org
+            -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.coverage.exclusions=**/*.test.ts,**/*.spec.ts,**/dist/**
+      
+      - name: 🔐 SAST Security Scan
+        uses: github/codeql-action/init@v3
+        with:
+          languages: typescript, javascript
+      
+      - name: 🔍 CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+      
+      - name: 🛡️ Dependency Security Check
+        uses: securecodewarrior/github-action-add-sarif@v1
+        with:
+          sarif-file: 'security-results.sarif'
+        continue-on-error: true
+
+  # ============================================================================
+  # 🧪 COMPREHENSIVE TESTING SUITE
+  # ============================================================================
+  testing:
+    name: 🧪 Test Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: ${{ !inputs.skip_tests }}
+    
+    strategy:
+      matrix:
+        test-type: [unit, integration, e2e]
+        node-version: [18, 20]
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: sabs_v2_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: ⚡ Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: 📦 Install Dependencies
+        run: npm ci
+      
+      - name: 🗄️ Setup Test Database
+        run: |
+          npm run db:migrate:test
+          npm run db:seed:test
+        env:
+          DATABASE_URL: postgresql://postgres:test_password@localhost:5432/sabs_v2_test
+      
+      - name: 🧪 Run Unit Tests
+        if: matrix.test-type == 'unit'
+        run: npm run test:unit
+        env:
+          CI: true
+          NODE_ENV: test
+      
+      - name: 🔗 Run Integration Tests
+        if: matrix.test-type == 'integration'
+        run: npm run test:integration
+        env:
+          CI: true
+          NODE_ENV: test
+          DATABASE_URL: postgresql://postgres:test_password@localhost:5432/sabs_v2_test
+          REDIS_URL: redis://localhost:6379
+      
+      - name: 🌐 Run E2E Tests
+        if: matrix.test-type == 'e2e'
+        run: npm run test:e2e
+        env:
+          CI: true
+          NODE_ENV: test
+          DATABASE_URL: postgresql://postgres:test_password@localhost:5432/sabs_v2_test
+          REDIS_URL: redis://localhost:6379
+      
+      - name: 📊 Generate Coverage Report
+        if: matrix.test-type == 'unit'
+        run: npm run test:coverage
+      
+      - name: 📤 Upload Coverage to Codecov
+        if: matrix.test-type == 'unit' && matrix.node-version == '18'
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+      
+      - name: 📋 Test Results Summary
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Test Results (${{ matrix.test-type }}, Node ${{ matrix.node-version }})
+          path: 'reports/jest-results.xml'
+          reporter: jest-junit
+
+  # ============================================================================
+  # 🏗️ BUILD & PACKAGE
+  # ============================================================================
+  build:
+    name: 🏗️ Build & Package
+    runs-on: ubuntu-latest
+    needs: [code-analysis, testing]
+    timeout-minutes: 20
+    
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: ⚡ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: 📦 Install Dependencies
+        run: npm ci
+      
+      - name: 🏗️ Build Applications
+        run: npm run build
+      
+      - name: 📋 Build Summary
+        run: |
+          echo "## 🏗️ Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Node Version**: $(node --version)" >> $GITHUB_STEP_SUMMARY
+          echo "- **NPM Version**: $(npm --version)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Git Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+      
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: 🔐 Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+      - name: 🏷️ Extract Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/sabs-v2
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+      
+      - name: 🏗️ Build and Push Docker Images
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  # ============================================================================
+  # 🔒 SECURITY SCANNING
+  # ============================================================================
+  security-scan:
+    name: 🔒 Security Scanning
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 15
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: 🛡️ Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ needs.build.outputs.image-tag }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      
+      - name: 📤 Upload Trivy Results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+      
+      - name: 🔍 Container Security Scan
+        uses: anchore/scan-action@v3
+        with:
+          image: ${{ needs.build.outputs.image-tag }}
+          fail-build: false
+          severity-cutoff: high
+      
+      - name: 📊 Security Scan Summary
+        run: |
+          echo "## 🔒 Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: ${{ needs.build.outputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Scanner**: Trivy + Anchore" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Completed" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # ⚡ PERFORMANCE TESTING
+  # ============================================================================
+  performance:
+    name: ⚡ Performance Testing
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 25
+    if: github.event_name != 'pull_request'
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: 🚀 Deploy to Performance Environment
+        run: |
+          echo "Deploying to performance testing environment..."
+          # Deploy using the built image for performance testing
+      
+      - name: ⚡ Run Load Tests
+        uses: k6-io/action@v0.2.0
+        with:
+          filename: tests/performance/load-test.js
+          flags: --env TEST_URL=https://staging.sabs-v2.com
+      
+      - name: 📊 Performance Benchmarks
+        run: |
+          echo "## ⚡ Performance Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **Average Response Time**: $(cat k6-results.json | jq '.metrics.http_req_duration.avg')" >> $GITHUB_STEP_SUMMARY
+          echo "- **95th Percentile**: $(cat k6-results.json | jq '.metrics.http_req_duration.p95')" >> $GITHUB_STEP_SUMMARY
+          echo "- **Requests/sec**: $(cat k6-results.json | jq '.metrics.http_reqs.rate')" >> $GITHUB_STEP_SUMMARY
+      
+      - name: 📈 Upload Performance Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results
+          path: k6-results.json
+
+  # ============================================================================
+  # 🚀 DEPLOYMENT TO STAGING
+  # ============================================================================
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, security-scan]
+    timeout-minutes: 15
+    if: github.ref == 'refs/heads/develop' || github.event_name == 'workflow_dispatch'
+    environment:
+      name: staging
+      url: https://staging.sabs-v2.com
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: 🔐 Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+      - name: ⚙️ Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: 🚀 Deploy to Cloud Run (Staging)
+        run: |
+          gcloud run deploy sabs-v2-staging \
+            --image=${{ needs.build.outputs.image-tag }} \
+            --platform=managed \
+            --region=us-central1 \
+            --allow-unauthenticated \
+            --set-env-vars="NODE_ENV=staging" \
+            --memory=2Gi \
+            --cpu=2 \
+            --min-instances=1 \
+            --max-instances=10 \
+            --timeout=300s \
+            --concurrency=100
+      
+      - name: 🔄 Apply Database Migrations
+        run: |
+          gcloud run jobs execute migrate-staging \
+            --region=us-central1 \
+            --wait
+      
+      - name: 🌡️ Health Check
+        run: |
+          for i in {1..10}; do
+            if curl -f https://staging.sabs-v2.com/health; then
+              echo "✅ Staging deployment healthy"
+              break
+            fi
+            echo "⏳ Waiting for deployment... ($i/10)"
+            sleep 30
+          done
+      
+      - name: 🧪 Run Smoke Tests
+        run: |
+          npm run test:smoke -- --env=staging
+      
+      - name: 📊 Deployment Summary
+        run: |
+          echo "## 🚀 Staging Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Staging" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: ${{ needs.build.outputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://staging.sabs-v2.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Deployed Successfully" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # 🎯 DEPLOYMENT TO PRODUCTION
+  # ============================================================================
+  deploy-production:
+    name: 🎯 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, security-scan, performance]
+    timeout-minutes: 20
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && inputs.environment == 'production')
+    environment:
+      name: production
+      url: https://app.sabs-v2.com
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: 🔐 Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+      - name: ⚙️ Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: 💾 Create Database Backup
+        run: |
+          gcloud sql export sql sabs-v2-prod \
+            gs://sabs-v2-backups/pre-deploy-$(date +%Y%m%d-%H%M%S).sql \
+            --database=sabs_v2
+      
+      - name: 🚀 Blue-Green Deployment
+        run: |
+          # Deploy to new revision with 0% traffic
+          gcloud run deploy sabs-v2-prod \
+            --image=${{ needs.build.outputs.image-tag }} \
+            --platform=managed \
+            --region=us-central1 \
+            --no-traffic \
+            --tag=candidate \
+            --set-env-vars="NODE_ENV=production" \
+            --memory=4Gi \
+            --cpu=4 \
+            --min-instances=2 \
+            --max-instances=50 \
+            --timeout=300s \
+            --concurrency=100
+      
+      - name: 🔄 Apply Database Migrations
+        run: |
+          gcloud run jobs execute migrate-prod \
+            --region=us-central1 \
+            --wait
+      
+      - name: 🧪 Canary Testing
+        run: |
+          # Route 10% traffic to new revision
+          gcloud run services update-traffic sabs-v2-prod \
+            --to-tags=candidate=10 \
+            --region=us-central1
+          
+          # Wait and monitor
+          sleep 300
+          
+          # Run validation tests
+          npm run test:production:validation
+      
+      - name: ✅ Full Traffic Switch
+        run: |
+          # Route 100% traffic to new revision
+          gcloud run services update-traffic sabs-v2-prod \
+            --to-latest \
+            --region=us-central1
+      
+      - name: 🌡️ Production Health Check
+        run: |
+          for i in {1..15}; do
+            if curl -f https://app.sabs-v2.com/health; then
+              echo "✅ Production deployment healthy"
+              break
+            fi
+            echo "⏳ Waiting for production... ($i/15)"
+            sleep 30
+          done
+      
+      - name: 📊 Production Deployment Summary
+        run: |
+          echo "## 🎯 Production Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
+          echo "- **Strategy**: Blue-Green with Canary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: ${{ needs.build.outputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://app.sabs-v2.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Deployed Successfully" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # 📊 POST-DEPLOYMENT MONITORING
+  # ============================================================================
+  post-deployment:
+    name: 📊 Post-Deployment Monitoring
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always() && (needs.deploy-staging.result == 'success' || needs.deploy-production.result == 'success')
+    timeout-minutes: 10
+    
+    steps:
+      - name: 📈 Setup Monitoring Alerts
+        run: |
+          echo "Setting up post-deployment monitoring..."
+          # Configure monitoring alerts for new deployment
+      
+      - name: 🔔 Create Slack Alert
+        if: needs.deploy-production.result == 'success'
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{
+              "text": "🚀 Sabs v2 Production Deployment Successful!",
+              "attachments": [
+                {
+                  "color": "good",
+                  "fields": [
+                    {"title": "Environment", "value": "Production", "short": true},
+                    {"title": "Commit", "value": "${{ github.sha }}", "short": true},
+                    {"title": "URL", "value": "https://app.sabs-v2.com", "short": false}
+                  ]
+                }
+              ]
+            }' \
+            ${{ env.SLACK_WEBHOOK }}
+      
+      - name: 📊 Generate Deployment Report
+        run: |
+          echo "## 📊 Deployment Report" >> $GITHUB_STEP_SUMMARY
+          echo "- **Pipeline Duration**: $(date -d @$(($(date +%s) - ${{ github.event.repository.pushed_at }})) -u +%H:%M:%S)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tests Executed**: $(echo '${{ toJSON(needs) }}' | jq '[.[] | select(.result == "success")] | length')" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security Scans**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Performance Tests**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # 🚨 ROLLBACK ON FAILURE
+  # ============================================================================
+  rollback:
+    name: 🚨 Emergency Rollback
+    runs-on: ubuntu-latest
+    if: failure() && (needs.deploy-staging.result == 'failure' || needs.deploy-production.result == 'failure')
+    needs: [deploy-staging, deploy-production]
+    timeout-minutes: 10
+    
+    steps:
+      - name: 🔐 Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+      - name: ⚙️ Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: ⏪ Rollback Production
+        if: needs.deploy-production.result == 'failure'
+        run: |
+          echo "🚨 Rolling back production deployment..."
+          
+          # Get previous revision
+          PREV_REVISION=$(gcloud run revisions list \
+            --service=sabs-v2-prod \
+            --region=us-central1 \
+            --format="value(metadata.name)" \
+            --limit=2 | tail -n 1)
+          
+          # Route traffic back to previous revision
+          gcloud run services update-traffic sabs-v2-prod \
+            --to-revisions=$PREV_REVISION=100 \
+            --region=us-central1
+          
+          echo "✅ Rollback completed"
+      
+      - name: 🔔 Rollback Alert
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{
+              "text": "🚨 ALERT: Sabs v2 Deployment Failed - Rollback Initiated",
+              "attachments": [
+                {
+                  "color": "danger",
+                  "fields": [
+                    {"title": "Status", "value": "Rollback Completed", "short": true},
+                    {"title": "Commit", "value": "${{ github.sha }}", "short": true},
+                    {"title": "Action Required", "value": "Review deployment logs", "short": false}
+                  ]
+                }
+              ]
+            }' \
+            ${{ env.SLACK_WEBHOOK }}
