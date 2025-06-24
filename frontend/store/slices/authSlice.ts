@@ -118,12 +118,12 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-        state.refreshToken = action.payload.refreshToken;
-        state.permissions = action.payload.permissions || [];
-        state.role = action.payload.user.role;
-        state.companyId = action.payload.user.companyId || null;
+        state.user = action.payload.data.user;
+        state.token = action.payload.data.token;
+        state.refreshToken = action.payload.data.refreshToken;
+        state.permissions = action.payload.data.permissions || [];
+        state.role = action.payload.data.user.role;
+        state.companyId = action.payload.data.user.companyId || null;
         state.sessionExpiry = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
         state.loginAttempts = 0;
         state.accountLocked = false;
@@ -141,8 +141,8 @@ const authSlice = createSlice({
       })
       // Refresh token cases
       .addCase(refreshToken.fulfilled, (state, action) => {
-        state.token = action.payload.token;
-        state.refreshToken = action.payload.refreshToken;
+        state.token = action.payload.data.token;
+        state.refreshToken = action.payload.data.refreshToken;
         state.sessionExpiry = Date.now() + (24 * 60 * 60 * 1000);
       })
       .addCase(refreshToken.rejected, (state) => {

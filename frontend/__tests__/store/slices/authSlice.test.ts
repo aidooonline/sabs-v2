@@ -161,23 +161,25 @@ describe('authSlice', () => {
 
     it('should handle loginUser.fulfilled', () => {
       const mockPayload = {
-        user: {
-          id: '1',
-          email: 'test@example.com',
-          firstName: 'Test',
-          lastName: 'User',
-          role: 'agent',
-          companyId: 'company123',
-          phone: '+1234567890',
-          status: 'active' as const,
-          createdAt: '2023-01-01T00:00:00Z',
-          updatedAt: '2023-01-01T00:00:00Z',
-          isEmailVerified: true,
-          isPhoneVerified: true
-        },
-        token: 'test-token',
-        refreshToken: 'test-refresh-token',
-        permissions: ['read', 'write']
+        data: {
+          user: {
+            id: '1',
+            email: 'test@example.com',
+            firstName: 'Test',
+            lastName: 'User',
+            role: 'agent',
+            companyId: 'company123',
+            phone: '+1234567890',
+            status: 'active' as const,
+            createdAt: '2023-01-01T00:00:00Z',
+            updatedAt: '2023-01-01T00:00:00Z',
+            isEmailVerified: true,
+            isPhoneVerified: true
+          },
+          token: 'test-token',
+          refreshToken: 'test-refresh-token',
+          permissions: ['read', 'write']
+        }
       };
 
       store.dispatch(loginUser.fulfilled(mockPayload, '', { email: 'test@example.com', password: 'password' }));
@@ -185,12 +187,12 @@ describe('authSlice', () => {
       
       expect(state.isLoading).toBe(false);
       expect(state.isAuthenticated).toBe(true);
-      expect(state.user).toEqual(mockPayload.user);
-      expect(state.token).toBe(mockPayload.token);
-      expect(state.refreshToken).toBe(mockPayload.refreshToken);
-      expect(state.permissions).toEqual(mockPayload.permissions);
-      expect(state.role).toBe(mockPayload.user.role);
-      expect(state.companyId).toBe(mockPayload.user.companyId);
+      expect(state.user).toEqual(mockPayload.data.user);
+      expect(state.token).toBe(mockPayload.data.token);
+      expect(state.refreshToken).toBe(mockPayload.data.refreshToken);
+      expect(state.permissions).toEqual(mockPayload.data.permissions);
+      expect(state.role).toBe(mockPayload.data.user.role);
+      expect(state.companyId).toBe(mockPayload.data.user.companyId);
       expect(state.loginAttempts).toBe(0);
       expect(state.accountLocked).toBe(false);
       expect(state.error).toBe(null);

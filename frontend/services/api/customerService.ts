@@ -1,114 +1,167 @@
-import { apiClient } from '../apiClient';
-import type {
-  Customer,
-  CreateCustomerRequest,
+import { BaseService } from '../base/BaseService';
+import { 
+  Customer, 
+  CreateCustomerRequest, 
   UpdateCustomerRequest,
-  CustomerFilters,
-  CustomerSummary,
-  PaginatedResponse,
-  PaginationParams,
-  ApiResponse,
-} from '../types';
+  CustomerFilters 
+} from '../types/customer.types';
+import { ApiResponse, PaginationParams, PaginatedResponse } from '../types/api.types';
 
-class CustomerService {
-  private readonly basePath = '/customers';
+class CustomerService extends BaseService {
+  constructor() {
+    super('/customers');
+  }
 
   // Get all customers with pagination and filters
-  async getCustomers(
-    pagination: PaginationParams,
-    filters?: CustomerFilters
-  ): Promise<PaginatedResponse<Customer>> {
-    const params = new URLSearchParams();
-    
-    // Add pagination params
-    params.append('page', pagination.page.toString());
-    params.append('limit', pagination.limit.toString());
-    
-    if (pagination.search) {
-      params.append('search', pagination.search);
-    }
-    
-    if (pagination.sortBy) {
-      params.append('sortBy', pagination.sortBy);
-    }
-    
-    if (pagination.sortOrder) {
-      params.append('sortOrder', pagination.sortOrder);
-    }
-
-    // Add filter params
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          params.append(key, value.toString());
-        }
-      });
-    }
-
-    return apiClient.get<PaginatedResponse<Customer>>(
-      `${this.basePath}?${params.toString()}`
-    );
+  async getCustomers(params?: PaginationParams & CustomerFilters): Promise<PaginatedResponse<Customer>> {
+    return this.getPaginated<Customer>('', params);
   }
 
   // Get customer by ID
-  async getCustomer(id: string): Promise<Customer> {
-    return apiClient.get<Customer>(`${this.basePath}/${id}`);
+  async getCustomer(id: string): Promise<ApiResponse<Customer>> {
+    return this.get<Customer>(`/${id}`);
   }
 
   // Create new customer
-  async createCustomer(data: CreateCustomerRequest): Promise<Customer> {
-    return apiClient.post<Customer>(this.basePath, data);
+  async createCustomer(data: CreateCustomerRequest): Promise<ApiResponse<Customer>> {
+    return this.post<Customer>('', data);
   }
 
   // Update customer
-  async updateCustomer(id: string, data: UpdateCustomerRequest): Promise<Customer> {
-    return apiClient.put<Customer>(`${this.basePath}/${id}`, data);
+  async updateCustomer(id: string, data: UpdateCustomerRequest): Promise<ApiResponse<Customer>> {
+    return this.put<Customer>(`/${id}`, data);
   }
 
-  // Delete customer
-  async deleteCustomer(id: string): Promise<ApiResponse<null>> {
-    return apiClient.delete<ApiResponse<null>>(`${this.basePath}/${id}`);
+  // Delete customer (soft delete)
+  async deleteCustomer(id: string): Promise<ApiResponse<void>> {
+    return this.delete<void>(`/${id}`);
   }
 
-  // Get customer summary/statistics
-  async getCustomerSummary(): Promise<CustomerSummary> {
-    return apiClient.get<CustomerSummary>(`${this.basePath}/summary`);
+  // Search customers
+  async searchCustomers(query: string, filters?: CustomerFilters): Promise<ApiResponse<Customer[]>> {
+    return this.search<Customer>('', query, filters);
   }
 
-  // Search customers by phone or name
-  async searchCustomers(query: string): Promise<Customer[]> {
-    const params = new URLSearchParams({ search: query });
-    return apiClient.get<Customer[]>(`${this.basePath}/search?${params.toString()}`);
+  // Get customer accounts/wallets
+  async getCustomerAccounts(customerId: string): Promise<ApiResponse<Array<{
+    id: string;
+    accountNumber: string;
+    balance: number;
+    currency: string;
+    accountType: string;
+    status: string;
+    createdAt: string;
+  }>>> {
+    return this.get(`/${customerId}/accounts`);
   }
 
-  // Verify customer KYC
-  async verifyCustomerKyc(id: string, verified: boolean): Promise<Customer> {
-    return apiClient.patch<Customer>(`${this.basePath}/${id}/kyc`, { verified });
-  }
-
-  // Suspend/unsuspend customer
-  async updateCustomerStatus(
-    id: string,
-    status: 'active' | 'inactive' | 'suspended'
-  ): Promise<Customer> {
-    return apiClient.patch<Customer>(`${this.basePath}/${id}/status`, { status });
-  }
-
-  // Get customer transaction history
+  // Get customer transactions
   async getCustomerTransactions(
-    id: string,
-    pagination: PaginationParams
+    customerId: string, 
+    params?: PaginationParams & {
+      startDate?: string;
+      endDate?: string;
+      type?: string;
+      status?: string;
+    }
   ): Promise<PaginatedResponse<any>> {
-    const params = new URLSearchParams();
-    params.append('page', pagination.page.toString());
-    params.append('limit', pagination.limit.toString());
-    
-    return apiClient.get<PaginatedResponse<any>>(
-      `${this.basePath}/${id}/transactions?${params.toString()}`
-    );
+    return this.getPaginated(`/${customerId}/transactions`, params);
+  }
+
+  // Get customer statistics
+  async getCustomerStats(customerId: string): Promise<ApiResponse<{
+    totalTransactions: number;
+    totalDeposits: number;
+    totalWithdrawals: number;
+    averageTransactionAmount: number;
+    lastTransactionDate: string;
+    accountBalance: number;
+  }>> {
+    return this.get(`/${customerId}/stats`);
+  }
+
+  // Upload customer documents
+  async uploadDocument(
+    customerId: string,
+    file: File,
+    documentType: string,
+    onProgress?: (progress: number) => void
+  ): Promise<ApiResponse<{
+    id: string;
+    fileName: string;
+    documentType: string;
+    uploadUrl: string;
+  }>> {
+    return this.uploadFile(`/${customerId}/documents?type=${documentType}`, file, onProgress);
+  }
+
+  // Get customer documents
+  async getCustomerDocuments(customerId: string): Promise<ApiResponse<Array<{
+    id: string;
+    fileName: string;
+    documentType: string;
+    uploadDate: string;
+    status: string;
+    downloadUrl: string;
+  }>>> {
+    return this.get(`/${customerId}/documents`);
+  }
+
+  // Verify customer identity
+  async verifyCustomer(customerId: string, verificationData: {
+    documentType: string;
+    documentNumber: string;
+    verificationMethod: string;
+  }): Promise<ApiResponse<{
+    verificationId: string;
+    status: string;
+    verifiedAt?: string;
+  }>> {
+    return this.post(`/${customerId}/verify`, verificationData);
+  }
+
+  // Update customer status
+  async updateCustomerStatus(customerId: string, status: 'active' | 'inactive' | 'suspended' | 'pending'): Promise<ApiResponse<Customer>> {
+    return this.patch<Customer>(`/${customerId}/status`, { status });
+  }
+
+  // Get customers by agent
+  async getCustomersByAgent(agentId: string, params?: PaginationParams): Promise<PaginatedResponse<Customer>> {
+    return this.getPaginated(`/agent/${agentId}`, params);
+  }
+
+  // Bulk create customers
+  async bulkCreateCustomers(customers: CreateCustomerRequest[]): Promise<ApiResponse<{
+    successful: number;
+    failed: number;
+    total: number;
+    errors?: Array<{ index: number; error: string }>;
+  }>> {
+    return this.bulkCreate('', customers);
+  }
+
+  // Export customers to CSV
+  async exportCustomers(filters?: CustomerFilters): Promise<ApiResponse<{
+    downloadUrl: string;
+    fileName: string;
+    recordCount: number;
+  }>> {
+    return this.get('/export', filters);
+  }
+
+  // Get customer insights/analytics
+  async getCustomerInsights(customerId: string): Promise<ApiResponse<{
+    riskScore: number;
+    creditworthiness: string;
+    transactionPatterns: Array<{
+      pattern: string;
+      frequency: number;
+      lastOccurrence: string;
+    }>;
+    recommendations: string[];
+  }>> {
+    return this.get(`/${customerId}/insights`);
   }
 }
 
-// Export singleton instance
 export const customerService = new CustomerService();
-export default customerService;

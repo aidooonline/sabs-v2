@@ -38,7 +38,7 @@ export const FormField: React.FC<FormFieldProps> = ({
       
       <Input
         id={fieldId}
-        error={errorMessage}
+        errorMessage={errorMessage}
         aria-describedby={[helpTextId, errorId].filter(Boolean).join(' ') || undefined}
         aria-invalid={!!errorMessage}
         required={required}

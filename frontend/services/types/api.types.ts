@@ -1,23 +1,26 @@
 // Base API response structure
-export interface ApiResponse<T> {
+export interface ApiResponse<T = any> {
   data: T;
   message: string;
   success: boolean;
   timestamp?: string;
+  requestId?: string;
 }
 
 // Error response structure
 export interface ApiError {
-  message: string;
   code: string;
+  message: string;
   details?: Record<string, any>;
-  stack?: string;
+  status?: number;
+  timestamp?: string;
+  path?: string;
 }
 
 // Pagination parameters
 export interface PaginationParams {
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
   search?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
@@ -26,12 +29,16 @@ export interface PaginationParams {
 // Paginated response
 export interface PaginatedResponse<T> {
   data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+  message: string;
+  success: boolean;
 }
 
 // Request status for tracking async operations
@@ -43,9 +50,9 @@ export interface RequestStatus {
 
 // Filter parameters for list endpoints
 export interface FilterParams {
+  startDate?: string;
+  endDate?: string;
   status?: string;
-  dateFrom?: string;
-  dateTo?: string;
   category?: string;
   [key: string]: any;
 }
@@ -67,4 +74,41 @@ export interface FileUploadParams {
   file: File;
   category?: string;
   metadata?: Record<string, any>;
+}
+
+// File upload response
+export interface FileUploadResponse {
+  fileId: string;
+  fileName: string;
+  fileSize: number;
+  fileType: string;
+  downloadUrl: string;
+}
+
+// Bulk operation response
+export interface BulkOperationResponse {
+  successful: number;
+  failed: number;
+  total: number;
+  errors?: Array<{
+    index: number;
+    error: string;
+  }>;
+}
+
+// API Configuration
+export interface ApiConfig {
+  baseURL: string;
+  timeout: number;
+  retries: number;
+  retryDelay: number;
+}
+
+// Request options
+export interface RequestOptions {
+  skipAuth?: boolean;
+  skipErrorNotification?: boolean;
+  timeout?: number;
+  retries?: number;
+  onUploadProgress?: (progress: number) => void;
 }
