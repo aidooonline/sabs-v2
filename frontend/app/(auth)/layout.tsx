@@ -1,4 +1,13 @@
-import React from 'react';
+import { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+// import { cn } from '@/utils/helpers';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: 'Login - Sabs v2',
+  description: 'Sign in to your Sabs v2 account',
+};
 
 export default function AuthLayout({
   children,
@@ -6,7 +15,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`${inter.className} min-h-screen bg-gray-50`}>
       {/* Optional: Add auth-specific header or branding */}
       <div className="absolute top-4 left-4">
         <h1 className="text-2xl font-bold text-primary-600">Sabs v2</h1>
