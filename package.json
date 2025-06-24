@@ -5,7 +5,8 @@
   "private": true,
   "workspaces": [
     "packages/services/*",
-    "packages/shared/*"
+    "packages/shared/*",
+    "frontend"
   ],
   "scripts": {
       "dev": "docker-compose up -d",
@@ -31,7 +32,11 @@
       "migration:load": "ts-node scripts/data-migration/migrate.ts load",
       "migration:validate": "ts-node scripts/data-migration/migrate.ts validate",
       "migration:full": "ts-node scripts/data-migration/migrate.ts full",
-      "migration:dry-run": "ts-node scripts/data-migration/migrate.ts full --dry-run"
+      "migration:dry-run": "ts-node scripts/data-migration/migrate.ts full --dry-run",
+      "dev:frontend": "npm run dev --workspace=frontend",
+      "build:frontend": "npm run build --workspace=frontend",
+      "test:frontend": "npm run test --workspace=frontend",
+      "test:frontend:e2e": "npm run test:e2e --workspace=frontend"
     },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.0.0",
