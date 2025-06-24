@@ -99,7 +99,7 @@ apiClient.interceptors.response.use(
         const { refreshToken: refreshTokenValue } = state.auth;
         
         if (refreshTokenValue) {
-          await store.dispatch(refreshToken(refreshTokenValue));
+          await store.dispatch(refreshToken());
           
           // Retry original request with new token
           const newState = store.getState();

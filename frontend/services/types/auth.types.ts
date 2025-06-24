@@ -1,14 +1,64 @@
 import { User, UserRole } from './user.types';
 
-// Login request
-export interface LoginRequest {
+// Enhanced login credentials interface
+export interface LoginCredentials {
   email: string;
   password: string;
-  companyId?: string; // For multi-tenant login
   rememberMe?: boolean;
+  mfaCode?: string;
+  companyId?: string; // For multi-tenant login
 }
 
-// Login response
+// Enhanced authentication response
+export interface AuthResponse {
+  user: User;
+  token: string;
+  refreshToken: string;
+  permissions: string[];
+  expiresIn: number;
+  requiresMfa?: boolean;
+  mfaToken?: string;
+}
+
+// MFA authentication response
+export interface MfaAuthResponse extends Omit<AuthResponse, 'user' | 'token' | 'refreshToken' | 'permissions' | 'expiresIn'> {
+  requiresMfa: true;
+  mfaToken: string;
+  requiresMfaVerification?: boolean;
+}
+
+// Token refresh response
+export interface RefreshTokenResponse {
+  token: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+
+// MFA verification request
+export interface MfaVerificationRequest {
+  mfaToken: string;
+  code: string;
+  rememberDevice?: boolean;
+}
+
+// Session validation response
+export interface SessionValidationResponse {
+  valid: boolean;
+  user?: User;
+  expiresAt?: string;
+  permissions?: string[];
+}
+
+// Password reset request
+export interface ResetPasswordRequest {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}
+
+// Legacy interfaces for backward compatibility
+export interface LoginRequest extends LoginCredentials {}
+
 export interface LoginResponse {
   user: User;
   token: string;
@@ -35,15 +85,6 @@ export interface ForgotPasswordRequest {
   email: string;
   companyId?: string;
 }
-
-// Reset password request
-export interface ResetPasswordRequest {
-  token: string;
-  password: string;
-  confirmPassword: string;
-}
-
-// Change password request is defined in user.types.ts
 
 // Token refresh request
 export interface RefreshTokenRequest {
@@ -76,16 +117,37 @@ export interface SessionInfo {
   permissions: string[];
 }
 
-// Authentication state for Redux
+// Enhanced authentication state for Redux
 export interface AuthState {
-  isAuthenticated: boolean;
   user: User | null;
   token: string | null;
   refreshToken: string | null;
-  expiresAt: string | null;
-  permissions: string[];
-  loading: boolean;
+  isAuthenticated: boolean;
+  isLoading: boolean;
   error: string | null;
+  
+  // MFA state
+  requiresMfaVerification: boolean;
+  mfaToken: string | null;
+  
+  // Security state
+  loginAttempts: number;
+  maxLoginAttempts: number;
+  accountLocked: boolean;
+  lockoutExpiry: number | null;
+  
+  // Session state
+  sessionExpiry: number | null;
+  lastActivity: number | null;
+  rememberMe: boolean;
+  
+  // User context
+  permissions: string[];
+  role: string | null;
+  companyId: string | null;
+  
+  // UI state
+  isInitialized: boolean;
 }
 
 // Permission check
