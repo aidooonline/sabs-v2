@@ -1,78 +1,94 @@
 import { useCallback } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store';
-import { authService } from '@/services/api/authService';
-import type { LoginRequest, RegisterRequest } from '@/services/types';
+import { useAppDispatch, useAppSelector } from './redux';
+import {
+  loginUser,
+  logoutUser,
+  refreshToken,
+  clearError,
+  selectAuth,
+  selectIsAuthenticated,
+  selectUser,
+  selectAuthLoading,
+  selectAuthError,
+  selectUserPermissions,
+  selectUserRole,
+  selectCompanyId,
+} from '../store/slices/authSlice';
+import { LoginRequest } from '../services/types/auth.types';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
-  const authState = useAppSelector((state) => state.auth);
+  const auth = useAppSelector(selectAuth);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const user = useAppSelector(selectUser);
+  const isLoading = useAppSelector(selectAuthLoading);
+  const error = useAppSelector(selectAuthError);
+  const permissions = useAppSelector(selectUserPermissions);
+  const role = useAppSelector(selectUserRole);
+  const companyId = useAppSelector(selectCompanyId);
 
-  const login = useCallback(async (credentials: LoginRequest) => {
-    try {
-      // This would dispatch an action to update auth state
-      // For now, just calling the service
-      const response = await authService.login(credentials);
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  }, [dispatch]);
+  const login = useCallback(
+    async (credentials: LoginRequest) => {
+      const result = await dispatch(loginUser(credentials));
+      return result;
+    },
+    [dispatch]
+  );
 
   const logout = useCallback(async () => {
-    try {
-      await authService.logout();
-      // Dispatch logout action
-    } catch (error) {
-      // Handle error silently for logout
-    }
+    await dispatch(logoutUser());
   }, [dispatch]);
 
-  const register = useCallback(async (userData: RegisterRequest) => {
-    try {
-      const response = await authService.register(userData);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+  const refresh = useCallback(async (token: string) => {
+    const result = await dispatch(refreshToken(token));
+    return result;
   }, [dispatch]);
 
-  const refreshToken = useCallback(async () => {
-    try {
-      if (authState.refreshToken) {
-        const response = await authService.refreshToken({ 
-          refreshToken: authState.refreshToken 
-        });
-        // Dispatch action to update tokens
-        return response;
-      }
-    } catch (error) {
-      // Handle refresh error (logout user)
-      await logout();
-    }
-  }, [authState.refreshToken, logout]);
+  const clearAuthError = useCallback(() => {
+    dispatch(clearError());
+  }, [dispatch]);
 
-  const checkPermission = useCallback((permission: string): boolean => {
-    return authState.permissions.includes(permission);
-  }, [authState.permissions]);
+  const hasPermission = useCallback(
+    (permission: string) => {
+      return permissions.includes(permission);
+    },
+    [permissions]
+  );
 
-  const hasRole = useCallback((role: string): boolean => {
-    return authState.user?.role === role;
-  }, [authState.user?.role]);
+  const hasRole = useCallback(
+    (requiredRole: string) => {
+      return role === requiredRole;
+    },
+    [role]
+  );
+
+  const hasAnyRole = useCallback(
+    (roles: string[]) => {
+      return role ? roles.includes(role) : false;
+    },
+    [role]
+  );
 
   return {
     // State
-    isAuthenticated: authState.isAuthenticated,
-    user: authState.user,
-    loading: authState.loading,
-    error: authState.error,
-    permissions: authState.permissions,
-
+    auth,
+    user,
+    isAuthenticated,
+    isLoading,
+    error,
+    permissions,
+    role,
+    companyId,
+    
     // Actions
     login,
     logout,
-    register,
-    refreshToken,
-    checkPermission,
+    refresh,
+    clearAuthError,
+    
+    // Utilities
+    hasPermission,
     hasRole,
+    hasAnyRole,
   };
 };
