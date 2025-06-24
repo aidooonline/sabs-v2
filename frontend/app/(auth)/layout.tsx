@@ -1,21 +1,38 @@
-import { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-// import { cn } from '@/utils/helpers';
+'use client';
 
-const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
-  title: 'Login - Sabs v2',
-  description: 'Sign in to your Sabs v2 account',
-};
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const { isAuthenticated, isInitialized } = useAuth();
+
+  useEffect(() => {
+    // Redirect authenticated users away from auth pages
+    if (isInitialized && isAuthenticated) {
+      router.replace('/dashboard');
+    }
+  }, [isAuthenticated, isInitialized, router]);
+
+  // Don't render auth pages if user is already authenticated
+  if (isInitialized && isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Redirecting to dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`${inter.className} min-h-screen bg-gray-50`}>
+    <div className="min-h-screen bg-gray-50">
       {/* Optional: Add auth-specific header or branding */}
       <div className="absolute top-4 left-4">
         <h1 className="text-2xl font-bold text-primary-600">Sabs v2</h1>

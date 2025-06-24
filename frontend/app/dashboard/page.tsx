@@ -1,19 +1,35 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
+import { 
+  ShowForAdmins, 
+  ShowForClerks, 
+  ShowForAuthenticated 
+} from '@/components/auth/PermissionGuard';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 
 export default function DashboardPage() {
+  const { user, getFullName } = useAuth();
+
   const handleTestAction = () => {
     alert('Test action triggered - Components working!');
   };
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">
-        Dashboard - Sabs v2
-      </h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">
+          Welcome back, {getFullName()}
+        </h1>
+        <p className="text-gray-600 mt-1">
+          {user?.role && (
+            <span className="capitalize">{user.role.replace('_', ' ')}</span>
+          )} Dashboard - Sabs v2
+        </p>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <Card className="p-6">
@@ -46,6 +62,47 @@ export default function DashboardPage() {
           </h3>
           <p className="text-green-600">All systems operational</p>
         </Card>
+
+        {/* Admin Quick Access */}
+        <ShowForAdmins>
+          <Card className="p-6 border-red-200">
+            <h3 className="text-lg font-semibold text-red-900 mb-2">
+              Admin Panel
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Access administrative functions
+            </p>
+            <Link href="/dashboard/admin">
+              <Button variant="danger" size="sm">
+                Go to Admin
+              </Button>
+            </Link>
+          </Card>
+        </ShowForAdmins>
+
+        {/* Clerk Operations */}
+        <ShowForClerks>
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Operations
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Customer and transaction management
+            </p>
+            <div className="space-y-2">
+              <Link href="/dashboard/customers">
+                <Button variant="secondary" size="sm" fullWidth>
+                  Manage Customers
+                </Button>
+              </Link>
+              <Link href="/dashboard/transactions">
+                <Button variant="secondary" size="sm" fullWidth>
+                  View Transactions
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        </ShowForClerks>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
