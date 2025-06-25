@@ -88,7 +88,7 @@ export function AlertsList({
 
   // Filter and sort alerts
   const filteredAndSortedAlerts = useMemo(() => {
-    let filtered = alerts.filter(alert => {
+    const filtered = alerts.filter(alert => {
       if (filterType !== 'all' && alert.type !== filterType) return false;
       if (filterSeverity !== 'all' && alert.severity !== filterSeverity) return false;
       if (filterStatus !== 'all' && alert.status !== filterStatus) return false;
