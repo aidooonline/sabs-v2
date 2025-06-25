@@ -82,6 +82,34 @@ module.exports = {
           800: '#075985',
           900: '#0c4a6e',
         },
+        // Approval workflow-specific colors
+        approval: {
+          pending: '#f59e0b',
+          approved: '#10b981',
+          rejected: '#ef4444',
+          escalated: '#8b5cf6',
+          expired: '#6b7280',
+          canceled: '#64748b',
+        },
+        risk: {
+          low: '#22c55e',
+          medium: '#f59e0b',
+          high: '#f97316',
+          critical: '#dc2626',
+        },
+        priority: {
+          low: '#64748b',
+          medium: '#f59e0b',
+          high: '#f97316',
+          urgent: '#dc2626',
+          critical: '#991b1b',
+        },
+        compliance: {
+          passed: '#22c55e',
+          warning: '#f59e0b',
+          failed: '#ef4444',
+          pending: '#6b7280',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
@@ -160,6 +188,152 @@ module.exports = {
           backgroundColor: '#f3f4f6',
           borderRadius: '0.25rem',
           animation: 'pulse 2s infinite',
+        },
+        // Approval workflow utilities
+        '.approval-queue': {
+          display: 'grid',
+          gap: '1rem',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+        },
+        '.approval-card': {
+          backgroundColor: 'white',
+          borderRadius: '0.75rem',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+          padding: '1.5rem',
+          border: '1px solid #e5e7eb',
+          transition: 'all 0.2s ease-in-out',
+        },
+        '.approval-card:hover': {
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+          transform: 'translateY(-2px)',
+          borderColor: '#d1d5db',
+        },
+        '.approval-card.selected': {
+          borderColor: '#3b82f6',
+          boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.2)',
+        },
+        '.status-badge-pending': {
+          backgroundColor: '#fef3c7',
+          color: '#92400e',
+          padding: '0.25rem 0.75rem',
+          borderRadius: '9999px',
+          fontSize: '0.75rem',
+          fontWeight: '500',
+        },
+        '.status-badge-approved': {
+          backgroundColor: '#dcfce7',
+          color: '#166534',
+          padding: '0.25rem 0.75rem',
+          borderRadius: '9999px',
+          fontSize: '0.75rem',
+          fontWeight: '500',
+        },
+        '.status-badge-rejected': {
+          backgroundColor: '#fee2e2',
+          color: '#991b1b',
+          padding: '0.25rem 0.75rem',
+          borderRadius: '9999px',
+          fontSize: '0.75rem',
+          fontWeight: '500',
+        },
+        '.status-badge-escalated': {
+          backgroundColor: '#ede9fe',
+          color: '#7c3aed',
+          padding: '0.25rem 0.75rem',
+          borderRadius: '9999px',
+          fontSize: '0.75rem',
+          fontWeight: '500',
+        },
+        '.risk-indicator-low': {
+          backgroundColor: '#22c55e',
+          width: '0.75rem',
+          height: '0.75rem',
+          borderRadius: '9999px',
+          display: 'inline-block',
+        },
+        '.risk-indicator-medium': {
+          backgroundColor: '#f59e0b',
+          width: '0.75rem',
+          height: '0.75rem',
+          borderRadius: '9999px',
+          display: 'inline-block',
+        },
+        '.risk-indicator-high': {
+          backgroundColor: '#f97316',
+          width: '0.75rem',
+          height: '0.75rem',
+          borderRadius: '9999px',
+          display: 'inline-block',
+        },
+        '.risk-indicator-critical': {
+          backgroundColor: '#dc2626',
+          width: '0.75rem',
+          height: '0.75rem',
+          borderRadius: '9999px',
+          display: 'inline-block',
+        },
+        '.priority-bar': {
+          height: '0.25rem',
+          borderRadius: '0.125rem',
+          backgroundColor: '#e5e7eb',
+          position: 'relative',
+          overflow: 'hidden',
+        },
+        '.priority-bar-low': {
+          backgroundColor: '#64748b',
+        },
+        '.priority-bar-medium': {
+          backgroundColor: '#f59e0b',
+        },
+        '.priority-bar-high': {
+          backgroundColor: '#f97316',
+        },
+        '.priority-bar-urgent': {
+          backgroundColor: '#dc2626',
+        },
+        '.priority-bar-critical': {
+          backgroundColor: '#991b1b',
+          animation: 'pulse 1s infinite',
+        },
+        '.approval-button': {
+          minHeight: '3rem',
+          minWidth: '3rem',
+          padding: '0.75rem 1rem',
+          fontSize: '0.875rem',
+          fontWeight: '500',
+          borderRadius: '0.5rem',
+          transition: 'all 0.2s ease-in-out',
+          cursor: 'pointer',
+          border: 'none',
+          outline: 'none',
+        },
+        '.approval-button:focus': {
+          boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.5)',
+        },
+        '.approval-button-approve': {
+          backgroundColor: '#22c55e',
+          color: 'white',
+        },
+        '.approval-button-approve:hover': {
+          backgroundColor: '#16a34a',
+        },
+        '.approval-button-reject': {
+          backgroundColor: '#ef4444',
+          color: 'white',
+        },
+        '.approval-button-reject:hover': {
+          backgroundColor: '#dc2626',
+        },
+        '.approval-button-escalate': {
+          backgroundColor: '#8b5cf6',
+          color: 'white',
+        },
+        '.approval-button-escalate:hover': {
+          backgroundColor: '#7c3aed',
+        },
+        '.touch-target': {
+          minHeight: '44px',
+          minWidth: '44px',
         },
       }
       addUtilities(newUtilities)
