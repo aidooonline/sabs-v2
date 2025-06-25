@@ -403,7 +403,7 @@ export default function InsightsPage() {
               <div>
                 <h4 className="text-sm font-medium text-gray-900">Increase Emergency Fund</h4>
                 <p className="text-xs text-gray-600 mt-1">
-                  You're 35% away from your goal. Consider saving an extra GHS 583/month.
+                  You&apos;re 35% away from your goal. Consider saving an extra GHS 583/month.
                 </p>
               </div>
             </div>
@@ -509,7 +509,7 @@ export default function InsightsPage() {
             <div className="text-4xl mb-4">🔮</div>
             <h4 className="text-lg font-medium text-gray-900 mb-2">No insights available</h4>
             <p className="text-gray-600">
-              We're analyzing your financial data to generate personalized insights.
+              We&apos;re analyzing your financial data to generate personalized insights.
             </p>
           </div>
         )}

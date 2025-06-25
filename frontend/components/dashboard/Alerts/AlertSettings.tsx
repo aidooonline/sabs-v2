@@ -496,7 +496,7 @@ export function AlertSettings({ preferences, isLoading, onUpdate }: AlertSetting
                         <div>
                           <h5 className="text-sm font-medium text-yellow-800">SMS Usage Notice</h5>
                           <p className="text-sm text-yellow-700 mt-1">
-                            SMS notifications may incur charges from your mobile carrier. We recommend using "Important Only" frequency to minimize costs.
+                            SMS notifications may incur charges from your mobile carrier. We recommend using &quot;Important Only&quot; frequency to minimize costs.
                           </p>
                         </div>
                       </div>
