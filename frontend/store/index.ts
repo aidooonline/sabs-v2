@@ -7,6 +7,9 @@ import uiSlice from './slices/uiSlice';
 import { apiMiddleware } from './middleware/apiMiddleware';
 import { sessionTimeoutMiddleware } from './middleware/sessionTimeoutMiddleware';
 
+// Dashboard API setup - temporarily using simple approach
+// import { dashboardApi, dashboardApiMiddleware } from './api/dashboardApi';
+
 const persistConfig = {
   key: 'root',
   storage,
@@ -17,6 +20,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authSlice,
   ui: uiSlice,
+  // dashboardApi: dashboardApi.reducer, // Will integrate after component implementation
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -31,6 +35,7 @@ export const store = configureStore({
     })
     .concat(apiMiddleware)
     .concat(sessionTimeoutMiddleware),
+    // .concat(dashboardApiMiddleware), // Will integrate after component implementation
   devTools: process.env.NODE_ENV !== 'production',
 });
 
