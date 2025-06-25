@@ -1,20 +1,7 @@
-import { BaseService } from '../base/BaseService';
-import { User, ChangePasswordRequest } from '../types/user.types';
-import { 
-  LoginCredentials, 
-  AuthResponse, 
-  RefreshTokenResponse,
-  ResetPasswordRequest,
-  MfaVerificationRequest,
-  SessionValidationResponse,
-  ForgotPasswordRequest,
-  RegisterRequest,
-  MfaSetupRequest
-} from '../types/auth.types';
 import { api } from '../apiClient';
 
 // Authentication Types
-export interface LoginRequest {
+export interface EnhancedLoginRequest {
   email: string;
   password: string;
   mfaCode?: string;
@@ -24,7 +11,7 @@ export interface LoginRequest {
   rememberDevice?: boolean;
 }
 
-export interface LoginResponse {
+export interface EnhancedLoginResponse {
   accessToken: string;
   refreshToken: string;
   user: AuthUser;
@@ -43,10 +30,6 @@ export interface AuthUser {
   isActive: boolean;
   isEmailVerified?: boolean;
   lastLogin?: string;
-}
-
-export interface RefreshTokenRequest {
-  refreshToken: string;
 }
 
 // MFA Types
@@ -182,22 +165,10 @@ export interface ReportSuspiciousActivityRequest {
   metadata?: Record<string, any>;
 }
 
-// Security Settings
-export interface SecuritySettings {
-  emailNotifications: boolean;
-  smsNotifications: boolean;
-  ipWhitelist: string[];
-  sessionTimeout: number;
-}
-
-export class AuthService extends BaseService {
-  constructor() {
-    super('/auth');
-  }
-
-  // User authentication
-  async login(loginData: LoginRequest): Promise<LoginResponse> {
-    const response = await api.post<LoginResponse>('/auth/login', loginData);
+export class EnhancedAuthService {
+  // Authentication Methods
+  async enhancedLogin(loginData: EnhancedLoginRequest): Promise<EnhancedLoginResponse> {
+    const response = await api.post<EnhancedLoginResponse>('/auth/login', loginData);
     
     // Store tokens if login successful
     if (response.data.accessToken) {
@@ -207,21 +178,8 @@ export class AuthService extends BaseService {
     return response.data;
   }
 
-  // MFA verification
-  async verifyMfa(data: MfaVerificationRequest) {
-    return this.post<AuthResponse>('/mfa/verify', data);
-  }
-
-  // User logout
-  async logout(logoutAll: boolean = false): Promise<{ message: string }> {
-    const response = await api.post<{ message: string }>(`/auth/logout?all=${logoutAll}`);
-    this.clearTokens();
-    return response.data;
-  }
-
-  // Refresh access token
-  async refreshToken(refreshToken: string): Promise<LoginResponse> {
-    const response = await api.post<LoginResponse>('/auth/refresh', { refreshToken });
+  async refreshToken(refreshToken: string): Promise<EnhancedLoginResponse> {
+    const response = await api.post<EnhancedLoginResponse>('/auth/refresh', { refreshToken });
     
     if (response.data.accessToken) {
       this.setTokens(response.data.accessToken, response.data.refreshToken);
@@ -230,127 +188,37 @@ export class AuthService extends BaseService {
     return response.data;
   }
 
-  // Get current user profile
-  async getProfile() {
-    return this.get<User>('/profile');
+  async enhancedLogout(logoutAll: boolean = false): Promise<{ message: string }> {
+    const response = await api.post<{ message: string }>(`/auth/logout?all=${logoutAll}`);
+    this.clearTokens();
+    return response.data;
   }
 
-  // Update user profile
-  async updateProfile(data: Partial<User>) {
-    return this.put<User>('/profile', data);
+  // MFA Methods
+  async setupMfa(setupData: MfaSetupRequest): Promise<MfaSetupResponse> {
+    const response = await api.post<MfaSetupResponse>('/auth/mfa/setup', setupData);
+    return response.data;
   }
 
-  // Change password
-  async changePassword(data: ChangePasswordRequest) {
-    return this.post<void>('/change-password', data);
+  async verifyMfaSetup(verifyData: MfaVerifySetupRequest): Promise<{ success: boolean; backupCodes: string[] }> {
+    const response = await api.post<{ success: boolean; backupCodes: string[] }>('/auth/mfa/verify-setup', verifyData);
+    return response.data;
   }
 
-  // Request password reset
-  async requestPasswordReset(data: ForgotPasswordRequest) {
-    return this.post<void>('/forgot-password', data);
+  async getMfaStatus(): Promise<MfaStatus> {
+    const response = await api.get<MfaStatus>('/auth/mfa/status');
+    return response.data;
   }
 
-  // Reset password with token
-  async resetPassword(data: ResetPasswordRequest) {
-    return this.post<void>('/reset-password', data);
+  async generateBackupCodes(): Promise<{ backupCodes: string[] }> {
+    const response = await api.post<{ backupCodes: string[] }>('/auth/mfa/backup-codes');
+    return response.data;
   }
 
-  // Validate current session
-  async validateSession() {
-    return this.get<SessionValidationResponse>('/session/validate');
-  }
-
-  // Enable MFA
-  async enableMfa(data: MfaSetupRequest) {
-    return this.post<{ qrCode: string; secret: string }>('/mfa/enable', data);
-  }
-
-  // Disable MFA
-  async disableMfa(data: { code: string }) {
-    return this.post<void>('/mfa/disable', data);
-  }
-
-  // Get user permissions
-  async getUserPermissions() {
-    return this.get<string[]>('/permissions');
-  }
-
-  // Register new user
-  async register(data: RegisterRequest) {
-    return this.post<AuthResponse>('/register', data);
-  }
-
-  // Verify email
-  async verifyEmail(token: string) {
-    return this.post<void>('/verify-email', { token });
-  }
-
-  // Resend verification email
-  async resendVerificationEmail() {
-    return this.post<void>('/resend-verification');
-  }
-
-  // Check if email is available
-  async checkEmailAvailable(email: string) {
-    return this.get<{ available: boolean }>('/check-email', { email });
-  }
-
-  // Update last activity
-  async updateActivity() {
-    return this.post<void>('/activity');
-  }
-
-  // Get session information
-  async getSessionInfo() {
-    return this.get<{
-      sessionId: string;
-      expiresAt: string;
-      lastActivity: string;
-      ipAddress: string;
-      userAgent: string;
-    }>('/session/info');
-  }
-
-  // Terminate specific session
-  async terminateSession(sessionId: string) {
-    return this.delete<void>(`/session/${sessionId}`);
-  }
-
-  // Terminate all other sessions
-  async terminateAllOtherSessions() {
-    return this.post<void>('/session/terminate-others');
-  }
-
-  // Get active sessions
-  async getActiveSessions() {
-    return this.get<Array<{
-      sessionId: string;
-      createdAt: string;
-      lastActivity: string;
-      ipAddress: string;
-      userAgent: string;
-      isCurrent: boolean;
-    }>>('/sessions');
-  }
-
-  // Security audit logs
-  async getSecurityLogs(params?: {
-    startDate?: string;
-    endDate?: string;
-    limit?: number;
-    offset?: number;
-  }) {
-    return this.get<{
-      logs: Array<{
-        id: string;
-        action: string;
-        ipAddress: string;
-        userAgent: string;
-        timestamp: string;
-        details?: any;
-      }>;
-      total: number;
-    }>('/security/logs', params);
+  async disableMfa(disableData: MfaDisableRequest): Promise<{ success: boolean }> {
+    // Use POST instead of DELETE for body data
+    const response = await api.post<{ success: boolean }>('/auth/mfa/disable', disableData);
+    return response.data;
   }
 
   // Session Management
@@ -360,7 +228,8 @@ export class AuthService extends BaseService {
   }
 
   async invalidateSessions(sessionIds: string[]): Promise<{ success: boolean }> {
-    const response = await api.delete('/auth/sessions', { sessionIds });
+    // Use POST for session invalidation with body data
+    const response = await api.post<{ success: boolean }>('/auth/sessions/invalidate', { sessionIds });
     return response.data;
   }
 
@@ -370,7 +239,7 @@ export class AuthService extends BaseService {
   }
 
   async detectSuspiciousActivity(): Promise<{ suspiciousActivities: SuspiciousActivity[] }> {
-    const response = await api.get('/auth/sessions/suspicious-activity');
+    const response = await api.get<{ suspiciousActivities: SuspiciousActivity[] }>('/auth/sessions/suspicious-activity');
     return response.data;
   }
 
@@ -392,12 +261,12 @@ export class AuthService extends BaseService {
   }
 
   async detectAnomalies(): Promise<{ anomalies: any[] }> {
-    const response = await api.get('/auth/security/anomalies');
+    const response = await api.get<{ anomalies: any[] }>('/auth/security/anomalies');
     return response.data;
   }
 
   async reportSuspiciousActivity(reportData: ReportSuspiciousActivityRequest): Promise<{ message: string }> {
-    const response = await api.post('/auth/security/report-suspicious', reportData);
+    const response = await api.post<{ message: string }>('/auth/security/report-suspicious', reportData);
     return response.data;
   }
 
@@ -442,13 +311,16 @@ export class AuthService extends BaseService {
       ctx.fillText('Device fingerprint', 2, 2);
     }
 
+    // Get device memory safely
+    const deviceMemory = (navigator as any).deviceMemory || 0;
+
     const fingerprint = [
       navigator.userAgent,
       navigator.language,
       screen.width + 'x' + screen.height,
       new Date().getTimezoneOffset(),
       navigator.hardwareConcurrency || 0,
-      navigator.deviceMemory || 0,
+      deviceMemory,
       canvas.toDataURL(),
     ].join('|');
 
@@ -496,8 +368,8 @@ export class AuthService extends BaseService {
 
   async checkTokenValidity(): Promise<boolean> {
     try {
-      const response = await api.get('/auth/health/auth');
-      return response.status === 200;
+      await api.get('/auth/health/auth');
+      return true;
     } catch {
       return false;
     }
@@ -543,7 +415,34 @@ export class AuthService extends BaseService {
     
     return severityMap[severity as keyof typeof severityMap] || { label: severity, color: 'gray' };
   }
+
+  formatLastActivity(lastActivity: string): string {
+    const date = new Date(lastActivity);
+    const now = new Date();
+    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffMinutes < 1) return 'Just now';
+    if (diffMinutes < 60) return `${diffMinutes}m ago`;
+    
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 7) return `${diffDays}d ago`;
+    
+    return date.toLocaleDateString();
+  }
+
+  getLocationString(session: UserSession): string {
+    if (session.locationCity && session.locationCountry) {
+      return `${session.locationCity}, ${session.locationCountry}`;
+    }
+    if (session.locationCountry) {
+      return session.locationCountry;
+    }
+    return 'Unknown Location';
+  }
 }
 
 // Export singleton instance
-export const authService = new AuthService();
+export const enhancedAuthService = new EnhancedAuthService();
