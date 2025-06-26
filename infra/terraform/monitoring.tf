@@ -253,7 +253,7 @@ resource "google_logging_metric" "transaction_count" {
   }
 
   metric_descriptor {
-    metric_kind = "COUNTER"
+    metric_kind = "CUMULATIVE"
     value_type  = "INT64"
     unit        = "1"
     labels {
@@ -281,7 +281,7 @@ resource "google_logging_metric" "user_registrations" {
   }
 
   metric_descriptor {
-    metric_kind = "COUNTER"
+    metric_kind = "CUMULATIVE"
     value_type  = "INT64"
     unit        = "1"
     labels {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { performance } from 'perf_hooks';
 import { TestFramework } from '../setup/testFramework';
 import { setupApiMocks, MockDataGenerators, mockFetch } from '../setup/mocks/apiMocks';
@@ -63,11 +62,18 @@ describe('Performance and Load Testing', () => {
         }
       });
 
-      // Measure component render time - simplified for test environment
-      const renderTime = await TestFramework.measureRenderTime(async () => {
-        // Mock component render timing
-        await new Promise(resolve => setTimeout(resolve, 100));
-      });
+      // Measure component render time
+      const { render } = await import('@testing-library/react');
+      const { default: ApprovalDashboard } = await import('../../app/approval/dashboard/page');
+      
+             const renderTime = await TestFramework.measureRenderTime(async () => {
+         const { unmount } = render(React.createElement(ApprovalDashboard));
+         
+         // Wait for component to fully load
+         await new Promise(resolve => setTimeout(resolve, 100));
+         
+         unmount();
+       });
 
       const endTime = performance.now();
       const totalTime = endTime - startTime;
@@ -95,11 +101,16 @@ describe('Performance and Load Testing', () => {
         const startMemory = memoryTracker.getMemoryUsage();
         const startTime = performance.now();
 
-        // Simulate component rendering with large dataset
-        await new Promise(resolve => setTimeout(resolve, size / 10)); // Simulate processing time
+        const { render } = await import('@testing-library/react');
+        const { default: ApprovalDashboard } = await import('../../app/approval/dashboard/page');
+        
+        const { unmount } = render(<ApprovalDashboard />);
+        await new Promise(resolve => setTimeout(resolve, 200));
         
         const endTime = performance.now();
         const endMemory = memoryTracker.getMemoryUsage();
+        
+        unmount();
 
         results.push({
           renderTime: endTime - startTime,
@@ -126,27 +137,45 @@ describe('Performance and Load Testing', () => {
       let frameCount = 0;
       
       // Mock requestAnimationFrame to track frame timing
-      const originalRAF = global.requestAnimationFrame || (() => 0);
+      const originalRAF = global.requestAnimationFrame;
       global.requestAnimationFrame = (callback: FrameRequestCallback) => {
         const start = performance.now();
-        return setTimeout(() => {
+        return originalRAF(() => {
           const end = performance.now();
           frameTimings.push(end - start);
           frameCount++;
           callback(end);
-        }, 16) as any;
+        });
       };
 
       try {
-        // Simulate scrolling performance test
+        const { render, screen } = await import('@testing-library/react');
+        const userEvent = (await import('@testing-library/user-event')).default;
+        const { default: ApprovalDashboard } = await import('../../app/approval/dashboard/page');
+        
+        // Large dataset for scrolling test
+        const workflows = Array.from({ length: 5000 }, () => MockDataGenerators.workflow());
+        mockFetch.setEndpointResponse('GET /api/workflows', {
+          status: 200,
+          data: { workflows: workflows.slice(0, 100), pagination: { total: 5000 } }
+        });
+
+        render(<ApprovalDashboard />);
+        
+        // Wait for initial render
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Simulate rapid scrolling
+        const scrollContainer = screen.getByTestId('workflow-list-container');
+        const user = userEvent.setup();
+        
         for (let i = 0; i < 20; i++) {
-          await new Promise(resolve => global.requestAnimationFrame(() => resolve(undefined)));
+          await user.pointer({ target: scrollContainer, coords: { x: 0, y: i * 50 } });
+          await new Promise(resolve => setTimeout(resolve, 16)); // ~60fps
         }
 
         // Calculate average frame time
-        const avgFrameTime = frameTimings.length > 0 
-          ? frameTimings.reduce((sum, time) => sum + time, 0) / frameTimings.length 
-          : 16;
+        const avgFrameTime = frameTimings.reduce((sum, time) => sum + time, 0) / frameTimings.length;
         
         // Should maintain 60fps (16.67ms per frame)
         expect(avgFrameTime).toBeLessThan(20); // Allow some buffer
@@ -162,7 +191,7 @@ describe('Performance and Load Testing', () => {
       const endpoints = [
         'GET /api/workflows',
         'GET /api/dashboard/stats',
-        'POST /api/workflows/test-id/approve',
+        'POST /api/workflows/:id/approve',
         'GET /api/notifications'
       ];
 
@@ -176,8 +205,9 @@ describe('Performance and Load Testing', () => {
           const startTime = performance.now();
           
           // Simulate API call
-          const [method, url] = endpoint.split(' ');
-          const response = await fetch(url, { method });
+          const response = await fetch(endpoint.replace(':id', 'test-id'), {
+            method: endpoint.split(' ')[0]
+          });
           
           const endTime = performance.now();
           responseTimings[endpoint].push(endTime - startTime);
@@ -209,7 +239,9 @@ describe('Performance and Load Testing', () => {
 
       // Create concurrent requests
       for (let i = 0; i < concurrentRequests; i++) {
-        const promise = fetch('/api/workflows');
+        const promise = fetch('/api/workflows', {
+          method: 'GET'
+        });
         requestPromises.push(promise);
       }
 
@@ -279,14 +311,21 @@ describe('Performance and Load Testing', () => {
       const memoryTracker = TestFramework.detectMemoryLeaks();
       const initialMemory = memoryTracker.getMemoryUsage();
 
-      // Simulate navigation between different views - simplified for test
-      const viewCount = 3;
-      const cycleCount = 3;
+      // Simulate navigation between different views
+      const views = [
+        () => import('../../app/approval/dashboard/page'),
+        () => import('../../app/approval/workflow/[id]/page'),
+        () => import('../../app/approval/users/page')
+      ];
 
-      for (let cycle = 0; cycle < cycleCount; cycle++) {
-        for (let view = 0; view < viewCount; view++) {
-          // Simulate component mount/unmount
+      for (let cycle = 0; cycle < 3; cycle++) {
+        for (const viewImport of views) {
+          const { render } = await import('@testing-library/react');
+          const ViewComponent = (await viewImport()).default;
+          
+          const { unmount } = render(<ViewComponent />);
           await new Promise(resolve => setTimeout(resolve, 100));
+          unmount();
           
           // Force garbage collection if available
           if (global.gc) {
@@ -306,10 +345,17 @@ describe('Performance and Load Testing', () => {
       const initialListeners = (global as any).eventListenerCount || 0;
       const initialTimers = (global as any).activeTimerCount || 0;
 
-      // Simulate component lifecycle
+      const { render } = await import('@testing-library/react');
+      const { default: ApprovalDashboard } = await import('../../app/approval/dashboard/page');
+      
+      const { unmount } = render(<ApprovalDashboard />);
+      
+      // Let component set up listeners and timers
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Simulate cleanup
+      unmount();
+      
+      // Wait for cleanup
       await new Promise(resolve => setTimeout(resolve, 500));
 
       const finalListeners = (global as any).eventListenerCount || 0;
@@ -325,8 +371,8 @@ describe('Performance and Load Testing', () => {
     it('should handle high-volume approval workflow', async () => {
       const testConfig: LoadTestConfig = {
         concurrentUsers: 20,
-        duration: 10, // Reduced for test performance
-        rampUpTime: 2,
+        duration: 30, // 30 seconds
+        rampUpTime: 5,
         scenarios: [
           {
             name: 'dashboard_browsing',
@@ -334,16 +380,16 @@ describe('Performance and Load Testing', () => {
             actions: [
               { type: 'api_call', endpoint: 'GET /api/dashboard/stats' },
               { type: 'api_call', endpoint: 'GET /api/workflows' },
-              { type: 'wait', duration: 100 }
+              { type: 'wait', duration: 2000 }
             ]
           },
           {
             name: 'workflow_approval',
             weight: 35,
             actions: [
-              { type: 'api_call', endpoint: 'GET /api/workflows/test-id' },
-              { type: 'wait', duration: 200 }, // Review time
-              { type: 'api_call', endpoint: 'POST /api/workflows/test-id/approve' }
+              { type: 'api_call', endpoint: 'GET /api/workflows/:id' },
+              { type: 'wait', duration: 5000 }, // Review time
+              { type: 'api_call', endpoint: 'POST /api/workflows/:id/approve' }
             ]
           },
           {
@@ -352,7 +398,7 @@ describe('Performance and Load Testing', () => {
             actions: [
               { type: 'api_call', endpoint: 'GET /api/workflows?search=test' },
               { type: 'api_call', endpoint: 'GET /api/workflows?status=pending' },
-              { type: 'wait', duration: 100 }
+              { type: 'wait', duration: 1000 }
             ]
           }
         ]
@@ -363,18 +409,18 @@ describe('Performance and Load Testing', () => {
       // Performance assertions for load test
       expect(results.averageResponseTime).toBeLessThan(1000);
       expect(results.errorRate).toBeLessThan(0.05); // Less than 5% error rate
-      expect(results.throughput).toBeGreaterThan(5); // At least 5 requests per second
+      expect(results.throughput).toBeGreaterThan(10); // At least 10 requests per second
       expect(results.concurrentUsers).toBe(testConfig.concurrentUsers);
     });
 
     it('should handle peak hour traffic simulation', async () => {
-      // Simulate peak hour with varying load - simplified for testing
+      // Simulate peak hour with varying load
       const peakHourPattern = [
-        { users: 2, duration: 2 },   // Light traffic
-        { users: 5, duration: 3 },   // Increasing
-        { users: 8, duration: 4 },   // Peak
-        { users: 5, duration: 2 },   // Declining
-        { users: 2, duration: 2 }    // Normal
+        { users: 5, duration: 5 },   // 9:00 AM - light traffic
+        { users: 15, duration: 10 }, // 9:30 AM - increasing
+        { users: 30, duration: 15 }, // 10:00 AM - peak
+        { users: 25, duration: 10 }, // 10:30 AM - declining
+        { users: 10, duration: 5 }   // 11:00 AM - normal
       ];
 
       const peakResults: any[] = [];
@@ -383,7 +429,7 @@ describe('Performance and Load Testing', () => {
         const config: LoadTestConfig = {
           concurrentUsers: phase.users,
           duration: phase.duration,
-          rampUpTime: 1,
+          rampUpTime: 2,
           scenarios: [
             {
               name: 'mixed_usage',
@@ -391,7 +437,7 @@ describe('Performance and Load Testing', () => {
               actions: [
                 { type: 'api_call', endpoint: 'GET /api/workflows' },
                 { type: 'api_call', endpoint: 'GET /api/dashboard/stats' },
-                { type: 'wait', duration: 100 }
+                { type: 'wait', duration: 1000 }
               ]
             }
           ]
@@ -404,7 +450,7 @@ describe('Performance and Load Testing', () => {
         });
 
         // Brief pause between phases
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
       // System should remain stable throughout peak
@@ -412,22 +458,27 @@ describe('Performance and Load Testing', () => {
         expect(result.errorRate).toBeLessThan(0.1);
         expect(result.averageResponseTime).toBeLessThan(2000);
       });
+
+      // Peak performance should be reasonable
+      const peakResult = peakResults[2]; // 30 users phase
+      expect(peakResult.throughput).toBeGreaterThan(15);
+      expect(peakResult.averageResponseTime).toBeLessThan(1500);
     });
   });
 
   describe('Stress Testing', () => {
     it('should handle system under extreme load', async () => {
       const stressConfig: LoadTestConfig = {
-        concurrentUsers: 20, // Reduced for test environment
-        duration: 10,
-        rampUpTime: 2,
+        concurrentUsers: 100,
+        duration: 60,
+        rampUpTime: 10,
         scenarios: [
           {
             name: 'stress_test',
             weight: 100,
             actions: [
               { type: 'api_call', endpoint: 'GET /api/workflows' },
-              { type: 'api_call', endpoint: 'POST /api/workflows/test-id/approve' },
+              { type: 'api_call', endpoint: 'POST /api/workflows/:id/approve' },
               { type: 'api_call', endpoint: 'GET /api/dashboard/stats' }
             ]
           }
@@ -441,15 +492,15 @@ describe('Performance and Load Testing', () => {
       expect(stressResults.averageResponseTime).toBeLessThan(5000); // Max 5 seconds response
       
       // Should still process minimum throughput
-      expect(stressResults.throughput).toBeGreaterThan(2);
+      expect(stressResults.throughput).toBeGreaterThan(5);
     });
 
     it('should recover after stress period', async () => {
       // First, apply stress
       const stressConfig: LoadTestConfig = {
-        concurrentUsers: 10,
-        duration: 5,
-        rampUpTime: 1,
+        concurrentUsers: 50,
+        duration: 30,
+        rampUpTime: 5,
         scenarios: [{
           name: 'stress',
           weight: 100,
@@ -460,13 +511,13 @@ describe('Performance and Load Testing', () => {
       await runLoadTest(stressConfig);
 
       // Wait for recovery
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 10000));
 
       // Test normal load after stress
       const normalConfig: LoadTestConfig = {
-        concurrentUsers: 3,
-        duration: 5,
-        rampUpTime: 1,
+        concurrentUsers: 10,
+        duration: 15,
+        rampUpTime: 2,
         scenarios: [{
           name: 'normal',
           weight: 100,
@@ -517,13 +568,13 @@ async function runLoadTest(config: LoadTestConfig): Promise<{
   // Calculate metrics
   const successfulRequests = results.filter(r => r.success).length;
   const totalRequests = results.length;
-  const errorRate = totalRequests > 0 ? (totalRequests - successfulRequests) / totalRequests : 0;
+  const errorRate = (totalRequests - successfulRequests) / totalRequests;
   
-  const avgResponseTime = successfulRequests > 0 
-    ? results.filter(r => r.success).reduce((sum, r) => sum + r.responseTime, 0) / successfulRequests
-    : 0;
+  const avgResponseTime = results
+    .filter(r => r.success)
+    .reduce((sum, r) => sum + r.responseTime, 0) / successfulRequests;
   
-  const throughput = totalTime > 0 ? totalRequests / totalTime : 0;
+  const throughput = totalRequests / totalTime;
   
   return {
     averageResponseTime: avgResponseTime,
@@ -554,14 +605,12 @@ async function simulateUser(
         
         switch (action.type) {
           case 'api_call':
-            const endpoint = action.endpoint?.replace(':id', `test-${userId}`) || '/api/test';
-            const [method, url] = endpoint.includes(' ') ? endpoint.split(' ') : ['GET', endpoint];
-            const response = await fetch(url, { method });
-            const responseTime = performance.now() - startTime;
+            const response = await fetch(action.endpoint?.replace(':id', `test-${userId}`) || '/api/test');
+            const endTime = performance.now();
             
             results.push({
               success: response.ok,
-              responseTime
+              responseTime: endTime - startTime
             });
             break;
             

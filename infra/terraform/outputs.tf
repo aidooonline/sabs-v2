@@ -173,7 +173,7 @@ output "container_registry_url" {
 # Monitoring
 output "log_sink_name" {
   description = "The name of the log sink for centralized logging"
-  value       = try(google_logging_project_sink.main.name, "not_created")
+  value       = try(google_logging_project_sink.main[0].name, "not_created")
 }
 
 # SSL Certificate
@@ -182,11 +182,11 @@ output "ssl_certificate_name" {
   value       = google_compute_managed_ssl_certificate.main.name
 }
 
-# Random Suffix for Unique Naming
-output "resource_suffix" {
-  description = "Random suffix used for unique resource naming"
-  value       = random_id.suffix.hex
-}
+# Random Suffix for Unique Naming (removed - not used)
+# output "resource_suffix" {
+#   description = "Random suffix used for unique resource naming"
+#   value       = random_id.suffix.hex
+# }
 
 # Environment-specific outputs
 output "is_production" {
