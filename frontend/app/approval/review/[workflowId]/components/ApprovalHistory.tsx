@@ -10,6 +10,37 @@ interface ApprovalHistoryProps {
   refreshKey: number;
 }
 
+// Define timeline entry types
+interface BaseTimelineEntry {
+  id: string;
+  timestamp: string;
+  actor: string;
+  action: string;
+  stage: string;
+  title: string;
+  description: string;
+}
+
+interface WorkflowCreatedEntry extends BaseTimelineEntry {
+  type: 'workflow_created';
+}
+
+interface ApprovalDecisionEntry extends BaseTimelineEntry {
+  type: 'approval_decision';
+  decision: ApprovalDecision;
+}
+
+type TimelineEntry = WorkflowCreatedEntry | ApprovalDecisionEntry;
+
+// Type guard functions
+const isApprovalDecisionEntry = (entry: TimelineEntry): entry is ApprovalDecisionEntry => {
+  return entry.type === 'approval_decision';
+};
+
+const isWorkflowCreatedEntry = (entry: TimelineEntry): entry is WorkflowCreatedEntry => {
+  return entry.type === 'workflow_created';
+};
+
 export const ApprovalHistory: React.FC<ApprovalHistoryProps> = ({
   workflow,
   permissions,
@@ -159,7 +190,7 @@ export const ApprovalHistory: React.FC<ApprovalHistoryProps> = ({
   };
 
   // Create timeline with workflow creation as first entry
-  const timelineEntries = [
+  const timelineEntries: TimelineEntry[] = [
     {
       id: 'created',
       type: 'workflow_created',
@@ -169,7 +200,7 @@ export const ApprovalHistory: React.FC<ApprovalHistoryProps> = ({
       stage: 'initiated',
       title: 'Withdrawal Request Created',
       description: `${formatCurrency(workflow.withdrawalRequest.amount)} withdrawal request submitted`
-    },
+    } as WorkflowCreatedEntry,
     ...approvalHistory.map(decision => ({
       id: decision.id,
       type: 'approval_decision',
@@ -180,7 +211,7 @@ export const ApprovalHistory: React.FC<ApprovalHistoryProps> = ({
       title: formatActionTitle(decision.action),
       description: decision.notes,
       decision
-    }))
+    } as ApprovalDecisionEntry))
   ].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
   return (
@@ -242,7 +273,7 @@ export const ApprovalHistory: React.FC<ApprovalHistoryProps> = ({
               
               <div className="flex items-start space-x-4">
                 {/* Timeline icon */}
-                {entry.type === 'workflow_created' ? (
+                {isWorkflowCreatedEntry(entry) ? (
                   <div className="flex-shrink-0 w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
                     <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -255,14 +286,14 @@ export const ApprovalHistory: React.FC<ApprovalHistoryProps> = ({
                 {/* Timeline content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                                         <div className="flex items-center space-x-3">
-                       <h5 className="text-sm font-medium text-gray-900">{entry.title}</h5>
-                       {'decision' in entry && entry.decision && (
-                         <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getActionColor(entry.decision.action)}`}>
-                           {getStageLabel(entry.decision.stage)}
-                         </span>
-                       )}
-                     </div>
+                    <div className="flex items-center space-x-3">
+                      <h5 className="text-sm font-medium text-gray-900">{entry.title}</h5>
+                      {isApprovalDecisionEntry(entry) && (
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getActionColor(entry.decision.action)}`}>
+                          {getStageLabel(entry.decision.stage)}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-xs text-gray-500">
                       {formatRelativeTime(entry.timestamp)}
                     </span>
@@ -270,27 +301,27 @@ export const ApprovalHistory: React.FC<ApprovalHistoryProps> = ({
                   
                   <p className="text-sm text-gray-600 mt-1">{entry.description}</p>
                   
-                                     <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                     <span>{entry.actor}</span>
-                     {'decision' in entry && entry.decision && (
-                       <>
-                         <span>•</span>
-                         <div className="flex items-center space-x-1">
-                           {getAuthMethodIcon(entry.decision.authorizationMethod)}
-                           <span className="capitalize">{entry.decision.authorizationMethod}</span>
-                         </div>
-                         {entry.decision.conditions && entry.decision.conditions.length > 0 && (
-                           <>
-                             <span>•</span>
-                             <span>{entry.decision.conditions.length} conditions</span>
-                           </>
-                         )}
-                       </>
-                     )}
-                   </div>
+                  <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                    <span>{entry.actor}</span>
+                    {isApprovalDecisionEntry(entry) && (
+                      <>
+                        <span>•</span>
+                        <div className="flex items-center space-x-1">
+                          {getAuthMethodIcon(entry.decision.authorizationMethod)}
+                          <span className="capitalize">{entry.decision.authorizationMethod}</span>
+                        </div>
+                        {entry.decision.conditions && entry.decision.conditions.length > 0 && (
+                          <>
+                            <span>•</span>
+                            <span>{entry.decision.conditions.length} conditions</span>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </div>
 
-                   {/* Expandable decision details */}
-                   {'decision' in entry && entry.decision && (
+                  {/* Expandable decision details */}
+                  {isApprovalDecisionEntry(entry) && (
                     <div className="mt-3">
                       <button
                         onClick={() => setExpandedDecision(

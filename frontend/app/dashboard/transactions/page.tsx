@@ -413,12 +413,12 @@ export default function TransactionsPage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left">
-                                     <input
-                     type="checkbox"
-                     checked={transactionData?.transactions?.length > 0 && selectedTransactions.size === (transactionData?.transactions?.length || 0)}
-                     onChange={handleSelectAll}
-                     className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                   />
+                                                         <input
+                      type="checkbox"
+                      checked={(transactionData?.transactions?.length || 0) > 0 && selectedTransactions.size === (transactionData?.transactions?.length || 0)}
+                      onChange={handleSelectAll}
+                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    />
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Date & Time

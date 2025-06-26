@@ -28,6 +28,22 @@ interface AlertFormData {
   description?: string;
 }
 
+interface AlertFormErrors {
+  type?: string;
+  title?: string;
+  threshold?: string;
+  accountId?: string;
+  category?: string;
+  period?: string;
+  amount?: string;
+  daysAhead?: string;
+  payee?: string;
+  milestone?: string;
+  frequency?: string;
+  enabled?: string;
+  description?: string;
+}
+
 interface AlertCreationFormProps {
   alertTypes: AlertType[];
   isLoading: boolean;
@@ -75,7 +91,7 @@ export function AlertCreationForm({ alertTypes, isLoading, onCreate }: AlertCrea
     frequency: 'immediate',
     enabled: true,
   });
-  const [errors, setErrors] = useState<Partial<AlertFormData>>({});
+  const [errors, setErrors] = useState<AlertFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Update form when alert type changes
@@ -102,7 +118,7 @@ export function AlertCreationForm({ alertTypes, isLoading, onCreate }: AlertCrea
 
   // Validation logic
   const validateForm = (): boolean => {
-    const newErrors: Partial<AlertFormData> = {};
+    const newErrors: AlertFormErrors = {};
 
     if (!formData.type) {
       newErrors.type = 'Please select an alert type';
@@ -189,10 +205,10 @@ export function AlertCreationForm({ alertTypes, isLoading, onCreate }: AlertCrea
     }));
     
     // Clear error for this field
-    if (errors[field]) {
+    if (errors[field as keyof AlertFormErrors]) {
       setErrors(prev => {
         const newErrors = { ...prev };
-        delete newErrors[field];
+        delete newErrors[field as keyof AlertFormErrors];
         return newErrors;
       });
     }
