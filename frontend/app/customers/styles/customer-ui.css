@@ -737,3 +737,510 @@
     @apply hidden;
   }
 }
+
+/* Transaction Modal Styles */
+.transaction-modal {
+  @apply bg-white rounded-xl shadow-2xl overflow-hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.transaction-modal-header {
+  @apply bg-white border-b border-gray-200 p-6;
+  flex-shrink: 0;
+}
+
+.transaction-modal-content {
+  @apply overflow-y-auto flex-1 p-6;
+}
+
+/* Transaction Form Styles */
+.transaction-form {
+  @apply space-y-6;
+}
+
+.transaction-form .form-field {
+  @apply space-y-2;
+}
+
+.transaction-form .form-label {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.transaction-form .form-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-150;
+}
+
+.transaction-form .form-input-error {
+  @apply border-red-300 focus:ring-red-500 focus:border-red-500;
+}
+
+.transaction-form .form-error {
+  @apply text-sm text-red-600;
+}
+
+/* Transaction Step Indicators */
+.transaction-step-indicator {
+  @apply flex items-center justify-center space-x-4 mb-6;
+}
+
+.transaction-step {
+  @apply flex items-center space-x-2;
+}
+
+.transaction-step-number {
+  @apply w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium;
+}
+
+.transaction-step-number.active {
+  @apply bg-primary-600 text-white;
+}
+
+.transaction-step-number.completed {
+  @apply bg-green-600 text-white;
+}
+
+.transaction-step-number.pending {
+  @apply bg-gray-200 text-gray-600;
+}
+
+.transaction-step-line {
+  @apply w-12 h-0.5 bg-gray-200;
+}
+
+.transaction-step-line.completed {
+  @apply bg-green-600;
+}
+
+/* Transaction Summary Card */
+.transaction-summary {
+  @apply bg-gray-50 rounded-lg p-4 space-y-3;
+}
+
+.transaction-summary-row {
+  @apply flex justify-between items-center;
+}
+
+.transaction-summary-label {
+  @apply text-gray-600;
+}
+
+.transaction-summary-value {
+  @apply font-medium text-gray-900;
+}
+
+.transaction-summary-amount {
+  @apply font-semibold text-lg;
+}
+
+/* Transaction Processing Animation */
+.transaction-processing {
+  @apply text-center py-12;
+}
+
+.transaction-processing-icon {
+  @apply w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4;
+}
+
+.transaction-processing-spinner {
+  @apply w-8 h-8 text-blue-600;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Transaction Success/Error States */
+.transaction-success {
+  @apply text-center space-y-6;
+}
+
+.transaction-success-icon {
+  @apply w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto;
+}
+
+.transaction-error {
+  @apply text-center space-y-6;
+}
+
+.transaction-error-icon {
+  @apply w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto;
+}
+
+/* Transaction Receipt */
+.transaction-receipt {
+  @apply bg-gray-50 rounded-lg p-4 text-left space-y-2;
+}
+
+.transaction-receipt-row {
+  @apply flex justify-between items-center;
+}
+
+.transaction-receipt-label {
+  @apply text-gray-600;
+}
+
+.transaction-receipt-value {
+  @apply font-medium text-gray-900;
+}
+
+/* Transaction History Styles */
+.customer-transaction-history {
+  @apply space-y-6;
+}
+
+/* Transaction Card */
+.transaction-card {
+  @apply bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-md transition-all duration-200;
+}
+
+.transaction-card:hover {
+  @apply border-gray-300;
+}
+
+.transaction-card.selected {
+  @apply border-primary-500 bg-primary-50;
+}
+
+/* Transaction Type Icons */
+.transaction-icon {
+  @apply w-10 h-10 rounded-lg flex items-center justify-center;
+}
+
+.transaction-icon.deposit {
+  @apply bg-green-100 text-green-600;
+}
+
+.transaction-icon.withdrawal {
+  @apply bg-red-100 text-red-600;
+}
+
+.transaction-icon.transfer {
+  @apply bg-blue-100 text-blue-600;
+}
+
+.transaction-icon.fee {
+  @apply bg-orange-100 text-orange-600;
+}
+
+.transaction-icon.interest {
+  @apply bg-purple-100 text-purple-600;
+}
+
+/* Transaction Status Badges */
+.transaction-status {
+  @apply px-2 py-1 text-xs rounded-full font-medium;
+}
+
+.transaction-status.completed {
+  @apply bg-green-100 text-green-800;
+}
+
+.transaction-status.pending {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.transaction-status.processing {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.transaction-status.failed {
+  @apply bg-red-100 text-red-800;
+}
+
+.transaction-status.cancelled {
+  @apply bg-gray-100 text-gray-800;
+}
+
+/* Transaction Amount Display */
+.transaction-amount {
+  @apply text-lg font-semibold;
+}
+
+.transaction-amount.positive {
+  @apply text-green-600;
+}
+
+.transaction-amount.negative {
+  @apply text-gray-900;
+}
+
+.transaction-amount.neutral {
+  @apply text-gray-600;
+}
+
+/* Transaction Filters */
+.transaction-filters {
+  @apply bg-gray-50 rounded-lg p-4 space-y-4;
+}
+
+.transaction-filter-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4;
+}
+
+.transaction-filter-field {
+  @apply space-y-1;
+}
+
+.transaction-filter-label {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.transaction-filter-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+}
+
+/* Quick Transaction Actions */
+.quick-transaction-actions {
+  @apply flex space-x-2;
+}
+
+.quick-transaction-btn {
+  @apply flex-1 btn-secondary text-sm;
+}
+
+.quick-transaction-btn.deposit {
+  @apply bg-green-50 text-green-700 border-green-200 hover:bg-green-100;
+}
+
+.quick-transaction-btn.withdrawal {
+  @apply bg-red-50 text-red-700 border-red-200 hover:bg-red-100;
+}
+
+.quick-transaction-btn.transfer {
+  @apply bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100;
+}
+
+/* Mobile Responsive Adjustments for Transactions */
+@media (max-width: 768px) {
+  .transaction-modal {
+    @apply max-w-full h-full rounded-none;
+    max-height: 100vh;
+  }
+
+  .transaction-modal-header {
+    @apply p-4;
+  }
+
+  .transaction-modal-content {
+    @apply p-4;
+  }
+
+  .transaction-card {
+    @apply p-3;
+  }
+
+  .transaction-icon {
+    @apply w-8 h-8;
+  }
+
+  .transaction-amount {
+    @apply text-base;
+  }
+
+  .transaction-filter-grid {
+    @apply grid-cols-1 gap-3;
+  }
+
+  .transaction-filters {
+    @apply p-3;
+  }
+
+  .quick-transaction-actions {
+    @apply flex-col space-x-0 space-y-2;
+  }
+
+  .transaction-step-indicator {
+    @apply space-x-2;
+  }
+
+  .transaction-step-line {
+    @apply w-8;
+  }
+}
+
+/* Tablet Adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .transaction-modal {
+    @apply max-w-2xl;
+  }
+
+  .transaction-filter-grid {
+    @apply grid-cols-2;
+  }
+}
+
+/* Desktop Enhancements */
+@media (min-width: 1025px) {
+  .transaction-modal {
+    @apply max-w-3xl;
+  }
+
+  .transaction-card:hover .transaction-actions {
+    @apply opacity-100;
+  }
+
+  .transaction-actions {
+    @apply opacity-70 hover:opacity-100;
+  }
+}
+
+/* Loading States for Transactions */
+.transaction-loading {
+  @apply opacity-50 pointer-events-none;
+}
+
+.transaction-skeleton {
+  @apply animate-pulse;
+}
+
+.transaction-skeleton-line {
+  @apply h-4 bg-gray-200 rounded;
+}
+
+.transaction-skeleton-circle {
+  @apply w-10 h-10 bg-gray-200 rounded-full;
+}
+
+/* Transaction Search */
+.transaction-search {
+  @apply relative;
+}
+
+.transaction-search-input {
+  @apply w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+}
+
+.transaction-search-icon {
+  @apply absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400;
+}
+
+/* Transaction Export */
+.transaction-export-btn {
+  @apply p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors;
+}
+
+/* Real-time Transaction Updates */
+.transaction-realtime-indicator {
+  @apply inline-flex items-center space-x-1 text-xs text-green-600;
+}
+
+.transaction-realtime-dot {
+  @apply w-2 h-2 bg-green-500 rounded-full;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Transaction PIN Input */
+.transaction-pin-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md text-center font-mono text-lg tracking-widest focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+}
+
+.transaction-pin-dots {
+  @apply flex justify-center space-x-2 mt-2;
+}
+
+.transaction-pin-dot {
+  @apply w-3 h-3 rounded-full border-2 border-gray-300;
+}
+
+.transaction-pin-dot.filled {
+  @apply bg-primary-600 border-primary-600;
+}
+
+/* Dark Mode Support for Transactions */
+@media (prefers-color-scheme: dark) {
+  .transaction-modal {
+    @apply bg-gray-800 text-white;
+  }
+
+  .transaction-modal-header {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .transaction-card {
+    @apply bg-gray-700 border-gray-600;
+  }
+
+  .transaction-card.selected {
+    @apply border-primary-400 bg-primary-900;
+  }
+
+  .transaction-filters {
+    @apply bg-gray-700;
+  }
+
+  .transaction-filter-input {
+    @apply bg-gray-600 border-gray-500 text-white;
+  }
+
+  .transaction-summary {
+    @apply bg-gray-700;
+  }
+
+  .transaction-receipt {
+    @apply bg-gray-700;
+  }
+}
+
+/* Print Styles for Transactions */
+@media print {
+  .transaction-modal {
+    @apply shadow-none border border-gray-300;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .transaction-modal-header {
+    @apply border-b border-gray-300;
+  }
+
+  .transaction-filters {
+    @apply hidden;
+  }
+
+  .quick-transaction-actions {
+    @apply hidden;
+  }
+
+  .transaction-card {
+    @apply border border-gray-300 mb-2;
+    break-inside: avoid;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    @apply hidden;
+  }
+}
+
+/* Accessibility Enhancements */
+.transaction-card:focus {
+  @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+}
+
+.transaction-filter-input:focus {
+  @apply outline-none ring-2 ring-primary-500 ring-offset-1;
+}
+
+/* High Contrast Mode for Transactions */
+@media (prefers-contrast: high) {
+  .transaction-modal {
+    @apply border-2 border-black;
+  }
+
+  .transaction-card {
+    @apply border-2 border-gray-700;
+  }
+
+  .transaction-filter-input {
+    @apply border-2 border-gray-700;
+  }
+}

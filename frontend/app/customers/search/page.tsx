@@ -13,16 +13,18 @@ import { SortingControls } from '../components/search/SortingControls';
 import { ExportManager } from '../components/search/ExportManager';
 import { Search, Filter, Users, Download } from 'lucide-react';
 import { CustomerDetailModal } from '../modals/CustomerDetailModal';
+import { TransactionModal } from '../modals/TransactionModal';
 import { BulkSelectionToolbar, MobileBulkSelectionBar } from '../components/BulkSelectionToolbar';
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
-import type { Customer } from '../../../types/customer';
+import type { Customer, Account, CustomerTransaction } from '../../../types/customer';
+import { PaginationControls } from '../components/PaginationControls';
 
 const CustomerSearchPage: React.FC = () => {
   // Search state management
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<CustomerFilters>({});
-  const [sortBy, setSortBy] = useState<CustomerSortField>('firstName');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortBy, setSortBy] = useState<CustomerSortField>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [showFilters, setShowFilters] = useState(false);
@@ -30,6 +32,11 @@ const CustomerSearchPage: React.FC = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [detailModalMode, setDetailModalMode] = useState<'view' | 'edit'>('view');
+  
+  // Transaction modal state
+  const [transactionModalOpen, setTransactionModalOpen] = useState(false);
+  const [transactionType, setTransactionType] = useState<'deposit' | 'withdrawal' | 'transfer'>('deposit');
+  const [selectedAccount, setSelectedAccount] = useState<Account | undefined>(undefined);
 
   // Build query object
   const queryParams = useMemo((): CustomerQuery => ({
@@ -104,7 +111,7 @@ const CustomerSearchPage: React.FC = () => {
     setSelectedCustomers([]);
   }, []);
 
-  // Handle individual customer actions
+  // Handle individual customer actions (enhanced for transactions)
   const handleCustomerAction = useCallback((action: string, customerId: string) => {
     const customer = customerData?.customers.find(c => c.id === customerId);
     if (!customer) return;
@@ -122,12 +129,22 @@ const CustomerSearchPage: React.FC = () => {
         setDetailModalOpen(true);
         break;
       case 'deposit':
-        // Handle deposit action
-        console.log('Deposit action for customer:', customerId);
+        setSelectedCustomerId(customerId);
+        setTransactionType('deposit');
+        setSelectedAccount(customer.accounts?.[0]); // Default to first account
+        setTransactionModalOpen(true);
         break;
       case 'withdraw':
-        // Handle withdraw action
-        console.log('Withdraw action for customer:', customerId);
+        setSelectedCustomerId(customerId);
+        setTransactionType('withdrawal');
+        setSelectedAccount(customer.accounts?.[0]);
+        setTransactionModalOpen(true);
+        break;
+      case 'transfer':
+        setSelectedCustomerId(customerId);
+        setTransactionType('transfer');
+        setSelectedAccount(customer.accounts?.[0]);
+        setTransactionModalOpen(true);
         break;
       case 'accounts':
         setSelectedCustomerId(customerId);
@@ -225,6 +242,60 @@ const CustomerSearchPage: React.FC = () => {
     setDetailModalMode('view');
   }, []);
 
+  // Handle transaction completion
+  const handleTransactionComplete = useCallback((transaction: CustomerTransaction) => {
+    console.log('Transaction completed:', transaction);
+    
+    // Refresh customer data to reflect balance changes
+    refetch();
+    
+    // Close transaction modal
+    setTransactionModalOpen(false);
+    setSelectedCustomerId(null);
+    setSelectedAccount(undefined);
+    
+    // Show success notification
+    // toast.success(`${transaction.type} completed successfully!`);
+  }, [refetch]);
+
+  // Handle transaction modal close
+  const handleTransactionModalClose = useCallback(() => {
+    setTransactionModalOpen(false);
+    setSelectedCustomerId(null);
+    setSelectedAccount(undefined);
+  }, []);
+
+  // Quick transaction handlers for bulk actions
+  const handleQuickDeposit = useCallback((customerIds: string[]) => {
+    if (customerIds.length === 1) {
+      const customer = customerData?.customers.find(c => c.id === customerIds[0]);
+      if (customer) {
+        setSelectedCustomerId(customerIds[0]);
+        setTransactionType('deposit');
+        setSelectedAccount(customer.accounts?.[0]);
+        setTransactionModalOpen(true);
+      }
+    } else {
+      // Handle bulk deposits - could open a bulk transaction modal
+      console.log('Bulk deposit for customers:', customerIds);
+    }
+  }, [customerData]);
+
+  const handleQuickWithdrawal = useCallback((customerIds: string[]) => {
+    if (customerIds.length === 1) {
+      const customer = customerData?.customers.find(c => c.id === customerIds[0]);
+      if (customer) {
+        setSelectedCustomerId(customerIds[0]);
+        setTransactionType('withdrawal');
+        setSelectedAccount(customer.accounts?.[0]);
+        setTransactionModalOpen(true);
+      }
+    } else {
+      // Handle bulk withdrawals
+      console.log('Bulk withdrawal for customers:', customerIds);
+    }
+  }, [customerData]);
+
   // Extract customer IDs for keyboard navigation
   const customerIds = customerData?.customers.map(customer => customer.id) || [];
 
@@ -243,7 +314,7 @@ const CustomerSearchPage: React.FC = () => {
   const totalCustomers = customerData?.pagination.total || 0;
   const totalPages = customerData?.pagination.totalPages || 0;
 
-  // Get selected customer for modal
+  // Get selected customer for modals
   const selectedCustomer = selectedCustomerId 
     ? customerData?.customers.find(c => c.id === selectedCustomerId) 
     : null;
@@ -478,6 +549,18 @@ const CustomerSearchPage: React.FC = () => {
               onClose={handleDetailModalClose}
               onCustomerUpdate={handleCustomerUpdate}
               mode={detailModalMode}
+            />
+          )}
+
+          {/* Transaction Modal */}
+          {selectedCustomer && (
+            <TransactionModal
+              isOpen={transactionModalOpen}
+              onClose={handleTransactionModalClose}
+              customer={selectedCustomer}
+              transactionType={transactionType}
+              selectedAccount={selectedAccount}
+              onTransactionComplete={handleTransactionComplete}
             />
           )}
         </div>
