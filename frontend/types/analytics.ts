@@ -283,6 +283,15 @@ export interface TransactionAnalytics {
   successRate: number;
   averageProcessingTime: number;
   peakHour: string;
+  totalVolume: number;
+  volumeGrowthRate: number;
+  totalTransactions: number;
+  transactionGrowthRate: number;
+  failureRate: number;
+  volumeTrend: number;
+  transactionTrend: number;
+  volumeData: ChartDataPoint[];
+  heatmapData: any;
   trends: {
     deposits: number;
     withdrawals: number;

@@ -73,6 +73,42 @@ export const analyticsApi = createApi({
       providesTags: ['Analytics'],
     }),
 
+    // Transaction patterns analysis
+    getTransactionPatterns: builder.query<any, AnalyticsQuery>({
+      query: ({ timeRange, filters }) => ({
+        url: '/transactions/patterns',
+        params: {
+          timeRange,
+          ...filters,
+        },
+      }),
+      providesTags: ['Analytics'],
+    }),
+
+    // Fraud detection metrics
+    getFraudMetrics: builder.query<any, AnalyticsQuery>({
+      query: ({ timeRange, filters }) => ({
+        url: '/fraud',
+        params: {
+          timeRange,
+          ...filters,
+        },
+      }),
+      providesTags: ['Analytics'],
+    }),
+
+    // Payment method analytics
+    getPaymentMethodAnalytics: builder.query<any, AnalyticsQuery>({
+      query: ({ timeRange, filters }) => ({
+        url: '/payment-methods',
+        params: {
+          timeRange,
+          ...filters,
+        },
+      }),
+      providesTags: ['Analytics'],
+    }),
+
     // Performance metrics for system monitoring
     getPerformanceMetrics: builder.query<PerformanceMetrics, AnalyticsQuery>({
       query: ({ timeRange, filters }) => ({
@@ -257,6 +293,9 @@ export const {
   useGetRealtimeMetricsQuery,
   useGetCustomerAnalyticsQuery,
   useGetTransactionAnalyticsQuery,
+  useGetTransactionPatternsQuery,
+  useGetFraudMetricsQuery,
+  useGetPaymentMethodAnalyticsQuery,
   useGetPerformanceMetricsQuery,
   useGetRiskAnalyticsQuery,
   useGetActivityFeedQuery,

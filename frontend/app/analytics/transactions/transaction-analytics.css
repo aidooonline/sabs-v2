@@ -1,0 +1,428 @@
+/* Transaction Analytics Page Styling */
+.transaction-analytics-page {
+  @apply min-h-screen bg-gray-50;
+}
+
+/* Dashboard Controls */
+.dashboard-select {
+  @apply px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200;
+}
+
+.dashboard-filter-btn {
+  @apply px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200;
+}
+
+.dashboard-filter-btn.active {
+  @apply bg-primary-50 border-primary-300 text-primary-700;
+}
+
+.dashboard-refresh-btn {
+  @apply p-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200;
+}
+
+.dashboard-refresh-btn.active {
+  @apply bg-green-50 border-green-300 text-green-700;
+}
+
+.dashboard-action-btn {
+  @apply px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200;
+}
+
+/* Analytics Stat Cards */
+.analytics-stat-card {
+  @apply bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200;
+}
+
+/* Chart Containers */
+.chart-container {
+  @apply bg-white rounded-lg border border-gray-200 overflow-hidden;
+}
+
+.chart-container:hover {
+  @apply shadow-lg;
+  transition: box-shadow 0.3s ease;
+}
+
+.chart-header {
+  @apply flex items-center justify-between p-6 border-b border-gray-200;
+}
+
+.chart-content {
+  @apply p-6;
+}
+
+/* Transaction Volume Chart */
+.transaction-volume-chart {
+  @apply w-full h-64 relative overflow-hidden;
+}
+
+.transaction-volume-chart .volume-bar {
+  @apply bg-gradient-to-t from-blue-500 to-blue-400 rounded-t transition-all duration-300;
+}
+
+.transaction-volume-chart .volume-bar:hover {
+  @apply from-blue-600 to-blue-500 transform scale-105;
+}
+
+.transaction-volume-chart .tooltip {
+  @apply absolute bg-gray-900 text-white text-xs rounded px-2 py-1 pointer-events-none opacity-0 transition-opacity duration-200;
+}
+
+.transaction-volume-chart .tooltip.show {
+  @apply opacity-100;
+}
+
+/* Payment Method Chart */
+.payment-method-chart {
+  @apply w-full h-64 relative;
+}
+
+.payment-method-chart .method-segment {
+  @apply transition-all duration-300 cursor-pointer;
+}
+
+.payment-method-chart .method-segment:hover {
+  @apply transform scale-105 opacity-90;
+}
+
+.payment-method-chart .legend {
+  @apply flex flex-wrap gap-4 mt-4;
+}
+
+.payment-method-chart .legend-item {
+  @apply flex items-center space-x-2 text-sm text-gray-600;
+}
+
+.payment-method-chart .legend-color {
+  @apply w-3 h-3 rounded-full;
+}
+
+/* Transaction Patterns Chart */
+.transaction-patterns-chart {
+  @apply w-full h-64 relative overflow-hidden;
+}
+
+.transaction-patterns-chart .pattern-line {
+  @apply stroke-2 fill-none transition-all duration-300;
+}
+
+.transaction-patterns-chart .pattern-line:hover {
+  @apply stroke-4;
+}
+
+.transaction-patterns-chart .pattern-point {
+  @apply r-3 transition-all duration-200 cursor-pointer;
+}
+
+.transaction-patterns-chart .pattern-point:hover {
+  @apply r-5 opacity-80;
+}
+
+/* Fraud Detection Chart */
+.fraud-detection-chart {
+  @apply w-full h-64 relative;
+}
+
+.fraud-detection-chart .alert-indicator {
+  @apply absolute top-2 right-2 w-3 h-3 bg-red-500 rounded-full animate-pulse;
+}
+
+.fraud-detection-chart .risk-zone.low {
+  @apply fill-green-100 stroke-green-400;
+}
+
+.fraud-detection-chart .risk-zone.medium {
+  @apply fill-yellow-100 stroke-yellow-400;
+}
+
+.fraud-detection-chart .risk-zone.high {
+  @apply fill-orange-100 stroke-orange-400;
+}
+
+.fraud-detection-chart .risk-zone.critical {
+  @apply fill-red-100 stroke-red-400;
+}
+
+/* Transaction Heatmap Chart */
+.transaction-heatmap-chart {
+  @apply w-full h-64 relative overflow-hidden;
+}
+
+.transaction-heatmap-chart .heatmap-cell {
+  @apply transition-all duration-200 cursor-pointer border border-white;
+}
+
+.transaction-heatmap-chart .heatmap-cell:hover {
+  @apply transform scale-110 border-gray-400;
+}
+
+.transaction-heatmap-chart .heatmap-cell.intensity-0 {
+  @apply bg-gray-100;
+}
+
+.transaction-heatmap-chart .heatmap-cell.intensity-1 {
+  @apply bg-blue-100;
+}
+
+.transaction-heatmap-chart .heatmap-cell.intensity-2 {
+  @apply bg-blue-200;
+}
+
+.transaction-heatmap-chart .heatmap-cell.intensity-3 {
+  @apply bg-blue-300;
+}
+
+.transaction-heatmap-chart .heatmap-cell.intensity-4 {
+  @apply bg-blue-400;
+}
+
+.transaction-heatmap-chart .heatmap-cell.intensity-5 {
+  @apply bg-blue-500;
+}
+
+.transaction-heatmap-chart .heatmap-legend {
+  @apply flex items-center justify-between mt-4 text-xs text-gray-600;
+}
+
+/* Real-time Transaction Monitor */
+.realtime-transaction-monitor {
+  @apply relative;
+}
+
+.realtime-transaction-monitor .transaction-item {
+  @apply transform transition-all duration-300 ease-out;
+}
+
+.realtime-transaction-monitor .transaction-item.new {
+  @apply animate-slideInDown;
+}
+
+.realtime-transaction-monitor .transaction-item:hover {
+  @apply bg-gray-50 transform translate-x-1;
+}
+
+.realtime-transaction-monitor .status-indicator {
+  @apply w-2 h-2 rounded-full mr-2;
+}
+
+.realtime-transaction-monitor .status-indicator.completed {
+  @apply bg-green-500;
+}
+
+.realtime-transaction-monitor .status-indicator.processing {
+  @apply bg-yellow-500 animate-pulse;
+}
+
+.realtime-transaction-monitor .status-indicator.failed {
+  @apply bg-red-500;
+}
+
+/* Fraud Alert System */
+.fraud-alert-system {
+  @apply relative;
+}
+
+.fraud-alert-system .alert-item {
+  @apply transition-all duration-300 ease-out;
+}
+
+.fraud-alert-system .alert-item.new {
+  @apply animate-slideInRight bg-red-50;
+}
+
+.fraud-alert-system .alert-item:hover {
+  @apply bg-gray-50 transform translate-x-1;
+}
+
+.fraud-alert-system .severity-indicator {
+  @apply w-1 h-full absolute left-0 top-0;
+}
+
+.fraud-alert-system .severity-indicator.low {
+  @apply bg-blue-500;
+}
+
+.fraud-alert-system .severity-indicator.medium {
+  @apply bg-yellow-500;
+}
+
+.fraud-alert-system .severity-indicator.high {
+  @apply bg-orange-500;
+}
+
+.fraud-alert-system .severity-indicator.critical {
+  @apply bg-red-500;
+}
+
+/* Loading States */
+.chart-skeleton {
+  @apply animate-pulse;
+}
+
+.chart-skeleton .skeleton-bar {
+  @apply bg-gray-200 rounded h-4 mb-2;
+}
+
+.chart-skeleton .skeleton-bar:nth-child(1) {
+  @apply w-full;
+}
+
+.chart-skeleton .skeleton-bar:nth-child(2) {
+  @apply w-4/5;
+}
+
+.chart-skeleton .skeleton-bar:nth-child(3) {
+  @apply w-3/5;
+}
+
+.chart-skeleton .skeleton-bar:nth-child(4) {
+  @apply w-4/5;
+}
+
+.chart-skeleton .skeleton-bar:nth-child(5) {
+  @apply w-2/5;
+}
+
+/* Animations */
+@keyframes slideInDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+  }
+}
+
+.animate-slideInDown {
+  animation: slideInDown 0.5s ease-out;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.5s ease-out;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .transaction-analytics-page {
+    @apply px-4;
+  }
+  
+  .chart-container {
+    @apply mx-0;
+  }
+  
+  .dashboard-controls {
+    @apply flex-col space-y-3 space-x-0;
+  }
+  
+  .analytics-stat-card {
+    @apply p-3;
+  }
+  
+  .chart-content {
+    @apply p-4;
+  }
+  
+  .realtime-transaction-monitor .transaction-item {
+    @apply p-3;
+  }
+  
+  .fraud-alert-system .alert-item {
+    @apply p-3;
+  }
+}
+
+@media (max-width: 640px) {
+  .transaction-volume-chart,
+  .payment-method-chart,
+  .transaction-patterns-chart,
+  .fraud-detection-chart,
+  .transaction-heatmap-chart {
+    @apply h-48;
+  }
+  
+  .chart-header {
+    @apply p-4;
+  }
+  
+  .chart-content {
+    @apply p-3;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .transaction-analytics-page {
+    @apply bg-white;
+  }
+  
+  .dashboard-controls,
+  .chart-actions {
+    @apply hidden;
+  }
+  
+  .chart-container {
+    @apply shadow-none border border-gray-300;
+  }
+  
+  .realtime-transaction-monitor,
+  .fraud-alert-system {
+    @apply hidden;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .chart-container {
+    @apply border-2 border-black;
+  }
+  
+  .analytics-stat-card {
+    @apply border-2 border-gray-800;
+  }
+  
+  .transaction-volume-chart .volume-bar {
+    @apply border border-black;
+  }
+}
