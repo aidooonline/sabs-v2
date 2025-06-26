@@ -1,238 +1,238 @@
-import { useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
-import { customerApi } from '../../../store/api/customerApi';
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
 import type { Customer, CustomerTransaction } from '../../../types/customer';
 
-interface CustomerRealTimeUpdate {
-  type: 'customer_updated' | 'customer_created' | 'transaction_completed' | 'verification_status_changed';
-  data: Customer | CustomerTransaction | any;
-  customerId: string;
-  timestamp: string;
+interface UseCustomerRealTimeReturn {
+  customer: Customer | null;
+  isConnected: boolean;
+  lastUpdate: Date | null;
+  updateCustomer: (customer: Customer) => Promise<void>;
+  reconnect: () => void;
 }
 
 /**
  * Hook for real-time customer data updates using WebSocket connection
  */
-export const useCustomerRealTime = (customerId?: string) => {
-  const dispatch = useDispatch();
+export const useCustomerRealTime = (customerId: string): UseCustomerRealTimeReturn => {
+  const [customer, setCustomer] = useState<Customer | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
 
+  // Initialize WebSocket connection
+  const connect = () => {
+    try {
+      // Use environment variable or fallback to localhost
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3000';
+      const ws = new WebSocket(`${wsUrl}/customers/${customerId}/live`);
+      
+      ws.onopen = () => {
+        console.log(`Connected to customer ${customerId} real-time updates`);
+        setIsConnected(true);
+        reconnectAttempts.current = 0;
+        
+        // Send initial subscription message
+        ws.send(JSON.stringify({
+          type: 'subscribe',
+          customerId,
+          timestamp: new Date().toISOString(),
+        }));
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          
+          switch (data.type) {
+            case 'customer_update':
+              setCustomer(data.customer);
+              setLastUpdate(new Date(data.timestamp));
+              break;
+              
+            case 'account_update':
+              // Update customer's account data
+              setCustomer(prev => {
+                if (!prev) return null;
+                const updatedAccounts = prev.accounts?.map(account => 
+                  account.id === data.accountId 
+                    ? { ...account, ...data.account }
+                    : account
+                ) || [];
+                return { ...prev, accounts: updatedAccounts };
+              });
+              setLastUpdate(new Date(data.timestamp));
+              break;
+              
+            case 'transaction_update':
+              // Add new transaction or update existing one
+              setCustomer(prev => {
+                if (!prev) return null;
+                const existingTransactions = prev.transactions || [];
+                const transactionIndex = existingTransactions.findIndex(t => t.id === data.transaction.id);
+                
+                let updatedTransactions;
+                if (transactionIndex >= 0) {
+                  updatedTransactions = [...existingTransactions];
+                  updatedTransactions[transactionIndex] = data.transaction;
+                } else {
+                  updatedTransactions = [data.transaction, ...existingTransactions];
+                }
+                
+                return { ...prev, transactions: updatedTransactions };
+              });
+              setLastUpdate(new Date(data.timestamp));
+              break;
+              
+            case 'balance_update':
+              setCustomer(prev => prev ? { ...prev, accountBalance: data.balance } : null);
+              setLastUpdate(new Date(data.timestamp));
+              break;
+              
+            case 'status_update':
+              setCustomer(prev => prev ? { ...prev, ...data.updates } : null);
+              setLastUpdate(new Date(data.timestamp));
+              break;
+              
+            case 'heartbeat':
+              // Keep connection alive
+              ws.send(JSON.stringify({ type: 'pong', timestamp: new Date().toISOString() }));
+              break;
+              
+            default:
+              console.log('Unknown message type:', data.type);
+          }
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error);
+        }
+      };
+
+      ws.onclose = (event) => {
+        console.log(`Disconnected from customer ${customerId} real-time updates`, event.code, event.reason);
+        setIsConnected(false);
+        
+        // Attempt to reconnect unless it was a clean close
+        if (event.code !== 1000 && reconnectAttempts.current < maxReconnectAttempts) {
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000);
+          console.log(`Attempting to reconnect in ${delay}ms... (attempt ${reconnectAttempts.current + 1}/${maxReconnectAttempts})`);
+          
+          reconnectTimeoutRef.current = setTimeout(() => {
+            reconnectAttempts.current++;
+            connect();
+          }, delay);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setIsConnected(false);
+      };
+
+      wsRef.current = ws;
+    } catch (error) {
+      console.error('Failed to establish WebSocket connection:', error);
+      setIsConnected(false);
+    }
+  };
+
+  // Manual reconnect function
+  const reconnect = () => {
+    if (wsRef.current) {
+      wsRef.current.close();
+    }
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+    reconnectAttempts.current = 0;
+    connect();
+  };
+
+  // Update customer function for form saves
+  const updateCustomer = async (updatedCustomer: Customer): Promise<void> => {
+    try {
+      // Send update via WebSocket for real-time sync
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({
+          type: 'update_customer',
+          customerId,
+          customer: updatedCustomer,
+          timestamp: new Date().toISOString(),
+        }));
+      }
+
+      // Also make HTTP request to persist changes
+      const response = await fetch(`/api/customers/${customerId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedCustomer),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update customer: ${response.statusText}`);
+      }
+
+      const savedCustomer = await response.json();
+      setCustomer(savedCustomer);
+      setLastUpdate(new Date());
+    } catch (error) {
+      console.error('Error updating customer:', error);
+      throw error; // Re-throw for error handling in components
+    }
+  };
+
+  // Fetch initial customer data
+  const fetchCustomerData = async () => {
+    try {
+      const response = await fetch(`/api/customers/${customerId}`);
+      if (response.ok) {
+        const customerData = await response.json();
+        setCustomer(customerData);
+        setLastUpdate(new Date());
+      }
+    } catch (error) {
+      console.error('Error fetching customer data:', error);
+    }
+  };
+
+  // Initialize connection and fetch initial data
   useEffect(() => {
-    // Don't establish connection without a customer ID or in development without WebSocket server
-    if (!customerId && process.env.NODE_ENV === 'development') {
-      return;
+    if (customerId) {
+      fetchCustomerData();
+      connect();
     }
 
-    const connectWebSocket = () => {
-      try {
-        const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001';
-        const url = customerId 
-          ? `${wsUrl}/customers/${customerId}/updates`
-          : `${wsUrl}/customers/updates`;
-        
-        wsRef.current = new WebSocket(url);
-
-        wsRef.current.onopen = () => {
-          console.log('Customer real-time connection established');
-          reconnectAttempts.current = 0;
-          
-          // Send authentication if token is available
-          const token = localStorage.getItem('auth_token');
-          if (token) {
-            wsRef.current?.send(JSON.stringify({
-              type: 'auth',
-              token: token
-            }));
-          }
-        };
-
-        wsRef.current.onmessage = (event) => {
-          try {
-            const update: CustomerRealTimeUpdate = JSON.parse(event.data);
-            handleRealTimeUpdate(update);
-          } catch (error) {
-            console.error('Error parsing WebSocket message:', error);
-          }
-        };
-
-        wsRef.current.onclose = (event) => {
-          console.log('Customer real-time connection closed:', event.code, event.reason);
-          
-          // Attempt to reconnect if not a clean close
-          if (event.code !== 1000 && reconnectAttempts.current < maxReconnectAttempts) {
-            const delay = Math.pow(2, reconnectAttempts.current) * 1000; // Exponential backoff
-            reconnectTimeoutRef.current = setTimeout(() => {
-              reconnectAttempts.current++;
-              console.log(`Attempting to reconnect (attempt ${reconnectAttempts.current})`);
-              connectWebSocket();
-            }, delay);
-          }
-        };
-
-        wsRef.current.onerror = (error) => {
-          console.error('Customer real-time WebSocket error:', error);
-        };
-
-      } catch (error) {
-        console.error('Error establishing WebSocket connection:', error);
-      }
-    };
-
-    const handleRealTimeUpdate = (update: CustomerRealTimeUpdate) => {
-      switch (update.type) {
-        case 'customer_updated':
-          // Invalidate customer cache to trigger refetch
-          dispatch(customerApi.util.invalidateTags([
-            { type: 'Customer', id: update.customerId },
-            { type: 'Customer', id: 'LIST' }
-          ]));
-          break;
-
-        case 'customer_created':
-          // Invalidate customer list to include new customer
-          dispatch(customerApi.util.invalidateTags([
-            { type: 'Customer', id: 'LIST' }
-          ]));
-          break;
-
-        case 'transaction_completed':
-          // Invalidate customer transactions and stats
-          dispatch(customerApi.util.invalidateTags([
-            { type: 'CustomerTransaction', id: update.customerId },
-            { type: 'CustomerStats', id: update.customerId },
-            { type: 'Customer', id: update.customerId }
-          ]));
-          break;
-
-        case 'verification_status_changed':
-          // Invalidate customer data as verification status affects customer info
-          dispatch(customerApi.util.invalidateTags([
-            { type: 'Customer', id: update.customerId },
-            { type: 'Customer', id: 'LIST' }
-          ]));
-          break;
-
-        default:
-          console.log('Unknown real-time update type:', update.type);
-      }
-    };
-
-    // Establish initial connection
-    connectWebSocket();
-
-    // Cleanup function
     return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
       if (wsRef.current) {
         wsRef.current.close(1000, 'Component unmounting');
       }
-    };
-  }, [customerId, dispatch]);
-
-  // Return connection status and manual reconnect function
-  return {
-    isConnected: wsRef.current?.readyState === WebSocket.OPEN,
-    reconnect: () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-      reconnectAttempts.current = 0;
-    }
-  };
-};
-
-/**
- * Hook for listening to global customer updates (for customer list views)
- */
-export const useGlobalCustomerRealTime = () => {
-  return useCustomerRealTime(); // No specific customer ID
-};
-
-/**
- * Hook for customer-specific real-time updates (for detail views)
- */
-export const useSpecificCustomerRealTime = (customerId: string) => {
-  return useCustomerRealTime(customerId);
-};
-
-/**
- * Hook for real-time customer search updates
- */
-export const useCustomerSearchRealTime = (searchQuery?: string, filters?: any) => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    // Set up real-time updates that might affect search results
-    const handleSearchRelevantUpdate = (update: CustomerRealTimeUpdate) => {
-      // If update might affect current search, invalidate search cache
-      if (update.type === 'customer_created' || update.type === 'customer_updated') {
-        dispatch(customerApi.util.invalidateTags([
-          { type: 'Customer', id: 'SEARCH' },
-          { type: 'Customer', id: 'LIST' }
-        ]));
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
       }
     };
+  }, [customerId]);
 
-    // This would typically connect to a search-specific WebSocket channel
-    // For now, we'll rely on the global customer updates
-    
-  }, [searchQuery, filters, dispatch]);
-};
-
-/**
- * Hook for real-time customer statistics updates
- */
-export const useCustomerStatsRealTime = (customerId: string) => {
-  const dispatch = useDispatch();
-
+  // Cleanup on unmount
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      // Periodically invalidate stats to ensure freshness
-      dispatch(customerApi.util.invalidateTags([
-        { type: 'CustomerStats', id: customerId }
-      ]));
-    }, 30000); // Every 30 seconds
-
-    return () => clearInterval(intervalId);
-  }, [customerId, dispatch]);
-};
-
-/**
- * Enhanced hook with offline support
- */
-export const useOfflineAwareCustomerRealTime = (customerId?: string) => {
-  const { isConnected, reconnect } = useCustomerRealTime(customerId);
-  const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
-
-  useEffect(() => {
-    const handleOnline = () => {
-      // Reconnect when coming back online
-      if (!isConnected) {
-        reconnect();
-      }
-    };
-
-    const handleOffline = () => {
-      console.log('Going offline - real-time updates will be paused');
-    };
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      if (wsRef.current) {
+        wsRef.current.close(1000, 'Hook cleanup');
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
     };
-  }, [isConnected, reconnect]);
+  }, []);
 
   return {
-    isConnected: isConnected && isOnline,
-    isOnline,
-    reconnect
+    customer,
+    isConnected,
+    lastUpdate,
+    updateCustomer,
+    reconnect,
   };
 };

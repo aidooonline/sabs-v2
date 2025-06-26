@@ -1,33 +1,42 @@
+// Address information
+export interface Address {
+  street?: string;
+  city?: string;
+  region?: string;
+  country?: string;
+  postalCode?: string;
+}
+
 // Customer UI Types - Comprehensive interfaces from backend DTOs
 export interface Customer {
   id: string;
   companyId: string;
   firstName: string;
   lastName: string;
+  middleName?: string;
   email?: string;
   phone: string;
   dateOfBirth?: string;
-  address?: {
-    street?: string;
-    city?: string;
-    region?: string;
-    postalCode?: string;
-    country: string;
-  };
+  gender?: 'male' | 'female' | 'other';
+  nationality?: string;
+  occupation?: string;
+  employer?: string;
   idNumber?: string;
-  idType?: 'national_id' | 'passport' | 'drivers_license' | 'voter_id';
-  profilePicture?: string;
-  status: CustomerStatus;
-  kycStatus: KycStatus;
+  idType?: 'national_id' | 'passport' | 'drivers_license' | 'voters_id';
+  address?: Address;
   verificationStatus: VerificationStatus;
   accountBalance: number;
-  accounts: Account[];
-  riskScore?: number;
+  accounts?: Account[];
+  transactions?: CustomerTransaction[];
+  documents?: CustomerDocument[];
   createdAt: string;
   updatedAt: string;
-  lastTransactionAt?: string;
-  agentId: string;
   lastLoginAt?: string;
+  lastTransactionAt?: string;
+  status: CustomerStatus;
+  kycStatus: KycStatus;
+  riskScore?: number;
+  agentId: string;
   isActive: boolean;
 }
 

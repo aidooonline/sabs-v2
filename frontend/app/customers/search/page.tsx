@@ -12,6 +12,10 @@ import { CustomerList } from '../components/search/CustomerList';
 import { SortingControls } from '../components/search/SortingControls';
 import { ExportManager } from '../components/search/ExportManager';
 import { Search, Filter, Users, Download } from 'lucide-react';
+import { CustomerDetailModal } from '../modals/CustomerDetailModal';
+import { BulkSelectionToolbar, MobileBulkSelectionBar } from '../components/BulkSelectionToolbar';
+import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
+import type { Customer } from '../../../types/customer';
 
 const CustomerSearchPage: React.FC = () => {
   // Search state management
@@ -23,6 +27,9 @@ const CustomerSearchPage: React.FC = () => {
   const [limit, setLimit] = useState(20);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [detailModalMode, setDetailModalMode] = useState<'view' | 'edit'>('view');
 
   // Build query object
   const queryParams = useMemo((): CustomerQuery => ({
@@ -76,11 +83,14 @@ const CustomerSearchPage: React.FC = () => {
   }, []);
 
   const handleCustomerSelect = useCallback((customerId: string) => {
-    setSelectedCustomers(prev => 
-      prev.includes(customerId)
-        ? prev.filter(id => id !== customerId)
-        : [...prev, customerId]
-    );
+    setSelectedCustomers(prev => {
+      const isSelected = prev.includes(customerId);
+      if (isSelected) {
+        return prev.filter(id => id !== customerId);
+      } else {
+        return [...prev, customerId];
+      }
+    });
   }, []);
 
   const handleSelectAll = useCallback(() => {
@@ -94,11 +104,149 @@ const CustomerSearchPage: React.FC = () => {
     setSelectedCustomers([]);
   }, []);
 
+  // Handle individual customer actions
+  const handleCustomerAction = useCallback((action: string, customerId: string) => {
+    const customer = customerData?.customers.find(c => c.id === customerId);
+    if (!customer) return;
+
+    switch (action) {
+      case 'info':
+      case 'details':
+        setSelectedCustomerId(customerId);
+        setDetailModalMode('view');
+        setDetailModalOpen(true);
+        break;
+      case 'edit':
+        setSelectedCustomerId(customerId);
+        setDetailModalMode('edit');
+        setDetailModalOpen(true);
+        break;
+      case 'deposit':
+        // Handle deposit action
+        console.log('Deposit action for customer:', customerId);
+        break;
+      case 'withdraw':
+        // Handle withdraw action
+        console.log('Withdraw action for customer:', customerId);
+        break;
+      case 'accounts':
+        setSelectedCustomerId(customerId);
+        setDetailModalMode('view');
+        setDetailModalOpen(true);
+        // Could set a specific tab here
+        break;
+      case 'history':
+        setSelectedCustomerId(customerId);
+        setDetailModalMode('view');
+        setDetailModalOpen(true);
+        // Could set transactions tab here
+        break;
+      default:
+        console.log('Unknown action:', action, 'for customer:', customerId);
+    }
+  }, [customerData]);
+
+  // Handle bulk actions
+  const handleBulkAction = useCallback((action: string, customerIds: string[]) => {
+    console.log('Bulk action:', action, 'for customers:', customerIds);
+    
+    switch (action) {
+      case 'export':
+        // Handle export
+        handleExportCustomers(customerIds);
+        break;
+      case 'email':
+        // Handle email
+        handleEmailCustomers(customerIds);
+        break;
+      case 'assign-group':
+        // Handle group assignment
+        handleAssignGroup(customerIds);
+        break;
+      case 'report':
+        // Handle report generation
+        handleGenerateReport(customerIds);
+        break;
+      case 'archive':
+        // Handle archive
+        handleArchiveCustomers(customerIds);
+        break;
+      case 'risk-assessment':
+        // Handle risk assessment
+        handleRiskAssessment(customerIds);
+        break;
+      default:
+        console.log('Unknown bulk action:', action);
+    }
+  }, []);
+
+  // Bulk action handlers
+  const handleExportCustomers = useCallback((customerIds: string[]) => {
+    // Implementation for customer export
+    console.log('Exporting customers:', customerIds);
+  }, []);
+
+  const handleEmailCustomers = useCallback((customerIds: string[]) => {
+    // Implementation for sending emails
+    console.log('Sending emails to customers:', customerIds);
+  }, []);
+
+  const handleAssignGroup = useCallback((customerIds: string[]) => {
+    // Implementation for group assignment
+    console.log('Assigning customers to group:', customerIds);
+  }, []);
+
+  const handleGenerateReport = useCallback((customerIds: string[]) => {
+    // Implementation for report generation
+    console.log('Generating report for customers:', customerIds);
+  }, []);
+
+  const handleArchiveCustomers = useCallback((customerIds: string[]) => {
+    // Implementation for archiving customers
+    console.log('Archiving customers:', customerIds);
+  }, []);
+
+  const handleRiskAssessment = useCallback((customerIds: string[]) => {
+    // Implementation for risk assessment
+    console.log('Running risk assessment for customers:', customerIds);
+  }, []);
+
+  // Handle customer update from detail modal
+  const handleCustomerUpdate = useCallback((updatedCustomer: Customer) => {
+    // Refresh the customer list
+    refetch();
+    console.log('Customer updated:', updatedCustomer);
+  }, [refetch]);
+
+  // Handle detail modal close
+  const handleDetailModalClose = useCallback(() => {
+    setDetailModalOpen(false);
+    setSelectedCustomerId(null);
+    setDetailModalMode('view');
+  }, []);
+
+  // Extract customer IDs for keyboard navigation
+  const customerIds = customerData?.customers.map(customer => customer.id) || [];
+
+  // Keyboard navigation (after all handlers are defined)
+  const { focusedIndex, navigationMode } = useKeyboardNavigation({
+    customerIds,
+    selectedCustomers,
+    onCustomerSelect: handleCustomerSelect,
+    onCustomerAction: handleCustomerAction,
+    onBulkAction: handleBulkAction,
+  });
+
   // Computed values
   const hasResults = customerData && customerData.customers.length > 0;
   const hasSearch = searchQuery.trim().length > 0 || Object.keys(filters).length > 0;
   const totalCustomers = customerData?.pagination.total || 0;
   const totalPages = customerData?.pagination.totalPages || 0;
+
+  // Get selected customer for modal
+  const selectedCustomer = selectedCustomerId 
+    ? customerData?.customers.find(c => c.id === selectedCustomerId) 
+    : null;
 
   return (
     <CustomerErrorBoundary>
@@ -127,14 +275,14 @@ const CustomerSearchPage: React.FC = () => {
 
             {/* Search and filter controls */}
             <div className="customer-search">
-              <div className="flex-1">
-                <RealTimeSearch
-                  value={searchQuery}
-                  onSearch={handleSearch}
-                  placeholder="Search by name, phone, email, or ID..."
-                  isLoading={isFetching}
-                />
-              </div>
+                              <div className="flex-1">
+                 <RealTimeSearch
+                   value={searchQuery}
+                   onSearch={handleSearch}
+                   placeholder="Search by name, phone, email, or ID..."
+                   isLoading={isFetching}
+                 />
+                </div>
               
               <div className="flex items-center space-x-2">
                 {/* Filter toggle */}
@@ -304,6 +452,34 @@ const CustomerSearchPage: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* Bulk Selection Toolbars */}
+          <BulkSelectionToolbar
+            selectedCount={selectedCustomers.length}
+            selectedCustomers={selectedCustomers}
+            onClearSelection={handleClearSelection}
+            onBulkAction={handleBulkAction}
+            isVisible={selectedCustomers.length > 0}
+          />
+
+          <MobileBulkSelectionBar
+            selectedCount={selectedCustomers.length}
+            selectedCustomers={selectedCustomers}
+            onClearSelection={handleClearSelection}
+            onBulkAction={handleBulkAction}
+            isVisible={selectedCustomers.length > 0}
+          />
+
+          {/* Customer Detail Modal */}
+          {selectedCustomer && (
+            <CustomerDetailModal
+              customer={selectedCustomer}
+              isOpen={detailModalOpen}
+              onClose={handleDetailModalClose}
+              onCustomerUpdate={handleCustomerUpdate}
+              mode={detailModalMode}
+            />
+          )}
         </div>
       </div>
     </CustomerErrorBoundary>
