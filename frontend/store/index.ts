@@ -13,11 +13,14 @@ import { dashboardApi, dashboardApiMiddleware } from './api/dashboardApi';
 // Approval Workflow API setup
 import { approvalApi, approvalApiMiddleware } from './api/approvalApi';
 
+// Customer Management API setup
+import { customerApi, customerApiMiddleware } from './api/customerApi';
+
 const persistConfig = {
   key: 'root',
   storage,
   whitelist: ['auth'], // Only persist auth state
-  blacklist: ['ui', 'dashboardApi', 'approvalApi'], // Don't persist UI state or API cache
+  blacklist: ['ui', 'dashboardApi', 'approvalApi', 'customerApi'], // Don't persist UI state or API cache
 };
 
 const rootReducer = combineReducers({
@@ -25,6 +28,7 @@ const rootReducer = combineReducers({
   ui: uiSlice,
   dashboardApi: dashboardApi.reducer,
   approvalApi: approvalApi.reducer,
+  customerApi: customerApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -40,7 +44,8 @@ export const store = configureStore({
     .concat(apiMiddleware)
     .concat(sessionTimeoutMiddleware)
     .concat(dashboardApiMiddleware)
-    .concat(approvalApiMiddleware),
+    .concat(approvalApiMiddleware)
+    .concat(customerApiMiddleware),
   devTools: process.env.NODE_ENV !== 'production',
 });
 
