@@ -10,17 +10,21 @@ import { sessionTimeoutMiddleware } from './middleware/sessionTimeoutMiddleware'
 // Dashboard API setup - now active
 import { dashboardApi, dashboardApiMiddleware } from './api/dashboardApi';
 
+// Approval Workflow API setup
+import { approvalApi, approvalApiMiddleware } from './api/approvalApi';
+
 const persistConfig = {
   key: 'root',
   storage,
   whitelist: ['auth'], // Only persist auth state
-  blacklist: ['ui', 'dashboardApi'], // Don't persist UI state or API cache
+  blacklist: ['ui', 'dashboardApi', 'approvalApi'], // Don't persist UI state or API cache
 };
 
 const rootReducer = combineReducers({
   auth: authSlice,
   ui: uiSlice,
   dashboardApi: dashboardApi.reducer,
+  approvalApi: approvalApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -35,7 +39,8 @@ export const store = configureStore({
     })
     .concat(apiMiddleware)
     .concat(sessionTimeoutMiddleware)
-    .concat(dashboardApiMiddleware),
+    .concat(dashboardApiMiddleware)
+    .concat(approvalApiMiddleware),
   devTools: process.env.NODE_ENV !== 'production',
 });
 

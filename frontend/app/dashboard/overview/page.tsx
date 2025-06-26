@@ -10,6 +10,7 @@ import { AccountsCard } from '../../../components/dashboard/SummaryCards/Account
 import { AlertsCard } from '../../../components/dashboard/SummaryCards/AlertsCard';
 import { AccountCard } from '../../../components/dashboard/AccountCards/AccountCard';
 import { QuickActionBar } from '../../../components/dashboard/QuickActions/QuickActionBar';
+import { QuickActionType } from '../../../types/dashboard';
 
 // Enhanced mock data for demonstration (will be replaced with API calls)
 const mockDashboardData = {
@@ -128,7 +129,7 @@ const mockDashboardData = {
   quickActions: [
     {
       id: 'transfer',
-      type: 'transfer_money' as const,
+      type: QuickActionType.TRANSFER_MONEY,
       title: 'Transfer',
       description: 'Send money to another account',
       icon: 'transfer',
@@ -137,7 +138,7 @@ const mockDashboardData = {
     },
     {
       id: 'pay_bills',
-      type: 'pay_bill' as const,
+      type: QuickActionType.PAY_BILL,
       title: 'Pay Bills',
       description: 'Pay utilities and services',
       icon: 'bill',
@@ -146,7 +147,7 @@ const mockDashboardData = {
     },
     {
       id: 'buy_airtime',
-      type: 'buy_airtime' as const,
+      type: QuickActionType.BUY_AIRTIME,
       title: 'Buy Airtime',
       description: 'Top up mobile phone',
       icon: 'phone',
@@ -155,7 +156,7 @@ const mockDashboardData = {
     },
     {
       id: 'check_balance',
-      type: 'check_balance' as const,
+      type: QuickActionType.CHECK_BALANCE,
       title: 'Check Balance',
       description: 'View account balances',
       icon: 'balance',
@@ -338,9 +339,7 @@ export default function DashboardOverviewPage() {
           <QuickActionBar
             actions={mockDashboardData.quickActions}
             isLoading={isLoading}
-            onActionClick={handleQuickAction}
-            layout="grid"
-            columns={2}
+            maxActions={4}
           />
         </div>
       </div>

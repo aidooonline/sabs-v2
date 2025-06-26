@@ -117,15 +117,18 @@ export const dashboardApi = createApi({
     // ===== BALANCE & ANALYTICS ENDPOINTS =====
 
     getBalanceHistory: builder.query<BalanceHistoryResponse, BalanceHistoryRequest>({
-      query: (params) => ({
-        url: '/balance/history',
-        params: {
-          period: 'month',
-          ...params,
-          startDate: params.startDate?.toISOString(),
-          endDate: params.endDate?.toISOString(),
-        },
-      }),
+      query: (params) => {
+        const { startDate, endDate, period = 'month', ...restParams } = params;
+        return {
+          url: '/balance/history',
+          params: {
+            ...restParams,
+            period,
+            startDate: startDate?.toISOString(),
+            endDate: endDate?.toISOString(),
+          },
+        };
+      },
       providesTags: ['Analytics'],
       // Cache for 5 minutes
       keepUnusedDataFor: 300,
