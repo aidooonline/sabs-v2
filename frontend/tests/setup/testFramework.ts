@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { configure } from '@testing-library/react';
 import { server } from './mocks/server';
-import { mockApiEndpoints } from './mocks/apiMocks';
+import { mockEndpoints } from './mocks/apiMocks';
 
 // Configure testing library
 configure({
@@ -73,8 +73,8 @@ export const TestFramework = {
     return new Promise((resolve, reject) => {
       const startTime = Date.now();
       const checkForCall = () => {
-        if (mockApiEndpoints[apiEndpoint]?.called) {
-          resolve(mockApiEndpoints[apiEndpoint]);
+        if (mockEndpoints[apiEndpoint]?.called) {
+          resolve(mockEndpoints[apiEndpoint]);
         } else if (Date.now() - startTime > timeout) {
           reject(new Error(`API call to ${apiEndpoint} not made within ${timeout}ms`));
         } else {

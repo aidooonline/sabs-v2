@@ -368,9 +368,9 @@ handlers.forEach(handler => {
     const req = args[0];
     const endpoint = req.url.pathname;
     
-    if (mockApiEndpoints[endpoint]) {
-      mockApiEndpoints[endpoint].called = true;
-      mockApiEndpoints[endpoint].callCount++;
+    if (mockApiEndpoints[endpoint as keyof typeof mockApiEndpoints]) {
+      (mockApiEndpoints[endpoint as keyof typeof mockApiEndpoints] as any).called = true;
+      (mockApiEndpoints[endpoint as keyof typeof mockApiEndpoints] as any).callCount++;
     }
     
     return originalResolver(...args);

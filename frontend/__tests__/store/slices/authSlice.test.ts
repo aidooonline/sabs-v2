@@ -24,7 +24,8 @@ jest.mock('@/services/api/authService');
 const mockAuthService = authService as jest.Mocked<typeof authService>;
 
 describe('authSlice', () => {
-  let store: ReturnType<typeof configureStore>;
+  type TestStore = ReturnType<typeof configureStore<{ auth: AuthState }>>;
+  let store: TestStore;
 
   const initialState: AuthState = {
     user: null,
@@ -201,7 +202,7 @@ describe('authSlice', () => {
         data: {
           requiresMfa: true,
           mfaToken: 'mfa-token-123',
-        },
+        } as any,
         message: 'MFA required',
         success: true,
       };
@@ -336,6 +337,8 @@ describe('authSlice', () => {
           refreshToken: 'new-refresh',
           expiresIn: 3600,
         },
+        message: 'Token refreshed',
+        success: true,
       };
 
       mockAuthService.refreshToken.mockResolvedValue(mockResponse);
@@ -377,7 +380,11 @@ describe('authSlice', () => {
     });
 
     it('should handle successful logout', async () => {
-      mockAuthService.logout.mockResolvedValue({ data: undefined });
+      mockAuthService.logout.mockResolvedValue({ 
+        data: undefined,
+        message: 'Logged out successfully',
+        success: true,
+      });
 
       await store.dispatch(logoutUser());
 
@@ -408,12 +415,12 @@ describe('authSlice', () => {
           valid: true,
           user: { 
             id: '1', 
-            role: 'agent',
+            role: 'agent' as UserRole,
             firstName: 'Test',
             lastName: 'User',
             email: 'test@example.com',
             companyId: 'company-1',
-            status: 'active',
+            status: 'active' as const,
             isEmailVerified: true,
             isPhoneVerified: false,
             createdAt: '2024-01-01',
@@ -423,6 +430,8 @@ describe('authSlice', () => {
           expiresAt: new Date(Date.now() + 3600000).toISOString(),
           permissions: ['read', 'write'],
         },
+        message: 'Session valid',
+        success: true,
       };
 
       mockAuthService.validateSession.mockResolvedValue(mockResponse);
@@ -440,6 +449,8 @@ describe('authSlice', () => {
     it('should handle invalid session', async () => {
       const mockResponse = {
         data: { valid: false },
+        message: 'Session invalid',
+        success: true,
       };
 
       mockAuthService.validateSession.mockResolvedValue(mockResponse);
@@ -471,9 +482,9 @@ describe('authSlice', () => {
         firstName: 'Updated',
         lastName: 'User',
         email: 'test@example.com',
-        role: 'agent',
+        role: 'agent' as UserRole,
         companyId: 'company-1',
-        status: 'active',
+        status: 'active' as const,
         isEmailVerified: true,
         isPhoneVerified: false,
         createdAt: '2024-01-01',
@@ -481,7 +492,11 @@ describe('authSlice', () => {
         phone: '+1234567890'
       };
 
-      mockAuthService.getProfile.mockResolvedValue({ data: mockUser });
+      mockAuthService.getProfile.mockResolvedValue({ 
+        data: mockUser,
+        message: 'Profile retrieved',
+        success: true,
+      });
 
       await store.dispatch(getUserProfile());
 
@@ -498,9 +513,9 @@ describe('authSlice', () => {
         firstName: 'Updated',
         lastName: 'User',
         email: 'test@example.com',
-        role: 'agent',
+        role: 'agent' as UserRole,
         companyId: 'company-1',
-        status: 'active',
+        status: 'active' as const,
         isEmailVerified: true,
         isPhoneVerified: false,
         createdAt: '2024-01-01',
@@ -508,7 +523,11 @@ describe('authSlice', () => {
         phone: '+1234567890'
       };
 
-      mockAuthService.updateProfile.mockResolvedValue({ data: mockUser });
+      mockAuthService.updateProfile.mockResolvedValue({ 
+        data: mockUser,
+        message: 'Profile updated',
+        success: true,
+      });
 
       await store.dispatch(updateUserProfile(updateData));
 

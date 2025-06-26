@@ -184,9 +184,9 @@ export const optimizeComponent = {
   // Memoize expensive components
   memo: <T extends React.ComponentType<any>>(
     Component: T,
-    propsAreEqual?: (prevProps: React.ComponentProps<T>, nextProps: React.ComponentProps<T>) => boolean
+    propsAreEqual?: (prevProps: Readonly<React.ComponentProps<T>>, nextProps: Readonly<React.ComponentProps<T>>) => boolean
   ) => {
-    return React.memo(Component, propsAreEqual);
+    return React.memo(Component as React.FunctionComponent<React.ComponentProps<T>>, propsAreEqual);
   },
 
   // Debounce function for expensive operations
