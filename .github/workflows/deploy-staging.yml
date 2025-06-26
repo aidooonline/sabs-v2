@@ -36,7 +36,9 @@ jobs:
         cache: 'npm'
 
     - name: Skip Husky in CI
-      run: npm pkg set scripts.prepare=""
+      run: |
+        sudo apt-get update && sudo apt-get install -y jq
+        jq '.scripts.prepare=""' package.json > package.tmp.json && mv package.tmp.json package.json
 
     - name: Install root dependencies
       run: npm ci
@@ -558,7 +560,8 @@ jobs:
           **Direct Frontend URL**: ${{ env.FRONTEND_URL }}
           
           All services are running and tests passed ✅
-        webhook: ${{ secrets.SLACK_WEBHOOK }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     - name: Send failure notification
       if: needs.performance-tests.result != 'success' || needs.configure-staging-access.result != 'success'
@@ -572,7 +575,8 @@ jobs:
           
           **Performance Tests**: ${{ needs.performance-tests.result }}
           **Configuration**: ${{ needs.configure-staging-access.result }}
-        webhook: ${{ secrets.SLACK_WEBHOOK }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   # Job 12: Security Monitoring
   security-monitoring:

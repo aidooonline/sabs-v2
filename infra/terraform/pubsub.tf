@@ -87,7 +87,7 @@ resource "google_pubsub_subscription" "identity_user_events" {
   }
 
   push_config {
-    push_endpoint = "https://${var.project_name}-identity-service-${random_id.suffix.hex}-uc.a.run.app/webhooks/user-events"
+    push_endpoint = "${google_cloud_run_v2_service.identity_service.uri}/webhooks/user-events"
     
     oidc_token {
       service_account_email = google_service_account.cloud_run.email
@@ -114,7 +114,7 @@ resource "google_pubsub_subscription" "company_events_sub" {
   }
 
   push_config {
-    push_endpoint = "https://${var.project_name}-company-service-${random_id.suffix.hex}-uc.a.run.app/webhooks/company-events"
+    push_endpoint = "${google_cloud_run_v2_service.company_service.uri}/webhooks/company-events"
     
     oidc_token {
       service_account_email = google_service_account.cloud_run.email
@@ -122,7 +122,7 @@ resource "google_pubsub_subscription" "company_events_sub" {
   }
 }
 
-# Transaction Service Subscriptions
+# Accounts Service Subscriptions (handles transactions)
 resource "google_pubsub_subscription" "transaction_events_sub" {
   name  = "${var.project_name}-transaction-events-sub"
   topic = google_pubsub_topic.transaction_events.name
@@ -141,7 +141,7 @@ resource "google_pubsub_subscription" "transaction_events_sub" {
   }
 
   push_config {
-    push_endpoint = "https://${var.project_name}-transaction-service-${random_id.suffix.hex}-uc.a.run.app/webhooks/transaction-events"
+    push_endpoint = "${google_cloud_run_v2_service.accounts_service.uri}/webhooks/transaction-events"
     
     oidc_token {
       service_account_email = google_service_account.cloud_run.email
@@ -149,34 +149,7 @@ resource "google_pubsub_subscription" "transaction_events_sub" {
   }
 }
 
-# Commission Service Subscriptions 
-resource "google_pubsub_subscription" "commission_events_sub" {
-  name  = "${var.project_name}-commission-events-sub"
-  topic = google_pubsub_topic.commission_events.name
-
-  ack_deadline_seconds = 20
-  message_retention_duration = "604800s"
-
-  retry_policy {
-    minimum_backoff = "10s"
-    maximum_backoff = "600s"
-  }
-
-  dead_letter_policy {
-    dead_letter_topic     = google_pubsub_topic.dead_letter.id
-    max_delivery_attempts = 5
-  }
-
-  push_config {
-    push_endpoint = "https://${var.project_name}-commission-service-${random_id.suffix.hex}-uc.a.run.app/webhooks/commission-events"
-    
-    oidc_token {
-      service_account_email = google_service_account.cloud_run.email
-    }
-  }
-}
-
-# Notification Service Subscriptions
+# Mobile Service Subscriptions (handles notifications)
 resource "google_pubsub_subscription" "notification_events_sub" {
   name  = "${var.project_name}-notification-events-sub"
   topic = google_pubsub_topic.notification_events.name
@@ -195,15 +168,10 @@ resource "google_pubsub_subscription" "notification_events_sub" {
   }
 
   push_config {
-    push_endpoint = "https://${var.project_name}-notification-service-${random_id.suffix.hex}-uc.a.run.app/webhooks/notification-events"
+    push_endpoint = "${google_cloud_run_v2_service.mobile_service.uri}/webhooks/notification-events"
     
     oidc_token {
       service_account_email = google_service_account.cloud_run.email
     }
   }
-}
-
-# Random suffix for unique resource names
-resource "random_id" "suffix" {
-  byte_length = 4
 }
