@@ -223,7 +223,7 @@ output "deployment_info" {
     next_steps = [
       "1. Update DNS records to point ${var.domain_name} to ${google_compute_global_address.main.address}",
       "2. Wait for SSL certificate provisioning to complete",
-      "3. Build and push Docker images to ${google_container_registry_url.registry_url}",
+      "3. Build and push Docker images to gcr.io/${var.project_id}",
       "4. Deploy services using the CI/CD pipeline",
       "5. Run database migrations",
       "6. Verify all health checks are passing"
