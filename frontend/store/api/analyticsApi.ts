@@ -109,6 +109,30 @@ export const analyticsApi = createApi({
       providesTags: ['Analytics'],
     }),
 
+    // Customer retention analytics
+    getCustomerRetention: builder.query<any, AnalyticsQuery>({
+      query: ({ timeRange, filters }) => ({
+        url: '/customer-retention',
+        params: {
+          timeRange,
+          ...filters,
+        },
+      }),
+      providesTags: ['Analytics'],
+    }),
+
+    // Predictive insights
+    getPredictiveInsights: builder.query<any, AnalyticsQuery>({
+      query: ({ timeRange, filters }) => ({
+        url: '/predictive-insights',
+        params: {
+          timeRange,
+          ...filters,
+        },
+      }),
+      providesTags: ['Analytics'],
+    }),
+
     // Performance metrics for system monitoring
     getPerformanceMetrics: builder.query<PerformanceMetrics, AnalyticsQuery>({
       query: ({ timeRange, filters }) => ({
@@ -296,6 +320,8 @@ export const {
   useGetTransactionPatternsQuery,
   useGetFraudMetricsQuery,
   useGetPaymentMethodAnalyticsQuery,
+  useGetCustomerRetentionQuery,
+  useGetPredictiveInsightsQuery,
   useGetPerformanceMetricsQuery,
   useGetRiskAnalyticsQuery,
   useGetActivityFeedQuery,
