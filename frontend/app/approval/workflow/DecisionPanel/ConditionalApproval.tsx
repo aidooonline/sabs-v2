@@ -323,7 +323,7 @@ export const ConditionalApproval: React.FC<ConditionalApprovalProps> = ({
                     </span>
                   </div>
                   <p className="text-xs text-gray-600 mb-3">{template.description}</p>
-                  <p className="text-sm text-gray-800 italic mb-3">"{template.template}"</p>
+                  <p className="text-sm text-gray-800 italic mb-3">&ldquo;{template.template}&rdquo;</p>
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <span className="capitalize">{template.category}</span>
                     <span>Est. {template.estimatedTime}</span>

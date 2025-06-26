@@ -5,12 +5,12 @@ resource "google_sql_database_instance" "main" {
   region           = var.region
 
   settings {
-    tier                        = var.database_tier
-    availability_type           = var.environment == "production" ? "REGIONAL" : "ZONAL"
-    disk_type                   = "PD_SSD"
-    disk_size                   = var.database_disk_size
-    disk_autoresize             = true
-    disk_autoresize_limit       = var.database_max_disk_size
+    tier                  = var.database_tier
+    availability_type     = var.environment == "production" ? "REGIONAL" : "ZONAL"
+    disk_type             = "PD_SSD"
+    disk_size             = var.database_disk_size
+    disk_autoresize       = true
+    disk_autoresize_limit = var.database_max_disk_size
 
     backup_configuration {
       enabled                        = true
@@ -35,7 +35,7 @@ resource "google_sql_database_instance" "main" {
 
     database_flags {
       name  = "log_connections"
-      value = "on" 
+      value = "on"
     }
 
     database_flags {
@@ -102,7 +102,7 @@ resource "google_sql_user" "sabs_user" {
 # Store database credentials in Secret Manager
 resource "google_secret_manager_secret" "db_password" {
   secret_id = "${var.project_name}-db-password"
-  
+
   replication {
     user_managed {
       replicas {
@@ -137,7 +137,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 # Database connection info
 resource "google_secret_manager_secret" "db_connection_string" {
   secret_id = "${var.project_name}-db-connection"
-  
+
   replication {
     user_managed {
       replicas {

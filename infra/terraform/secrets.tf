@@ -20,7 +20,7 @@ resource "random_password" "encryption_key" {
 # JWT Secret for authentication
 resource "google_secret_manager_secret" "jwt_secret" {
   secret_id = "${var.project_name}-jwt-secret"
-  
+
   replication {
     user_managed {
       replicas {
@@ -41,7 +41,7 @@ resource "google_secret_manager_secret_version" "jwt_secret" {
 # Platform Master Key for super admin access
 resource "google_secret_manager_secret" "platform_master_key" {
   secret_id = "${var.project_name}-platform-master-key"
-  
+
   replication {
     user_managed {
       replicas {
@@ -62,7 +62,7 @@ resource "google_secret_manager_secret_version" "platform_master_key" {
 # SMS Provider API Key
 resource "google_secret_manager_secret" "sms_api_key" {
   secret_id = "${var.project_name}-sms-api-key"
-  
+
   replication {
     user_managed {
       replicas {
@@ -83,7 +83,7 @@ resource "google_secret_manager_secret_version" "sms_api_key" {
 # OpenAI API Key for AI features
 resource "google_secret_manager_secret" "openai_api_key" {
   secret_id = "${var.project_name}-openai-api-key"
-  
+
   replication {
     user_managed {
       replicas {
@@ -104,7 +104,7 @@ resource "google_secret_manager_secret_version" "openai_api_key" {
 # Redis connection string (for future use)
 resource "google_secret_manager_secret" "redis_connection" {
   secret_id = "${var.project_name}-redis-connection"
-  
+
   replication {
     user_managed {
       replicas {
@@ -125,7 +125,7 @@ resource "google_secret_manager_secret_version" "redis_connection" {
 # Application configuration secrets
 resource "google_secret_manager_secret" "app_config" {
   secret_id = "${var.project_name}-app-config"
-  
+
   replication {
     user_managed {
       replicas {
@@ -153,8 +153,8 @@ resource "google_secret_manager_secret_version" "app_config" {
       api_requests_per_minute  = var.environment == "production" ? 1000 : 10000
     }
     features = {
-      ai_assistant_enabled     = true
-      sms_notifications_enabled = true
+      ai_assistant_enabled       = true
+      sms_notifications_enabled  = true
       advanced_analytics_enabled = var.environment == "production"
     }
   })
@@ -163,7 +163,7 @@ resource "google_secret_manager_secret_version" "app_config" {
 # Service-to-service authentication secret
 resource "google_secret_manager_secret" "service_auth_key" {
   secret_id = "${var.project_name}-service-auth-key"
-  
+
   replication {
     user_managed {
       replicas {
@@ -184,7 +184,7 @@ resource "google_secret_manager_secret_version" "service_auth_key" {
 # Webhook secrets for external integrations
 resource "google_secret_manager_secret" "webhook_secret" {
   secret_id = "${var.project_name}-webhook-secret"
-  
+
   replication {
     user_managed {
       replicas {

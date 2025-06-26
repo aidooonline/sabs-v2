@@ -13,10 +13,10 @@ zone   = "us-central1-a"
 domain_name = "staging.sabs-v2.com"
 
 # Database Configuration (smaller instances for staging)
-database_tier         = "db-g1-small"
-database_disk_size    = 20
+database_tier          = "db-g1-small"
+database_disk_size     = 20
 database_max_disk_size = 100
-backup_retention_days = 7
+backup_retention_days  = 7
 
 # Scaling Configuration (reduced for staging)
 min_instances = 0
@@ -29,13 +29,13 @@ allowed_ip_ranges = ["0.0.0.0/0"] # Open access for staging testing
 
 # Monitoring Configuration
 enable_detailed_monitoring = true
-enable_flow_logs          = true
+enable_flow_logs           = true
 
 # Feature Flags
-enable_ai_features        = true
-enable_sms_notifications  = true
-enable_audit_logging      = true
-enable_debug_mode         = true
+enable_ai_features       = true
+enable_sms_notifications = true
+enable_audit_logging     = true
+enable_debug_mode        = true
 
 # Development/Testing Configuration
 enable_binary_authorization = false

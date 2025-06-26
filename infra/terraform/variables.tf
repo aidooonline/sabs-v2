@@ -14,7 +14,7 @@ variable "environment" {
   description = "Environment name (development, staging, production)"
   type        = string
   default     = "development"
-  
+
   validation {
     condition     = contains(["development", "staging", "production"], var.environment)
     error_message = "Environment must be one of: development, staging, production."
@@ -46,7 +46,7 @@ variable "database_tier" {
   description = "The tier for the Cloud SQL instance"
   type        = string
   default     = "db-f1-micro"
-  
+
   validation {
     condition = contains([
       "db-f1-micro", "db-g1-small", "db-n1-standard-1", "db-n1-standard-2",
@@ -61,7 +61,7 @@ variable "database_disk_size" {
   description = "The disk size for the Cloud SQL instance in GB"
   type        = number
   default     = 20
-  
+
   validation {
     condition     = var.database_disk_size >= 10 && var.database_disk_size <= 4096
     error_message = "Database disk size must be between 10 and 4096 GB."
@@ -72,7 +72,7 @@ variable "database_max_disk_size" {
   description = "The maximum disk size for the Cloud SQL instance in GB"
   type        = number
   default     = 100
-  
+
   validation {
     condition     = var.database_max_disk_size >= 20 && var.database_max_disk_size <= 4096
     error_message = "Database max disk size must be between 20 and 4096 GB."
@@ -145,7 +145,7 @@ variable "backup_retention_days" {
   description = "Number of days to retain database backups"
   type        = number
   default     = 7
-  
+
   validation {
     condition     = var.backup_retention_days >= 1 && var.backup_retention_days <= 365
     error_message = "Backup retention days must be between 1 and 365."
@@ -157,7 +157,7 @@ variable "min_instances" {
   description = "Minimum number of instances for Cloud Run services"
   type        = number
   default     = 0
-  
+
   validation {
     condition     = var.min_instances >= 0 && var.min_instances <= 100
     error_message = "Min instances must be between 0 and 100."
@@ -168,7 +168,7 @@ variable "max_instances" {
   description = "Maximum number of instances for Cloud Run services"
   type        = number
   default     = 10
-  
+
   validation {
     condition     = var.max_instances >= 1 && var.max_instances <= 1000
     error_message = "Max instances must be between 1 and 1000."
@@ -180,7 +180,7 @@ variable "cpu_limit" {
   description = "CPU limit for Cloud Run services"
   type        = string
   default     = "1"
-  
+
   validation {
     condition     = contains(["1", "2", "4", "8"], var.cpu_limit)
     error_message = "CPU limit must be one of: 1, 2, 4, 8."
@@ -191,9 +191,9 @@ variable "memory_limit" {
   description = "Memory limit for Cloud Run services"
   type        = string
   default     = "1Gi"
-  
+
   validation {
-    condition = can(regex("^[0-9]+(Mi|Gi)$", var.memory_limit))
+    condition     = can(regex("^[0-9]+(Mi|Gi)$", var.memory_limit))
     error_message = "Memory limit must be specified in Mi or Gi (e.g., 512Mi, 1Gi, 2Gi)."
   }
 }

@@ -201,7 +201,7 @@ output "identity_service_health_url" {
 }
 
 output "company_service_health_url" {
-  description = "Health check URL for Company Service"  
+  description = "Health check URL for Company Service"
   value       = "${google_cloud_run_v2_service.company_service.uri}/health"
 }
 
@@ -240,8 +240,8 @@ output "deployment_info" {
 output "google_container_registry_url" {
   description = "Google Container Registry URL"
   value = {
-    registry_url = "gcr.io/${var.project_id}"
+    registry_url           = "gcr.io/${var.project_id}"
     identity_service_image = "gcr.io/${var.project_id}/${var.project_name}-identity-service"
-    company_service_image = "gcr.io/${var.project_id}/${var.project_name}-company-service"
+    company_service_image  = "gcr.io/${var.project_id}/${var.project_name}-company-service"
   }
 }

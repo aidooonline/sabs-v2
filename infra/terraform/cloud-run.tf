@@ -55,7 +55,7 @@ resource "google_cloud_run_v2_service" "frontend" {
 
   template {
     service_account = google_service_account.cloud_run.email
-    
+
     scaling {
       min_instance_count = var.environment == "production" ? 1 : 0
       max_instance_count = var.environment == "production" ? 10 : 3
@@ -63,7 +63,7 @@ resource "google_cloud_run_v2_service" "frontend" {
 
     containers {
       image = "gcr.io/${var.project_id}/${var.project_name}-frontend:latest"
-      
+
       ports {
         container_port = 3000
       }
@@ -141,7 +141,7 @@ resource "google_cloud_run_v2_service" "identity_service" {
 
   template {
     service_account = google_service_account.cloud_run.email
-    
+
     scaling {
       min_instance_count = var.environment == "production" ? 1 : 0
       max_instance_count = var.environment == "production" ? 10 : 3
@@ -149,7 +149,7 @@ resource "google_cloud_run_v2_service" "identity_service" {
 
     containers {
       image = "gcr.io/${var.project_id}/${var.project_name}-identity-service:latest"
-      
+
       ports {
         container_port = 3001
       }
@@ -243,7 +243,7 @@ resource "google_cloud_run_v2_service" "company_service" {
 
   template {
     service_account = google_service_account.cloud_run.email
-    
+
     scaling {
       min_instance_count = var.environment == "production" ? 1 : 0
       max_instance_count = var.environment == "production" ? 10 : 3
@@ -251,7 +251,7 @@ resource "google_cloud_run_v2_service" "company_service" {
 
     containers {
       image = "gcr.io/${var.project_id}/${var.project_name}-company-service:latest"
-      
+
       ports {
         container_port = 3002
       }
@@ -335,7 +335,7 @@ resource "google_cloud_run_v2_service" "accounts_service" {
 
   template {
     service_account = google_service_account.cloud_run.email
-    
+
     scaling {
       min_instance_count = var.environment == "production" ? 1 : 0
       max_instance_count = var.environment == "production" ? 10 : 3
@@ -343,7 +343,7 @@ resource "google_cloud_run_v2_service" "accounts_service" {
 
     containers {
       image = "gcr.io/${var.project_id}/${var.project_name}-accounts-service:latest"
-      
+
       ports {
         container_port = 3003
       }
@@ -427,7 +427,7 @@ resource "google_cloud_run_v2_service" "mobile_service" {
 
   template {
     service_account = google_service_account.cloud_run.email
-    
+
     scaling {
       min_instance_count = var.environment == "production" ? 1 : 0
       max_instance_count = var.environment == "production" ? 10 : 3
@@ -435,7 +435,7 @@ resource "google_cloud_run_v2_service" "mobile_service" {
 
     containers {
       image = "gcr.io/${var.project_id}/${var.project_name}-mobile-service:latest"
-      
+
       ports {
         container_port = 3004
       }
@@ -599,9 +599,9 @@ resource "google_compute_url_map" "main" {
 
 # Backend Services for Load Balancer
 resource "google_compute_backend_service" "frontend" {
-  name                  = "${var.project_name}-frontend-backend"
-  protocol              = "HTTP"
-  timeout_sec           = 30
+  name                            = "${var.project_name}-frontend-backend"
+  protocol                        = "HTTP"
+  timeout_sec                     = 30
   connection_draining_timeout_sec = 300
 
   backend {
@@ -612,9 +612,9 @@ resource "google_compute_backend_service" "frontend" {
 }
 
 resource "google_compute_backend_service" "identity_service" {
-  name                  = "${var.project_name}-identity-backend"
-  protocol              = "HTTP"
-  timeout_sec           = 30
+  name                            = "${var.project_name}-identity-backend"
+  protocol                        = "HTTP"
+  timeout_sec                     = 30
   connection_draining_timeout_sec = 300
 
   backend {
@@ -625,9 +625,9 @@ resource "google_compute_backend_service" "identity_service" {
 }
 
 resource "google_compute_backend_service" "company_service" {
-  name                  = "${var.project_name}-company-backend"
-  protocol              = "HTTP"
-  timeout_sec           = 30
+  name                            = "${var.project_name}-company-backend"
+  protocol                        = "HTTP"
+  timeout_sec                     = 30
   connection_draining_timeout_sec = 300
 
   backend {
@@ -638,9 +638,9 @@ resource "google_compute_backend_service" "company_service" {
 }
 
 resource "google_compute_backend_service" "accounts_service" {
-  name                  = "${var.project_name}-accounts-backend"
-  protocol              = "HTTP"
-  timeout_sec           = 30
+  name                            = "${var.project_name}-accounts-backend"
+  protocol                        = "HTTP"
+  timeout_sec                     = 30
   connection_draining_timeout_sec = 300
 
   backend {
@@ -651,9 +651,9 @@ resource "google_compute_backend_service" "accounts_service" {
 }
 
 resource "google_compute_backend_service" "mobile_service" {
-  name                  = "${var.project_name}-mobile-backend"
-  protocol              = "HTTP"
-  timeout_sec           = 30
+  name                            = "${var.project_name}-mobile-backend"
+  protocol                        = "HTTP"
+  timeout_sec                     = 30
   connection_draining_timeout_sec = 300
 
   backend {
@@ -787,8 +787,8 @@ resource "google_compute_health_check" "mobile_service" {
 
 # HTTPS Proxy
 resource "google_compute_target_https_proxy" "main" {
-  name    = "${var.project_name}-https-proxy"
-  url_map = google_compute_url_map.main.id
+  name             = "${var.project_name}-https-proxy"
+  url_map          = google_compute_url_map.main.id
   ssl_certificates = [google_compute_managed_ssl_certificate.main.id]
 }
 
