@@ -378,7 +378,7 @@ resource "google_monitoring_dashboard" "main" {
               }
             }
           }
-        }
+        },
         {
           width = 6
           height = 4
@@ -408,7 +408,7 @@ resource "google_monitoring_dashboard" "main" {
               }
             }
           }
-        }
+        },
         {
           width = 12
           height = 4
@@ -430,7 +430,7 @@ resource "google_monitoring_dashboard" "main" {
                   }
                   plotType = "LINE"
                   targetAxis = "Y1"
-                }
+                },
                 {
                   timeSeriesQuery = {
                     timeSeriesFilter = {
