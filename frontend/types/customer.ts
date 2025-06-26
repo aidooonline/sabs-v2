@@ -238,3 +238,45 @@ export interface CustomerSearchProps {
   showFilters?: boolean;
   showExport?: boolean;
 }
+
+// Customer list component props
+export interface CustomerListProps {
+  customers: Customer[];
+  loading?: boolean;
+  error?: string | null;
+  viewMode?: 'cards' | 'list' | 'table';
+  onCustomerSelect?: (customerId: string) => void;
+  onCustomerAction?: (action: string, customerId: string) => void;
+  onBulkAction?: (action: string, customerIds: string[]) => void;
+  pagination?: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+}
+
+// Bulk action types
+export type BulkActionType = 
+  | 'export'
+  | 'email'
+  | 'assign-group'
+  | 'report'
+  | 'archive'
+  | 'risk-assessment'
+  | 'suspend'
+  | 'activate';
+
+// Export functionality types
+export interface ExportOptions {
+  format: 'csv' | 'excel' | 'pdf';
+  fields: string[];
+  dateRange?: {
+    start: Date;
+    end: Date;
+  };
+  includeAccounts?: boolean;
+  includeTransactions?: boolean;
+}

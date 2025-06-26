@@ -277,3 +277,58 @@ export const EmptyStateWithLoading: React.FC<{
     </div>
   );
 };
+
+// Customer card loading skeleton
+export const CustomerLoadingCard: React.FC = () => {
+  return (
+    <div className="customer-card animate-pulse">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center space-x-3 flex-1">
+          {/* Selection checkbox skeleton */}
+          <div className="w-5 h-5 bg-gray-200 rounded"></div>
+          
+          {/* Avatar skeleton */}
+          <div className="w-14 h-14 bg-gray-200 rounded-full"></div>
+          
+          {/* Customer info skeleton */}
+          <div className="flex-1">
+            <div className="flex items-center space-x-2 mb-1">
+              <div className="h-5 bg-gray-200 rounded w-32"></div>
+              <div className="h-4 bg-gray-200 rounded w-16"></div>
+            </div>
+            <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
+            <div className="h-4 bg-gray-200 rounded w-40 mb-2"></div>
+            <div className="flex space-x-2">
+              <div className="h-5 bg-gray-200 rounded w-16"></div>
+              <div className="h-5 bg-gray-200 rounded w-12"></div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Action buttons skeleton */}
+        <div className="flex items-center space-x-1">
+          <div className="w-8 h-8 bg-gray-200 rounded"></div>
+          <div className="w-8 h-8 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+      
+      {/* Quick info skeleton */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+          <div>
+            <div className="h-3 bg-gray-200 rounded w-12 mb-1"></div>
+            <div className="h-4 bg-gray-200 rounded w-16"></div>
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+          <div>
+            <div className="h-3 bg-gray-200 rounded w-12 mb-1"></div>
+            <div className="h-4 bg-gray-200 rounded w-8"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

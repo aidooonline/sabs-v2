@@ -1,0 +1,431 @@
+/* Enhanced Customer Card Styles with Action Panels */
+.customer-card {
+  @apply bg-white rounded-lg border border-gray-200 p-6 mb-4 hover:shadow-md;
+  transition: all 0.2s ease-in-out;
+  transform-origin: center;
+}
+
+.customer-card:hover {
+  @apply border-gray-300;
+  transform: translateY(-1px);
+}
+
+.customer-card.selected {
+  @apply border-primary-500 bg-primary-50;
+  box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.1);
+}
+
+.customer-card.expanded {
+  @apply shadow-lg;
+  transform: scale(1.01);
+}
+
+/* Touch-optimized targets */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  @apply flex items-center justify-center;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Card actions */
+.card-action {
+  @apply transition-colors duration-150;
+  border-radius: 6px;
+}
+
+.card-action:hover {
+  @apply bg-gray-100;
+}
+
+.card-action:active {
+  @apply bg-gray-200 scale-95;
+  transition: all 0.1s ease-in-out;
+}
+
+/* Customer action buttons */
+.customer-action-button {
+  @apply flex items-center justify-center px-4 py-2 border border-gray-200 rounded-md text-gray-700 bg-white hover:bg-gray-50 active:bg-gray-100 transition-all duration-150;
+  font-weight: 500;
+  min-height: 44px; /* Touch-friendly */
+}
+
+.customer-action-button:active {
+  @apply scale-95;
+  transition: all 0.1s ease-in-out;
+}
+
+/* Action panel animations */
+.customer-action-panel {
+  @apply flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Status indicators and badges */
+.verification-badge-verified {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800;
+}
+
+.verification-badge-pending {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800;
+}
+
+.verification-badge-unverified {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800;
+}
+
+.verification-badge-rejected {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800;
+}
+
+.verification-badge-suspended {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800;
+}
+
+/* Risk level indicators */
+.risk-indicator-low {
+  @apply bg-green-500;
+}
+
+.risk-indicator-medium {
+  @apply bg-yellow-500;
+}
+
+.risk-indicator-high {
+  @apply bg-red-500;
+}
+
+.risk-indicator-critical {
+  @apply bg-red-700;
+}
+
+/* Quick info icons */
+.quick-info-icon {
+  @apply w-8 h-8 rounded-full flex items-center justify-center;
+}
+
+.quick-info-icon.balance {
+  @apply bg-green-100 text-green-600;
+}
+
+.quick-info-icon.accounts {
+  @apply bg-blue-100 text-blue-600;
+}
+
+.quick-info-icon.activity {
+  @apply bg-purple-100 text-purple-600;
+}
+
+.quick-info-icon.risk {
+  @apply bg-orange-100 text-orange-600;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .customer-card {
+    @apply p-4 mb-3;
+  }
+
+  .customer-action-button {
+    @apply text-sm px-3 py-2;
+    min-height: 48px; /* Larger touch targets on mobile */
+  }
+
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  .customer-card .grid-cols-2 {
+    @apply grid-cols-1 gap-2;
+  }
+
+  /* Larger avatar on mobile */
+  .customer-card .w-14 {
+    @apply w-16 h-16;
+  }
+
+  .customer-card .text-lg {
+    @apply text-base;
+  }
+
+  .customer-card .text-xs {
+    @apply text-sm;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .customer-card {
+    @apply p-5;
+  }
+
+  .customer-action-button {
+    min-height: 46px;
+  }
+}
+
+/* Desktop enhancements */
+@media (min-width: 1025px) {
+  .customer-card:hover .card-action {
+    @apply opacity-100;
+  }
+
+  .card-action {
+    @apply opacity-70 hover:opacity-100;
+  }
+
+  .customer-list-grid.cards {
+    @apply grid-cols-2 xl:grid-cols-3;
+  }
+}
+
+/* Keyboard navigation and accessibility */
+.customer-card:focus {
+  @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+}
+
+.customer-action-button:focus {
+  @apply outline-none ring-2 ring-primary-500 ring-offset-1;
+}
+
+.card-action:focus {
+  @apply outline-none ring-2 ring-primary-500 ring-offset-1;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .customer-card {
+    @apply border-2 border-gray-900;
+  }
+
+  .customer-card.selected {
+    @apply border-2 border-primary-700 bg-primary-100;
+  }
+
+  .customer-action-button {
+    @apply border-2 border-gray-700;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .customer-card {
+    transition: none;
+  }
+
+  .customer-action-button {
+    transition: none;
+  }
+
+  .card-action {
+    transition: none;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .customer-card {
+    @apply bg-gray-800 border-gray-700 text-white;
+  }
+
+  .customer-card:hover {
+    @apply border-gray-600;
+  }
+
+  .customer-card.selected {
+    @apply border-primary-400 bg-primary-900;
+  }
+
+  .customer-action-button {
+    @apply bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600;
+  }
+
+  .card-action:hover {
+    @apply bg-gray-700;
+  }
+
+  .verification-badge-verified {
+    @apply bg-green-900 text-green-200;
+  }
+
+  .verification-badge-pending {
+    @apply bg-yellow-900 text-yellow-200;
+  }
+
+  .verification-badge-unverified {
+    @apply bg-red-900 text-red-200;
+  }
+}
+
+/* Loading states for expanded content */
+.customer-expanded-content {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Selection animation */
+.customer-card.selecting {
+  animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* Bulk selection indicators */
+.bulk-selection-active .customer-card {
+  @apply cursor-pointer;
+}
+
+.bulk-selection-active .customer-card:not(.selected) {
+  @apply opacity-70;
+}
+
+.bulk-selection-active .customer-card.selected {
+  @apply opacity-100;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 480px) {
+  .customer-list-grid.cards {
+    @apply grid-cols-1;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .customer-list-grid.cards {
+    @apply grid-cols-1;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .customer-list-grid.cards {
+    @apply grid-cols-2;
+  }
+}
+
+/* Bulk Action Button Styles */
+.bulk-action-button {
+  @apply flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md transition-colors duration-150 border border-transparent;
+  min-height: 40px;
+}
+
+.bulk-action-button:active {
+  @apply scale-95;
+  transition: all 0.1s ease-in-out;
+}
+
+.mobile-bulk-action-button {
+  @apply px-3 py-1 text-xs font-medium bg-white/10 hover:bg-white/20 rounded text-white transition-colors duration-150;
+  min-height: 32px;
+}
+
+/* Bulk Selection Animations */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out;
+}
+
+/* Bulk Toolbar Positioning */
+@media (min-width: 768px) {
+  .bulk-selection-toolbar {
+    @apply fixed bottom-6 left-1/2 transform -translate-x-1/2;
+  }
+}
+
+@media (max-width: 767px) {
+  .bulk-selection-toolbar {
+    @apply fixed top-0 left-0 right-0;
+  }
+}
+
+/* Pagination Styles */
+.pagination-button {
+  @apply flex items-center justify-center px-3 py-2 text-sm font-medium border transition-colors duration-150;
+  min-height: 40px;
+  min-width: 40px;
+}
+
+.pagination-button:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.pagination-nav {
+  @apply text-gray-500 bg-white border-gray-300 hover:bg-gray-50 disabled:hover:bg-white;
+}
+
+.pagination-page {
+  @apply text-gray-700 bg-white border-gray-300 hover:bg-gray-50;
+}
+
+.pagination-current {
+  @apply text-primary-600 bg-primary-50 border-primary-500;
+}
+
+.pagination-ellipsis {
+  @apply flex items-center justify-center px-3 py-2 text-gray-400;
+  min-height: 40px;
+  min-width: 40px;
+}
+
+/* Mobile pagination adjustments */
+@media (max-width: 640px) {
+  .pagination-button {
+    @apply px-2 py-2 text-xs;
+    min-height: 36px;
+    min-width: 36px;
+  }
+
+  .pagination-nav {
+    @apply px-3;
+    min-width: auto;
+  }
+}

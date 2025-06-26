@@ -307,12 +307,19 @@ export const validateCustomerData = (customer: Partial<Customer>) => {
   };
 };
 
-// Generate customer display ID (shorter version for UI)
-export const generateCustomerDisplayId = (customer: Customer): string => {
-  const prefix = customer.firstName.charAt(0).toUpperCase() + customer.lastName.charAt(0).toUpperCase();
-  const suffix = customer.id.slice(-6).toUpperCase();
-  return `${prefix}${suffix}`;
-};
+/**
+ * Generate a customer display ID for UI purposes
+ */
+export function generateCustomerDisplayId(customer: Customer): string {
+  // Generate a short ID from first few characters of ID or phone number
+  if (customer.idNumber) {
+    return `ID-${customer.idNumber.slice(-6)}`;
+  }
+  if (customer.phone) {
+    return `PH-${customer.phone.slice(-6)}`;
+  }
+  return `C-${customer.id.slice(-6)}`;
+}
 
 // Check if customer can be edited based on status
 export const canEditCustomer = (customer: Customer): boolean => {
