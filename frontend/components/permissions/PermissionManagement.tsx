@@ -74,7 +74,7 @@ export const PermissionManagement: React.FC<PermissionManagementProps> = ({
 
   // Get unique categories
   const categories = useMemo(() => {
-    const cats = [...new Set(permissions.map(p => p.category))];
+    const cats = Array.from(new Set(permissions.map(p => p.category)));
     return ['all', ...cats];
   }, [permissions]);
 

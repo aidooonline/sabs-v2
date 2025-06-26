@@ -1,6 +1,5 @@
 'use client';
 
-import { Metadata } from 'next';
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ApprovalErrorBoundary } from '../../../components/approval/shared/ErrorBoundary';
@@ -24,11 +23,6 @@ import { ReviewBreadcrumb } from './components/ReviewBreadcrumb';
 interface ReviewRequestPageProps {
   searchParams: { workflowId?: string };
 }
-
-export const metadata: Metadata = {
-  title: 'Review Requests - Sabs v2',
-  description: 'Review withdrawal requests and customer verification',
-};
 
 export default function ReviewRequestPage() {
   const searchParams = useSearchParams();

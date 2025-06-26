@@ -14,8 +14,19 @@ import uiReducer, {
   setBreadcrumbs
 } from '../../../store/slices/uiSlice';
 
+interface UIState {
+  isLoading: boolean;
+  notifications: Array<{ id: string; type: string; message: string; duration?: number }>;
+  modals: Record<string, any>;
+  sidebarOpen: boolean;
+  theme: 'light' | 'dark';
+  bottomTabVisible: boolean;
+  pageTitle: string;
+  breadcrumbs: Array<{ label: string; href?: string }>;
+}
+
 describe('uiSlice', () => {
-  let store: ReturnType<typeof configureStore>;
+  let store: ReturnType<typeof configureStore<{ ui: UIState }>>;
 
   beforeEach(() => {
     store = configureStore({

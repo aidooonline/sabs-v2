@@ -1,5 +1,5 @@
 import { setupServer } from 'msw/node';
-import { rest } from 'msw';
+import { http } from 'msw';
 import { TestFramework } from '../testFramework';
 
 // API response generators
@@ -14,7 +14,7 @@ const generateUserList = (count = 5) => {
 // Mock API handlers
 export const handlers = [
   // Workflow endpoints
-  rest.get('/api/workflows', (req: any, res: any, ctx: any) => {
+  http.get('/api/workflows', (req: any, res: any, ctx: any): any => {
     const page = req.url.searchParams.get('page') || '1';
     const limit = req.url.searchParams.get('limit') || '10';
     const status = req.url.searchParams.get('status');

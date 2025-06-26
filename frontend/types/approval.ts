@@ -56,6 +56,7 @@ export interface ApprovalWorkflow {
   dueDate: string;
   escalationDate?: string;
   completedAt?: string;
+  description?: string;
   
   // Withdrawal request details
   withdrawalRequest: WithdrawalRequest;

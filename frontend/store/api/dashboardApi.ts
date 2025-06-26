@@ -138,9 +138,9 @@ export const dashboardApi = createApi({
       query: (params) => ({
         url: '/spending/analysis',
         params: {
-          period: 'month',
           groupBy: 'category',
           ...params,
+          period: params.period || 'month',
         },
       }),
       providesTags: ['Analytics'],

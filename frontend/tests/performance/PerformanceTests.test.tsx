@@ -1,3 +1,4 @@
+import React from 'react';
 import { performance } from 'perf_hooks';
 import { TestFramework } from '../setup/testFramework';
 import { setupApiMocks, MockDataGenerators, mockFetch } from '../setup/mocks/apiMocks';

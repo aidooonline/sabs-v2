@@ -95,7 +95,7 @@ export const TestFramework = {
 
   // Accessibility testing helpers
   checkAccessibility: async (container: HTMLElement) => {
-    const { axe } = await import('@axe-core/react');
+    const axe = (await import('@axe-core/react')).default;
     const results = await axe(container);
     return results;
   },

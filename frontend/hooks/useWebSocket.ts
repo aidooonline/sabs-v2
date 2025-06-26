@@ -188,6 +188,16 @@ export const useWebSocket = (config: Partial<WebSocketConfig> = {}): WebSocketHo
 
   }, [sendHeartbeat]);
 
+  // Handle WebSocket errors
+  const handleError = useCallback((event: Event) => {
+    console.error('WebSocket error:', event);
+    setState(prev => ({
+      ...prev,
+      error: 'WebSocket connection error',
+      isConnecting: false
+    }));
+  }, []);
+
   // Handle WebSocket connection close
   const handleClose = useCallback((event: CloseEvent) => {
     console.log('WebSocket disconnected:', event.code, event.reason);
@@ -252,16 +262,6 @@ export const useWebSocket = (config: Partial<WebSocketConfig> = {}): WebSocketHo
       });
     }
   }, [wsConfig.reconnectAttempts, wsConfig.reconnectInterval, wsConfig.url, wsConfig.protocols, clearHeartbeatTimeout, handleOpen, handleMessage, handleError]);
-
-  // Handle WebSocket errors
-  const handleError = useCallback((event: Event) => {
-    console.error('WebSocket error:', event);
-    setState(prev => ({
-      ...prev,
-      error: 'WebSocket connection error',
-      isConnecting: false
-    }));
-  }, []);
 
   // Connect to WebSocket
   const connect = useCallback(() => {
