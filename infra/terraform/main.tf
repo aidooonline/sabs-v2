@@ -1,22 +1,3 @@
-terraform {
-  required_version = ">= 1.0"
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "~> 5.0"
-    }
-    google-beta = {
-      source  = "hashicorp/google-beta"
-      version = "~> 5.0"
-    }
-  }
-
-  backend "gcs" {
-    bucket = var.terraform_state_bucket
-    prefix = "terraform/state"
-  }
-}
-
 provider "google" {
   project = var.project_id
   region  = var.region
@@ -51,9 +32,8 @@ resource "google_project_service" "required_apis" {
     "cloudtrace.googleapis.com"
   ])
 
-  project = var.project_id
-  service = each.value
-
+  project                    = var.project_id
+  service                    = each.value
   disable_dependent_services = true
 }
 
@@ -71,7 +51,6 @@ resource "google_compute_subnetwork" "main" {
   region        = var.region
   network       = google_compute_network.main.id
 
-  # Enable VPC flow logs for security monitoring and auditing
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"
     flow_sampling        = 0.5
