@@ -2,7 +2,6 @@ import {
   Controller,
   Post,
   Get,
-  Put,
   Delete,
   Body,
   Req,
@@ -10,7 +9,6 @@ import {
   HttpCode,
   HttpStatus,
   Query,
-  Param,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -24,12 +22,10 @@ import {
   EnhancedLoginDto,
   EnableMfaDto,
   VerifyMfaSetupDto,
-  VerifyMfaDto,
   DisableMfaDto,
   SessionFilterDto,
   InvalidateSessionDto,
   ReportSuspiciousActivityDto,
-  SecuritySettingsDto,
 } from '../dto/enhanced-auth.dto';
 import { RefreshTokenDto } from '../dto/auth.dto';
 import { AuthUser } from '../interfaces/jwt-payload.interface';
@@ -303,7 +299,7 @@ export class EnhancedAuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get platform-wide security overview (Super Admin only)' })
   @ApiResponse({ status: 200, description: 'Security overview retrieved' })
-  async getSecurityOverview(@CurrentUser() user: AuthUser) {
+  async getSecurityOverview(@CurrentUser() _user: AuthUser) {
     // TODO: Add role check for super admin
     return this.auditService.getSecurityAnalytics(undefined, 30);
   }
@@ -313,7 +309,7 @@ export class EnhancedAuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Cleanup expired sessions (Super Admin only)' })
   @ApiResponse({ status: 200, description: 'Sessions cleaned up' })
-  async cleanupExpiredSessions(@CurrentUser() user: AuthUser) {
+  async cleanupExpiredSessions(@CurrentUser() _user: AuthUser) {
     // TODO: Add role check for super admin
     return this.sessionService.cleanupExpiredSessions();
   }

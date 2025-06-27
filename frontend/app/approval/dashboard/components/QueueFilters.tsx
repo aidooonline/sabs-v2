@@ -109,6 +109,7 @@ export const QueueFilters: React.FC<QueueFiltersProps> = ({
             onChange={(e) => setSearchTerm(e.target.value)}
             className="block w-full pl-10 pr-16 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
             placeholder="Search by workflow number, customer name, agent..."
+            data-testid="search-input"
           />
           <div className="absolute inset-y-0 right-0 flex items-center pr-3">
             <button
@@ -137,6 +138,7 @@ export const QueueFilters: React.FC<QueueFiltersProps> = ({
             }}
             className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
             size={3}
+            data-testid="status-filter"
           >
             {statusOptions.map(option => (
               <option key={option.value} value={option.value}>
@@ -194,6 +196,7 @@ export const QueueFilters: React.FC<QueueFiltersProps> = ({
               value={filters.sortBy || 'createdAt'}
               onChange={(e) => handleFilterUpdate('sortBy', e.target.value)}
               className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+              data-testid="sort-dropdown"
             >
               {sortOptions.map(option => (
                 <option key={option.value} value={option.value}>
@@ -317,6 +320,7 @@ export const QueueFilters: React.FC<QueueFiltersProps> = ({
                    });
                  }}
                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                 data-testid="date-filter-button"
                >
                  Last 7 Days
                </button>

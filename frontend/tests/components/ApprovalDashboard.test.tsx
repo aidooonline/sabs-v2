@@ -3,20 +3,40 @@ import { render, screen, waitFor, fireEvent, within } from '@testing-library/rea
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
+import { combineReducers } from '@reduxjs/toolkit';
 import ApprovalDashboard from '../../app/approval/dashboard/page';
-import { setupApiMocks, MockDataGenerators, ApiAssertions } from '../setup/mocks/apiMocks';
+import { setupApiMocks, MockDataGenerators, ApiAssertions, mockFetch } from '../setup/mocks/apiMocks';
 import { TestFramework } from '../setup/testFramework';
+import authSlice from '../../store/slices/authSlice';
+import uiSlice from '../../store/slices/uiSlice';
+import { approvalApi } from '../../store/api/approvalApi';
+import { dashboardApi } from '../../store/api/dashboardApi';
 
-// Mock Redux store setup
+// Mock Redux store setup with proper RTK Query integration
 const createMockStore = (initialState = {}) => {
   return configureStore({
     reducer: {
-      workflows: (state = { items: [], loading: false, error: null }, action) => state,
-      dashboard: (state = { stats: null, loading: false }, action) => state,
-      auth: (state = { user: TestFramework.generateUser(), isAuthenticated: true }, action) => state,
-      notifications: (state = { items: [], unreadCount: 0 }, action) => state
+      auth: authSlice,
+      ui: uiSlice,
+      approvalApi: approvalApi.reducer,
+      dashboardApi: dashboardApi.reducer,
     },
-    preloadedState: initialState
+    preloadedState: {
+      auth: { 
+        user: TestFramework.generateUser(), 
+        isAuthenticated: true,
+        token: 'mock-token'
+      },
+      ui: {
+        isLoading: false,
+        notifications: [],
+        modals: {},
+        sidebarOpen: true,
+        breadcrumbs: [],
+        theme: 'light'
+      },
+      ...initialState
+    }
   });
 };
 

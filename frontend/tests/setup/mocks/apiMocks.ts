@@ -67,9 +67,9 @@ export const MockDataGenerators = {
 
 // Mock endpoints configuration
 export const mockEndpoints: Record<string, MockEndpoint> = {
-  'GET /api/workflows': {
+  'GET /api/approval-workflow/workflows': {
     method: 'GET',
-    url: '/api/workflows',
+    url: '/api/approval-workflow/workflows',
     response: {
       status: 200,
       data: {
@@ -77,8 +77,9 @@ export const mockEndpoints: Record<string, MockEndpoint> = {
         pagination: {
           page: 1,
           limit: 10,
-          total: 100,
-          totalPages: 10
+          totalCount: 100,
+          totalPages: 10,
+          currentPage: 1
         }
       }
     },
@@ -86,9 +87,9 @@ export const mockEndpoints: Record<string, MockEndpoint> = {
     callCount: 0
   },
 
-  'GET /api/workflows/:id': {
+  'GET /api/approval-workflow/workflows/:id': {
     method: 'GET',
-    url: '/api/workflows/:id',
+    url: '/api/approval-workflow/workflows/:id',
     response: {
       status: 200,
       data: {
@@ -118,9 +119,9 @@ export const mockEndpoints: Record<string, MockEndpoint> = {
     callCount: 0
   },
 
-  'POST /api/workflows/:id/approve': {
+  'POST /api/approval-workflow/workflows/:id/approve': {
     method: 'POST',
-    url: '/api/workflows/:id/approve',
+    url: '/api/approval-workflow/workflows/:id/approve',
     response: {
       status: 200,
       data: {
@@ -134,9 +135,9 @@ export const mockEndpoints: Record<string, MockEndpoint> = {
     callCount: 0
   },
 
-  'POST /api/workflows/:id/reject': {
+  'POST /api/approval-workflow/workflows/:id/reject': {
     method: 'POST',
-    url: '/api/workflows/:id/reject',
+    url: '/api/approval-workflow/workflows/:id/reject',
     response: {
       status: 200,
       data: {
@@ -150,12 +151,34 @@ export const mockEndpoints: Record<string, MockEndpoint> = {
     callCount: 0
   },
 
-  'GET /api/dashboard/stats': {
+  'GET /api/approval-workflow/dashboard/stats': {
     method: 'GET',
-    url: '/api/dashboard/stats',
+    url: '/api/approval-workflow/dashboard/stats',
     response: {
       status: 200,
       data: MockDataGenerators.dashboardStats()
+    },
+    called: false,
+    callCount: 0
+  },
+
+  'GET /api/approval-workflow/dashboard/queue-metrics': {
+    method: 'GET',
+    url: '/api/approval-workflow/dashboard/queue-metrics',
+    response: {
+      status: 200,
+      data: {
+        totalPending: 125,
+        totalApproved: 890,
+        totalRejected: 45,
+        averageProcessingTime: 4.5,
+        slaCompliance: 89.7,
+        riskDistribution: [
+          { riskLevel: 'low', count: 45 },
+          { riskLevel: 'medium', count: 67 },
+          { riskLevel: 'high', count: 13 }
+        ]
+      }
     },
     called: false,
     callCount: 0

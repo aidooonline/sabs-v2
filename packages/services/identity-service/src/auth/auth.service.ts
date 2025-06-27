@@ -8,7 +8,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { JwtPayload, LoginResponse, AuthUser } from './interfaces/jwt-payload.interface';
-import { RegisterDto, LoginDto, ChangePasswordDto, ResetPasswordDto } from './dto/auth.dto';
+import { RegisterDto, ChangePasswordDto, ResetPasswordDto } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 
@@ -44,7 +44,7 @@ export class AuthService {
     }
 
     // Return user without password
-    const { password: _, ...result } = user;
+    const { password: _password, ...result } = user;
     return result as AuthUser;
   }
 
@@ -95,7 +95,7 @@ export class AuthService {
     });
 
     // Generate tokens and return
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _password, ...userWithoutPassword } = user;
     return this.login(userWithoutPassword as AuthUser);
   }
 
@@ -115,9 +115,9 @@ export class AuthService {
         throw new UnauthorizedException('Account is deactivated');
       }
 
-      const { password: _, ...userWithoutPassword } = user;
+      const { password: _password, ...userWithoutPassword } = user;
       return this.login(userWithoutPassword as AuthUser);
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
   }
@@ -202,7 +202,7 @@ export class AuthService {
    * Logout user (invalidate token - in practice, this would be handled client-side
    * or with a token blacklist for enhanced security)
    */
-  async logout(userId: string): Promise<{ message: string }> {
+  async logout(_userId: string): Promise<{ message: string }> {
     // TODO: Add token to blacklist if implementing server-side token invalidation
     return { message: 'Logged out successfully' };
   }
@@ -217,7 +217,7 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _password, ...userWithoutPassword } = user;
     return userWithoutPassword as AuthUser;
   }
 

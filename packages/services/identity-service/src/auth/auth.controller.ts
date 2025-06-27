@@ -2,8 +2,6 @@ import {
   Controller, 
   Post, 
   Body, 
-  UseGuards, 
-  Request, 
   Get, 
   Patch,
   HttpCode,
@@ -18,8 +16,6 @@ import {
   ApiBody
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './guards/local-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { 
