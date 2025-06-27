@@ -125,7 +125,7 @@ variable "admin_ip_ranges" {
   description = "List of IP ranges allowed for administrative SSH access (should be restricted)"
   type        = list(string)
   default     = ["35.235.240.0/20"] # Google Cloud IAP IP range - more secure than 0.0.0.0/0
-  
+
   validation {
     condition     = length(var.admin_ip_ranges) > 0
     error_message = "At least one admin IP range must be specified."
