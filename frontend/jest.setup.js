@@ -110,21 +110,61 @@ global.IntersectionObserver = class IntersectionObserver {
   disconnect() {}
 };
 
-// Mock getBoundingClientRect
+// Mock getBoundingClientRect - Enhanced for Recharts ResponsiveContainer
 Element.prototype.getBoundingClientRect = jest.fn(() => ({
-  width: 120,
-  height: 120,
+  width: 1024,
+  height: 768,
   top: 0,
   left: 0,
-  bottom: 120,
-  right: 120,
+  bottom: 768,
+  right: 1024,
   x: 0,
   y: 0,
   toJSON: jest.fn(),
 }));
 
+// Ensure HTMLElement also has the mock
+HTMLElement.prototype.getBoundingClientRect = jest.fn(() => ({
+  width: 1024,
+  height: 768,
+  top: 0,
+  left: 0,
+  bottom: 768,
+  right: 1024,
+  x: 0,
+  y: 0,
+  toJSON: jest.fn(),
+}));
+
+// Mock for SVG elements used by Recharts
+if (typeof SVGElement !== 'undefined') {
+  SVGElement.prototype.getBoundingClientRect = jest.fn(() => ({
+    width: 1024,
+    height: 768,
+    top: 0,
+    left: 0,
+    bottom: 768,
+    right: 1024,
+    x: 0,
+    y: 0,
+    toJSON: jest.fn(),
+  }));
+}
+
 // Mock scrollIntoView
 Element.prototype.scrollIntoView = jest.fn();
+
+// Mock Recharts ResponsiveContainer specific behavior
+jest.mock('recharts', () => {
+  const OriginalModule = jest.requireActual('recharts');
+  
+  return {
+    ...OriginalModule,
+    ResponsiveContainer: ({ children, width = 1024, height = 768 }) => (
+      <div style={{ width, height }}>{children}</div>
+    ),
+  };
+});
 
 // Increase memory limit for tests
 if (typeof process !== 'undefined' && process.env) {

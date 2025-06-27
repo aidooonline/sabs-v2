@@ -279,7 +279,7 @@ describe('Dashboard Enhancement Sprint - Complete Test Suite', () => {
       
       const day3Elements = screen.getAllByText(/Day 3/);
       expect(day3Elements.length).toBeGreaterThan(0);
-      expect(screen.getByText(/Spending analysis with visual charts/)).toBeInTheDocument();
+      expect(screen.getByText(/Spending category breakdown \(pie\/bar charts\)/)).toBeInTheDocument();
     });
   });
 
@@ -337,7 +337,8 @@ describe('Dashboard Enhancement Sprint - Complete Test Suite', () => {
       expect(screen.getByText('Account')).toBeInTheDocument();
       const typeElements = screen.getAllByText('Type');
       expect(typeElements.length).toBeGreaterThan(0);
-      expect(screen.getByText('Category')).toBeInTheDocument();
+      const categoryElements = screen.getAllByText('Category');
+      expect(categoryElements.length).toBeGreaterThan(0);
     });
 
     it('should show completion status for AC4', () => {
