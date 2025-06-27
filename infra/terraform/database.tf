@@ -58,16 +58,31 @@ resource "google_sql_database_instance" "main" {
       value = "pg_stat_statements"
     }
 
+    database_flags {
+      name  = "ssl"
+      value = "on"
+    }
+
+    database_flags {
+      name  = "ssl_cert_file"
+      value = "server-cert.pem"
+    }
+
+    database_flags {
+      name  = "ssl_key_file"
+      value = "server-key.pem"
+    }
+
     # Enable temporary file logging for security compliance
     database_flags {
       name  = "log_temp_files"
       value = "0"
     }
 
-    # Additional security flags - only log very slow queries to minimize data exposure
+    # Disable query duration logging to prevent sensitive data exposure
     database_flags {
       name  = "log_min_duration_statement"
-      value = "10000" # Log queries taking longer than 10 seconds to reduce sensitive data exposure
+      value = "-1" # Disable query duration logging completely for security
     }
 
     database_flags {

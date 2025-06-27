@@ -110,19 +110,20 @@ resource "google_compute_firewall" "allow_internal" {
   source_ranges = ["10.0.0.0/8"]
 }
 
-resource "google_compute_firewall" "allow_ssh" {
-  name    = "${var.project_name}-allow-ssh"
-  network = google_compute_network.main.name
-
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-
-  # Use restricted IP ranges instead of allowing all internet traffic
-  source_ranges = var.admin_ip_ranges
-  target_tags   = ["ssh-enabled"]
-}
+# SSH access should be disabled for security - use Cloud Console or IAP for admin access
+# resource "google_compute_firewall" "allow_ssh" {
+#   name    = "${var.project_name}-allow-ssh"
+#   network = google_compute_network.main.name
+#
+#   allow {
+#     protocol = "tcp"
+#     ports    = ["22"]
+#   }
+#
+#   # Use restricted IP ranges instead of allowing all internet traffic
+#   source_ranges = var.admin_ip_ranges
+#   target_tags   = ["ssh-enabled"]
+# }
 
 # Global External IP for Load Balancer
 resource "google_compute_global_address" "main" {
