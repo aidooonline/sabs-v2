@@ -58,6 +58,23 @@ resource "google_sql_database_instance" "main" {
       value = "pg_stat_statements"
     }
 
+    # Enable temporary file logging for security compliance
+    database_flags {
+      name  = "log_temp_files"
+      value = "0"
+    }
+
+    # Additional security flags
+    database_flags {
+      name  = "log_min_duration_statement"
+      value = "1000" # Log queries taking longer than 1 second
+    }
+
+    database_flags {
+      name  = "log_line_prefix"
+      value = "%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h "
+    }
+
     maintenance_window {
       day          = 7
       hour         = 3

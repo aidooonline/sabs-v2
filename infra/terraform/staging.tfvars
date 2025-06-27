@@ -25,7 +25,11 @@ cpu_limit     = "1"
 memory_limit  = "1Gi"
 
 # Security Configuration
-allowed_ip_ranges = ["0.0.0.0/0"] # Open access for staging testing
+allowed_ip_ranges = ["0.0.0.0/0"] # Open access for staging testing - CAUTION: Not for production
+
+# Administrative SSH Access - Restricted to Google Cloud IAP by default
+# For additional security, add your specific IP ranges here
+admin_ip_ranges = ["35.235.240.0/20"] # Google Cloud IAP IP range
 
 # Monitoring Configuration
 enable_detailed_monitoring = true

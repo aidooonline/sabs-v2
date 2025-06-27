@@ -31,6 +31,7 @@ enable_flow_logs             = false             # Enable for production
 
 # Security Configuration
 allowed_ip_ranges = ["0.0.0.0/0"]               # Restrict for production
+admin_ip_ranges   = ["35.235.240.0/20"]         # Google Cloud IAP range - add your office IPs
 enable_binary_authorization = false              # Enable for production
 
 # Monitoring Configuration

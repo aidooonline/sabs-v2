@@ -71,6 +71,13 @@ resource "google_compute_subnetwork" "main" {
   region        = var.region
   network       = google_compute_network.main.id
 
+  # Enable VPC flow logs for security monitoring and auditing
+  log_config {
+    aggregation_interval = "INTERVAL_10_MIN"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
+
   secondary_ip_range {
     range_name    = "services"
     ip_cidr_range = "10.1.0.0/16"
@@ -133,7 +140,8 @@ resource "google_compute_firewall" "allow_ssh" {
     ports    = ["22"]
   }
 
-  source_ranges = ["0.0.0.0/0"]
+  # Use restricted IP ranges instead of allowing all internet traffic
+  source_ranges = var.admin_ip_ranges
   target_tags   = ["ssh-enabled"]
 }
 
