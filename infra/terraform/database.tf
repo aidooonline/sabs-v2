@@ -26,6 +26,7 @@ resource "google_sql_database_instance" "main" {
       ipv4_enabled                                  = false
       private_network                               = google_compute_network.main.id
       enable_private_path_for_google_cloud_services = true
+      require_ssl                                   = true
     }
 
     database_flags {
@@ -64,10 +65,10 @@ resource "google_sql_database_instance" "main" {
       value = "0"
     }
 
-    # Additional security flags
+    # Additional security flags - only log very slow queries to minimize data exposure
     database_flags {
       name  = "log_min_duration_statement"
-      value = "1000" # Log queries taking longer than 1 second
+      value = "10000" # Log queries taking longer than 10 seconds to reduce sensitive data exposure
     }
 
     database_flags {

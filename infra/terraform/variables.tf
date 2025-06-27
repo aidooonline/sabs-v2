@@ -127,8 +127,8 @@ variable "admin_ip_ranges" {
   default     = ["35.235.240.0/20"] # Google Cloud IAP IP range - more secure than 0.0.0.0/0
 
   validation {
-    condition     = length(var.admin_ip_ranges) > 0
-    error_message = "At least one admin IP range must be specified."
+    condition     = length(var.admin_ip_ranges) > 0 && !contains(var.admin_ip_ranges, "0.0.0.0/0")
+    error_message = "Admin IP ranges must be specified and cannot include 0.0.0.0/0 for security reasons."
   }
 }
 
