@@ -270,14 +270,15 @@ describe('Dashboard Enhancement Sprint - Complete Test Suite', () => {
     it('should provide export functionality', () => {
       renderWithProvider(<AnalyticsPage />);
       
-      const exportButton = screen.getByText(/Export/);
-      expect(exportButton).toBeInTheDocument();
+      const exportButtons = screen.getAllByText(/Export/);
+      expect(exportButtons.length).toBeGreaterThan(0);
     });
 
     it('should display implementation status', () => {
       renderWithProvider(<AnalyticsPage />);
       
-      expect(screen.getByText(/Day 3/)).toBeInTheDocument();
+      const day3Elements = screen.getAllByText(/Day 3/);
+      expect(day3Elements.length).toBeGreaterThan(0);
       expect(screen.getByText(/Spending analysis with visual charts/)).toBeInTheDocument();
     });
   });
@@ -294,7 +295,8 @@ describe('Dashboard Enhancement Sprint - Complete Test Suite', () => {
       renderWithProvider(<AlertsPage />);
       
       expect(screen.getByText(/Overview/)).toBeInTheDocument();
-      expect(screen.getByText(/Active/)).toBeInTheDocument();
+      const activeElements = screen.getAllByText(/Active/);
+      expect(activeElements.length).toBeGreaterThan(0);
       expect(screen.getByText(/Create/)).toBeInTheDocument();
       expect(screen.getByText(/Settings/)).toBeInTheDocument();
     });
@@ -333,7 +335,8 @@ describe('Dashboard Enhancement Sprint - Complete Test Suite', () => {
       renderWithProvider(<TransactionsPage />);
       
       expect(screen.getByText('Account')).toBeInTheDocument();
-      expect(screen.getByText('Type')).toBeInTheDocument();
+      const typeElements = screen.getAllByText('Type');
+      expect(typeElements.length).toBeGreaterThan(0);
       expect(screen.getByText('Category')).toBeInTheDocument();
     });
 

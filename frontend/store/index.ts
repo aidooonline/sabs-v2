@@ -13,6 +13,9 @@ import { dashboardApi, dashboardApiMiddleware } from './api/dashboardApi';
 // Approval Workflow API setup
 import { approvalApi, approvalApiMiddleware } from './api/approvalApi';
 
+// Import the store reference setter to avoid circular dependency
+import { setStoreReference } from '../services/apiClient';
+
 const persistConfig = {
   key: 'root',
   storage,
@@ -45,6 +48,9 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
+
+// Set the store reference in apiClient to avoid circular dependency
+setStoreReference(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

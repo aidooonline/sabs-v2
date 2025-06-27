@@ -5,13 +5,15 @@ import axios, {
   AxiosError,
   InternalAxiosRequestConfig 
 } from 'axios';
-import { store } from '../store';
-import { 
-  refreshToken, 
-  clearAuth 
-} from '../store/slices/authSlice';
-import { addNotification } from '../store/slices/uiSlice';
 import { ApiResponse, ApiError, ApiConfig, RequestOptions } from './types/api.types';
+
+// Store reference will be set after store is initialized to avoid circular dependency
+let storeRef: any = null;
+
+// Function to set the store reference after initialization
+export const setStoreReference = (store: any) => {
+  storeRef = store;
+};
 
 // API Configuration
 const API_CONFIG: ApiConfig = {
@@ -34,7 +36,9 @@ const apiClient: AxiosInstance = axios.create({
 // Request interceptor for authentication and logging
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const state = store.getState();
+    if (!storeRef) return config;
+    
+    const state = storeRef.getState();
     const { token, isAuthenticated, companyId } = state.auth;
     
     // Don't attach auth for certain endpoints
@@ -95,14 +99,18 @@ apiClient.interceptors.response.use(
       
       try {
         // Attempt to refresh token
-        const state = store.getState();
+        if (!storeRef) throw new Error('Store not initialized');
+        
+        const state = storeRef.getState();
         const { refreshToken: refreshTokenValue } = state.auth;
         
         if (refreshTokenValue) {
-          await store.dispatch(refreshToken());
+          // Import refresh token action dynamically to avoid circular dependency
+          const { refreshToken } = await import('../store/slices/authSlice');
+          await storeRef.dispatch(refreshToken());
           
           // Retry original request with new token
-          const newState = store.getState();
+          const newState = storeRef.getState();
           const { token } = newState.auth;
           
           if (token && originalRequest.headers) {
@@ -112,7 +120,10 @@ apiClient.interceptors.response.use(
         }
       } catch (refreshError) {
         // Refresh failed, logout user
-        store.dispatch(clearAuth());
+        if (storeRef) {
+          const { clearAuth } = await import('../store/slices/authSlice');
+          storeRef.dispatch(clearAuth());
+        }
         
         // Redirect to login page
         if (typeof window !== 'undefined') {
@@ -128,12 +139,15 @@ apiClient.interceptors.response.use(
     
     // Show user notification for certain errors
     const skipNotification = (originalRequest as any)?.skipErrorNotification;
-    if (!skipNotification && shouldShowErrorNotification(error)) {
-      store.dispatch(addNotification({
-        type: 'error',
-        message: apiError.message,
-        duration: 5000,
-      }));
+    if (!skipNotification && shouldShowErrorNotification(error) && storeRef) {
+      // Import notification action dynamically to avoid circular dependency
+      import('../store/slices/uiSlice').then(({ addNotification }) => {
+        storeRef.dispatch(addNotification({
+          type: 'error',
+          message: apiError.message,
+          duration: 5000,
+        }));
+      });
     }
     
     // Log error in development
