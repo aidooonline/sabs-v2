@@ -12,8 +12,8 @@ COPY package*.json ./
 COPY packages/services/accounts-service/package*.json ./packages/services/accounts-service/
 COPY packages/shared/*/package*.json ./packages/shared/
 
-# Install dependencies
-RUN npm ci --only=production
+# Install all dependencies (including dev dependencies for building)
+RUN npm ci
 
 # Rebuild the source code only when needed
 FROM base AS builder

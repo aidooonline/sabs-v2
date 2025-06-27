@@ -11,8 +11,8 @@ COPY packages/shared/common/package.json ./packages/shared/common/
 COPY packages/shared/database/package.json ./packages/shared/database/
 COPY packages/shared/types/package.json ./packages/shared/types/
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install all dependencies (including dev dependencies for building)
+RUN npm ci && npm cache clean --force
 
 # Copy source code
 COPY . .
