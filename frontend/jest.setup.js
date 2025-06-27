@@ -85,4 +85,48 @@ Object.defineProperty(global.performance, 'clearMeasures', {
 if (typeof window !== 'undefined' && window.performance) {
   window.performance.clearMarks = jest.fn();
   window.performance.clearMeasures = jest.fn();
+  window.performance.mark = jest.fn();
+  window.performance.measure = jest.fn();
+  window.performance.getEntriesByType = jest.fn(() => []);
+  window.performance.getEntriesByName = jest.fn(() => []);
+}
+
+// Mock requestAnimationFrame and cancelAnimationFrame
+global.requestAnimationFrame = jest.fn((cb) => setTimeout(cb, 16));
+global.cancelAnimationFrame = jest.fn((id) => clearTimeout(id));
+
+// Mock chart and visualization libraries that use ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+// Mock IntersectionObserver 
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+// Mock getBoundingClientRect
+Element.prototype.getBoundingClientRect = jest.fn(() => ({
+  width: 120,
+  height: 120,
+  top: 0,
+  left: 0,
+  bottom: 120,
+  right: 120,
+  x: 0,
+  y: 0,
+  toJSON: jest.fn(),
+}));
+
+// Mock scrollIntoView
+Element.prototype.scrollIntoView = jest.fn();
+
+// Increase memory limit for tests
+if (typeof process !== 'undefined' && process.env) {
+  process.env.NODE_OPTIONS = '--max-old-space-size=4096';
 }
