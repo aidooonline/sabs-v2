@@ -1,14 +1,55 @@
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
-import { TestFramework } from '../testFramework';
 
 // API response generators
+const generateWorkflow = (overrides = {}) => ({
+  id: 'WF-' + Math.random().toString(36).substr(2, 9),
+  customerId: 'CUST-' + Math.random().toString(36).substr(2, 9),
+  customerName: 'Test Customer',
+  amount: Math.floor(Math.random() * 100000) + 1000,
+  currency: 'GHS',
+  type: 'withdrawal',
+  status: 'pending_review',
+  priority: 'medium',
+  riskScore: Math.floor(Math.random() * 100),
+  submittedAt: new Date().toISOString(),
+  assignedTo: null,
+  slaDeadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+  ...overrides
+});
+
+const generateUser = (overrides = {}) => ({
+  id: 'USER-' + Math.random().toString(36).substr(2, 9),
+  name: 'Test User',
+  email: 'test@example.com',
+  role: 'clerk',
+  permissions: ['view_workflows', 'approve_workflows'],
+  isActive: true,
+  lastLogin: new Date().toISOString(),
+  ...overrides
+});
+
+const generateAuditEvent = (overrides = {}) => ({
+  id: 'AUD-' + Math.random().toString(36).substr(2, 9),
+  timestamp: new Date().toISOString(),
+  userId: 'USER-123',
+  userName: 'Test User',
+  action: 'approve_workflow',
+  resource: 'workflow',
+  resourceId: 'WF-123',
+  severity: 'medium',
+  category: 'workflow',
+  outcome: 'success',
+  riskScore: Math.floor(Math.random() * 100),
+  ...overrides
+});
+
 const generateWorkflowList = (count = 10) => {
-  return Array.from({ length: count }, () => TestFramework.generateWorkflow());
+  return Array.from({ length: count }, () => generateWorkflow());
 };
 
 const generateUserList = (count = 5) => {
-  return Array.from({ length: count }, () => TestFramework.generateUser());
+  return Array.from({ length: count }, () => generateUser());
 };
 
 // Mock API handlers
@@ -39,7 +80,7 @@ export const handlers = [
 
   http.get('/api/workflows/:id', ({ params }) => {
     const { id } = params;
-    const workflow = TestFramework.generateWorkflow({ id });
+    const workflow = generateWorkflow({ id });
     
     return HttpResponse.json({
       workflow: {
@@ -181,13 +222,13 @@ export const handlers = [
   http.get('/api/users/:id', ({ params }) => {
     const { id } = params;
     return HttpResponse.json({
-      user: TestFramework.generateUser({ id })
+      user: generateUser({ id })
     });
   }),
 
   // Security endpoints
   http.get('/api/security/audit-events', () => {
-    const events = Array.from({ length: 20 }, () => TestFramework.generateAuditEvent());
+    const events = Array.from({ length: 20 }, () => generateAuditEvent());
     
     return HttpResponse.json({
       events,

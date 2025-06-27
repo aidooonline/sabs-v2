@@ -34,6 +34,17 @@ const customJestConfig = {
     '/coverage/',
     '/e2e/',
   ],
+  // Memory and performance optimizations
+  maxWorkers: 2,
+  workerIdleMemoryLimit: '1GB',
+  detectOpenHandles: true,
+  forceExit: true,
+  // Reduce memory usage
+  clearMocks: true,
+  resetMocks: true,
+  restoreMocks: true,
+  // Test timeout
+  testTimeout: 30000,
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
