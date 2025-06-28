@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent, within, act } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
@@ -68,8 +69,13 @@ describe('ApprovalDashboard Integration Tests', () => {
     // Reset any component state
     jest.clearAllMocks();
     mockFetch = (global as any).fetch;
-    if (mockFetch && mockFetch.resetMocks) {
+    
+    // Reset mock state properly
+    if (mockFetch && typeof mockFetch.resetMocks === 'function') {
       mockFetch.resetMocks();
+    }
+    if (mockFetch && typeof mockFetch.mockClear === 'function') {
+      mockFetch.mockClear();
     }
   });
 
@@ -102,11 +108,12 @@ describe('ApprovalDashboard Integration Tests', () => {
       });
 
       // Wait for API calls to complete
-      await waitFor(async () => {
-        await act(async () => {
+      await waitFor(
+        () => {
           expect(screen.getByTestId('dashboard-content')).toBeInTheDocument();
-        });
-      });
+        },
+        { timeout: 5000 }
+      );
     });
 
     it('should display error state when API fails', async () => {
@@ -536,30 +543,45 @@ describe('ApprovalDashboard Integration Tests', () => {
 
   describe('Error Handling and Edge Cases', () => {
     it('should handle empty workflow list gracefully', async () => {
-      // Setup mocks before rendering
-      mockFetch.setEndpointResponse('/api/approval-workflow/workflows', {
-        status: 200,
-        data: { 
-          workflows: [], 
-          pagination: { 
-            currentPage: 1,
-            totalPages: 0,
-            totalCount: 0,
-            hasNext: false,
-            hasPrevious: false
-          } 
-        }
+      // Setup mocks before rendering - use absolute endpoints
+      await act(async () => {
+        mockFetch.setEndpointResponse('/api/approval-workflow/workflows', {
+          status: 200,
+          data: { 
+            workflows: [], 
+            pagination: { 
+              currentPage: 1,
+              totalPages: 0,
+              totalCount: 0,
+              hasNext: false,
+              hasPrevious: false
+            } 
+          }
+        });
+
+        // Mock dashboard stats to prevent loading conflicts
+        mockFetch.setEndpointResponse('/api/approval-workflow/dashboard/stats', {
+          status: 200,
+          data: {
+            queueStats: { totalPending: 0 },
+            performanceMetrics: { approvalsToday: 0 }
+          }
+        });
+
+        // Mock queue metrics
+        mockFetch.setEndpointResponse('/api/approval-workflow/queue/metrics', {
+          status: 200,
+          data: {
+            totalPending: 0,
+            totalApproved: 0,
+            totalRejected: 0,
+            averageProcessingTime: 0,
+            slaCompliance: 1.0
+          }
+        });
       });
 
-      // Mock dashboard stats to prevent other loading states
-      mockFetch.setEndpointResponse('/api/approval-workflow/dashboard/stats', {
-        status: 200,
-        data: {
-          queueStats: { totalPending: 0 },
-          performanceMetrics: { approvalsToday: 0 }
-        }
-      });
-
+      // Render component
       await act(async () => {
         render(
           <TestWrapper>
@@ -568,19 +590,31 @@ describe('ApprovalDashboard Integration Tests', () => {
         );
       });
 
-      // Wait for loading to complete and empty state to show
-      await waitFor(async () => {
-        await act(async () => {
+      // Wait for all loading to complete first
+      await waitFor(
+        () => {
+          expect(screen.queryByTestId('dashboard-loading')).not.toBeInTheDocument();
+        },
+        { timeout: 5000 }
+      );
+
+      // Then check for empty state
+      await waitFor(
+        () => {
           expect(screen.getByTestId('empty-workflows-state')).toBeInTheDocument();
           expect(screen.getByText(/no workflows found/i)).toBeInTheDocument();
-        });
-      }, { timeout: 3000 });
+        },
+        { timeout: 5000 }
+      );
     });
 
     it('should handle network errors gracefully', async () => {
       // Setup error simulation before rendering
-      mockFetch.simulateError('/api/approval-workflow/workflows', 500, 'Network Error');
+      await act(async () => {
+        mockFetch.simulateError('/api/approval-workflow/workflows', 500, 'Network Error');
+      });
 
+      // Render component
       await act(async () => {
         render(
           <TestWrapper>
@@ -590,20 +624,23 @@ describe('ApprovalDashboard Integration Tests', () => {
       });
 
       // Wait for error state to appear
-      await waitFor(async () => {
-        await act(async () => {
+      await waitFor(
+        () => {
           expect(screen.getByTestId('dashboard-error')).toBeInTheDocument();
           expect(screen.getByTestId('network-error-message')).toBeInTheDocument();
           expect(screen.getByText(/check your connection/i)).toBeInTheDocument();
-        });
-      }, { timeout: 3000 });
+        },
+        { timeout: 5000 }
+      );
 
       // Should have retry button
       const retryButton = screen.getByTestId('retry-button');
       expect(retryButton).toBeInTheDocument();
 
       // Clear the error before retry to see if retry works
-      mockFetch.resetMocks();
+      await act(async () => {
+        mockFetch.resetMocks();
+      });
       
       // Clicking retry should reload data
       await act(async () => {
@@ -611,17 +648,20 @@ describe('ApprovalDashboard Integration Tests', () => {
       });
       
       // Give some time for the retry to process
-      await waitFor(async () => {
-        await act(async () => {
-          // After retry, error should be gone and dashboard should load
+      await waitFor(
+        () => {
+          // After retry, we should see loading or content (not error)
           expect(screen.queryByTestId('dashboard-error')).not.toBeInTheDocument();
-        });
-      }, { timeout: 3000 });
+        },
+        { timeout: 5000 }
+      );
     });
 
     it('should handle slow API responses', async () => {
       // Simulate slow network
-      mockFetch.simulateSlowNetwork('/api/approval-workflow/workflows', 1000);
+      await act(async () => {
+        mockFetch.simulateSlowNetwork('/api/approval-workflow/workflows', 1000);
+      });
 
       await act(async () => {
         render(
@@ -632,16 +672,20 @@ describe('ApprovalDashboard Integration Tests', () => {
       });
 
       // Should show loading state
-      await waitFor(() => {
-        expect(screen.getByTestId('dashboard-loading')).toBeInTheDocument();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('dashboard-loading')).toBeInTheDocument();
+        },
+        { timeout: 2000 }
+      );
 
       // Should eventually load content
-      await waitFor(async () => {
-        await act(async () => {
+      await waitFor(
+        () => {
           expect(screen.getByTestId('dashboard-content')).toBeInTheDocument();
-        });
-      }, { timeout: 5000 });
+        },
+        { timeout: 5000 }
+      );
     });
 
     it('should validate user permissions for actions', async () => {

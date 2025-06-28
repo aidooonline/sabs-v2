@@ -235,11 +235,12 @@ const createMockFetch = () => {
   });
 
   // Add reset method
-  fetchMock.resetMocks = () => {
+  fetchMock.resetMocks = jest.fn(() => {
     mockEndpointResponses.clear();
     mockEndpointDelays.clear();
     mockEndpointErrors.clear();
-  };
+    fetchMock.mockClear();
+  });
 
   // Store references for debugging
   fetchMock._mockEndpointResponses = mockEndpointResponses;
