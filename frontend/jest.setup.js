@@ -138,12 +138,39 @@ if (typeof global.Headers === 'undefined') {
   };
 }
 
-// Enhanced Mock fetch for RTK Query with proper endpoint handling
+// Enhanced Mock fetch for RTK Query with proper endpoint handling and clone support
 const createMockFetch = () => {
   // Create mock response storage
   const mockEndpointResponses = new Map();
   const mockEndpointDelays = new Map();
   const mockEndpointErrors = new Map();
+
+  // Helper function to create Response-like object with clone method
+  const createMockResponse = (body, options = {}) => {
+    const responseData = JSON.stringify(body);
+    const response = new Response(responseData, {
+      status: options.status || 200,
+      statusText: options.statusText || (options.status === 200 ? 'OK' : 'Error'),
+      headers: new Headers({ 'Content-Type': 'application/json', ...options.headers })
+    });
+    
+    // Ensure clone method works properly for RTK Query
+    const originalClone = response.clone;
+    response.clone = function() {
+      try {
+        return originalClone.call(this);
+      } catch (e) {
+        // Fallback implementation if native clone fails
+        return new Response(responseData, {
+          status: this.status,
+          statusText: this.statusText,
+          headers: this.headers
+        });
+      }
+    };
+    
+    return response;
+  };
 
   const fetchMock = jest.fn((url, options) => {
     // Check for endpoint-specific configurations
@@ -156,11 +183,10 @@ const createMockFetch = () => {
           return Promise.reject(new Error(errorConfig.message || 'Network Error'));
         }
         
-        const errorResponse = new Response(JSON.stringify({ message: errorConfig.message }), {
-          status: errorConfig.status,
-          statusText: 'Error',
-          headers: { 'Content-Type': 'application/json' }
-        });
+        const errorResponse = createMockResponse(
+          { message: errorConfig.message }, 
+          { status: errorConfig.status, statusText: 'Error' }
+        );
         
         return Promise.resolve(errorResponse);
       }
@@ -171,11 +197,7 @@ const createMockFetch = () => {
       if (url.includes(delayEndpoint)) {
         return new Promise(resolve => {
           setTimeout(() => {
-            const response = new Response(JSON.stringify({}), {
-              status: 200,
-              statusText: 'OK',
-              headers: { 'Content-Type': 'application/json' }
-            });
+            const response = createMockResponse({});
             resolve(response);
           }, delayMs);
         });
@@ -185,23 +207,17 @@ const createMockFetch = () => {
     // Check for custom response
     for (const [responseEndpoint, responseConfig] of mockEndpointResponses) {
       if (url.includes(responseEndpoint)) {
-        const response = new Response(JSON.stringify(responseConfig.data || {}), {
-          status: responseConfig.status || 200,
-          statusText: responseConfig.status === 200 ? 'OK' : 'Error',
-          headers: { 'Content-Type': 'application/json' }
-        });
+        const response = createMockResponse(
+          responseConfig.data || {}, 
+          { status: responseConfig.status || 200 }
+        );
         
         return Promise.resolve(response);
       }
     }
     
-    // Default response
-    const defaultResponse = new Response(JSON.stringify({}), {
-      status: 200,
-      statusText: 'OK',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
+    // Default response with proper clone support
+    const defaultResponse = createMockResponse({});
     return Promise.resolve(defaultResponse);
   });
 
