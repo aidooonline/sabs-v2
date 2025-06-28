@@ -198,20 +198,38 @@ export const mockEndpoints: Record<string, MockEndpoint> = {
   }
 };
 
-// Mock fetch implementation
+// Enhanced Mock fetch implementation with proper method attachments
 export class MockFetch {
   private originalFetch: typeof global.fetch;
+  private mockResponses: Map<string, MockResponse> = new Map();
+  private mockErrors: Map<string, { status: number; message: string }> = new Map();
+  private mockDelays: Map<string, number> = new Map();
 
   constructor() {
     this.originalFetch = global.fetch;
   }
 
   install() {
-    global.fetch = this.mockFetch.bind(this);
+    const mockFetch = this.createMockFetch();
+    global.fetch = mockFetch as any;
   }
 
   restore() {
     global.fetch = this.originalFetch;
+  }
+
+  private createMockFetch() {
+    const mockFetch = jest.fn(this.mockFetch.bind(this)) as any;
+    
+    // Attach test utility methods directly to the mock function
+    mockFetch.setEndpointResponse = this.setEndpointResponse.bind(this);
+    mockFetch.simulateError = this.simulateError.bind(this);
+    mockFetch.simulateSlowNetwork = this.simulateSlowNetwork.bind(this);
+    mockFetch.resetCallHistory = this.resetCallHistory.bind(this);
+    mockFetch.getCallHistory = this.getCallHistory.bind(this);
+    mockFetch.getAllCallHistory = this.getAllCallHistory.bind(this);
+
+    return mockFetch;
   }
 
   private async mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
@@ -219,7 +237,34 @@ export class MockFetch {
     const method = init?.method || 'GET';
     const key = `${method} ${url}`;
 
-    // Find matching endpoint (handle URL parameters)
+    // Check for custom error simulation
+    if (this.mockErrors.has(key)) {
+      const error = this.mockErrors.get(key)!;
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: error.status,
+        statusText: 'Error',
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Check for custom response
+    if (this.mockResponses.has(key)) {
+      const response = this.mockResponses.get(key)!;
+      
+      // Simulate delay if specified
+      const delay = this.mockDelays.get(key);
+      if (delay) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+
+      return new Response(JSON.stringify(response.data), {
+        status: response.status,
+        statusText: response.status === 200 ? 'OK' : 'Error',
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Find matching endpoint from default mocks
     const endpoint = this.findMatchingEndpoint(method, url);
     
     if (endpoint) {
@@ -234,18 +279,11 @@ export class MockFetch {
       }
 
       // Create mock response
-      const response = new Response(
-        JSON.stringify(endpoint.response.data),
-        {
-          status: endpoint.response.status,
-          statusText: endpoint.response.status === 200 ? 'OK' : 'Error',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      return response;
+      return new Response(JSON.stringify(endpoint.response.data), {
+        status: endpoint.response.status,
+        statusText: endpoint.response.status === 200 ? 'OK' : 'Error',
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     // Fallback to original fetch for unmocked endpoints
@@ -282,13 +320,28 @@ export class MockFetch {
     return new RegExp(`^${regex}$`).test(url);
   }
 
-  // Test utilities
+  // Test utility methods
+  setEndpointResponse(endpointKey: string, response: MockResponse) {
+    this.mockResponses.set(endpointKey, response);
+  }
+
+  simulateError(endpointKey: string, status: number, message: string) {
+    this.mockErrors.set(endpointKey, { status, message });
+  }
+
+  simulateSlowNetwork(endpointKey: string, delay: number) {
+    this.mockDelays.set(endpointKey, delay);
+  }
+
   resetCallHistory() {
     Object.values(mockEndpoints).forEach(endpoint => {
       endpoint.called = false;
       endpoint.callCount = 0;
       endpoint.lastCall = undefined;
     });
+    this.mockResponses.clear();
+    this.mockErrors.clear();
+    this.mockDelays.clear();
   }
 
   getCallHistory(endpointKey: string) {
@@ -304,35 +357,6 @@ export class MockFetch {
       };
       return history;
     }, {} as Record<string, any>);
-  }
-
-  // Dynamic endpoint modification for tests
-  setEndpointResponse(endpointKey: string, response: MockResponse) {
-    if (mockEndpoints[endpointKey]) {
-      mockEndpoints[endpointKey].response = response;
-    }
-  }
-
-  setEndpointDelay(endpointKey: string, delay: number) {
-    if (mockEndpoints[endpointKey]) {
-      mockEndpoints[endpointKey].response.delay = delay;
-    }
-  }
-
-  // Error simulation
-  simulateError(endpointKey: string, status: number, message: string) {
-    this.setEndpointResponse(endpointKey, {
-      status,
-      data: {
-        error: message,
-        timestamp: new Date().toISOString()
-      }
-    });
-  }
-
-  // Network simulation
-  simulateSlowNetwork(endpointKey: string, delay: number) {
-    this.setEndpointDelay(endpointKey, delay);
   }
 }
 
