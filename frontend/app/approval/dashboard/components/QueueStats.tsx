@@ -86,7 +86,10 @@ export const QueueStats: React.FC<QueueStatsProps> = ({
             </p>
           </dt>
           <dd className="ml-16 pb-6 flex items-baseline sm:pb-7">
-            <p className="text-2xl font-semibold text-gray-900">
+            <p 
+              className="text-2xl font-semibold text-gray-900"
+              data-testid={index === 0 ? "total-pending-count" : undefined}
+            >
               {stat.value}
             </p>
             <p

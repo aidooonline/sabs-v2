@@ -177,7 +177,7 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({
 }) => {
   if (workflows.length === 0 && !isLoading) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12" data-testid="empty-workflows-state">
         <svg
           className="mx-auto h-12 w-12 text-gray-400"
           fill="none"
@@ -194,7 +194,7 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({
         </svg>
         <h3 className="mt-2 text-sm font-medium text-gray-900">No pending approvals</h3>
         <p className="mt-1 text-sm text-gray-500">
-          All workflows have been processed or there are no active requests.
+          No workflows found. All workflows have been processed or there are no active requests.
         </p>
       </div>
     );

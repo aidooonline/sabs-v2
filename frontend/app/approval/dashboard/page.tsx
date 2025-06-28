@@ -207,9 +207,11 @@ export default function ApprovalDashboard() {
               </div>
 
               {isLoadingWorkflows ? (
-                <ApprovalQueueSkeleton count={6} />
+                <div data-testid="dashboard-loading">
+                  <ApprovalQueueSkeleton count={6} />
+                </div>
               ) : workflowsError ? (
-                <div className="text-center py-12">
+                <div className="text-center py-12" data-testid="dashboard-error">
                   <div className="text-red-600 mb-4">
                     <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.876c1.174 0 2.078-1.038 1.859-2.168l-6.938-12.83c-.382-.768-1.479-.768-1.862 0L4.069 20.832C3.85 21.962 4.755 23 5.929 23z" />
@@ -218,12 +220,13 @@ export default function ApprovalDashboard() {
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
                     Error Loading Workflows
                   </h3>
-                  <p className="text-gray-600 mb-4">
-                    Unable to load approval workflows. Please try again.
+                  <p className="text-gray-600 mb-4" data-testid="network-error-message">
+                    Unable to load approval workflows. Please check your connection and try again.
                   </p>
                   <button
                     onClick={() => refetchWorkflows()}
                     className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700"
+                    data-testid="retry-button"
                   >
                     Retry
                   </button>

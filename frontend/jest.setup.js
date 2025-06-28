@@ -138,20 +138,72 @@ if (typeof global.Headers === 'undefined') {
   };
 }
 
-// Enhanced Mock fetch for RTK Query with additional test methods
+// Enhanced Mock fetch for RTK Query with proper endpoint handling
 const createMockFetch = () => {
-  const fetchMock = jest.fn(() =>
-    Promise.resolve(new Response(JSON.stringify({}), {
-      status: 200,
-      statusText: 'OK',
-      headers: { 'Content-Type': 'application/json' }
-    }))
-  );
-
   // Create mock response storage
   const mockEndpointResponses = new Map();
   const mockEndpointDelays = new Map();
   const mockEndpointErrors = new Map();
+
+  const fetchMock = jest.fn((url, options) => {
+    // Check for endpoint-specific configurations
+    const endpoint = url;
+    
+    // Check for error simulation first
+    for (const [errorEndpoint, errorConfig] of mockEndpointErrors) {
+      if (url.includes(errorEndpoint)) {
+        if (errorConfig.status === 0) {
+          return Promise.reject(new Error(errorConfig.message || 'Network Error'));
+        }
+        
+        const errorResponse = new Response(JSON.stringify({ message: errorConfig.message }), {
+          status: errorConfig.status,
+          statusText: 'Error',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        return Promise.resolve(errorResponse);
+      }
+    }
+    
+    // Check for delay simulation
+    for (const [delayEndpoint, delayMs] of mockEndpointDelays) {
+      if (url.includes(delayEndpoint)) {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            const response = new Response(JSON.stringify({}), {
+              status: 200,
+              statusText: 'OK',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            resolve(response);
+          }, delayMs);
+        });
+      }
+    }
+    
+    // Check for custom response
+    for (const [responseEndpoint, responseConfig] of mockEndpointResponses) {
+      if (url.includes(responseEndpoint)) {
+        const response = new Response(JSON.stringify(responseConfig.data || {}), {
+          status: responseConfig.status || 200,
+          statusText: responseConfig.status === 200 ? 'OK' : 'Error',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        return Promise.resolve(response);
+      }
+    }
+    
+    // Default response
+    const defaultResponse = new Response(JSON.stringify({}), {
+      status: 200,
+      statusText: 'OK',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    return Promise.resolve(defaultResponse);
+  });
 
   // Add test utility methods that actually work
   fetchMock.setEndpointResponse = jest.fn((endpoint, response) => {
@@ -166,7 +218,14 @@ const createMockFetch = () => {
     mockEndpointDelays.set(endpoint, delay);
   });
 
-  // Store references to original functions for test access
+  // Add reset method
+  fetchMock.resetMocks = () => {
+    mockEndpointResponses.clear();
+    mockEndpointDelays.clear();
+    mockEndpointErrors.clear();
+  };
+
+  // Store references for debugging
   fetchMock._mockEndpointResponses = mockEndpointResponses;
   fetchMock._mockEndpointDelays = mockEndpointDelays;
   fetchMock._mockEndpointErrors = mockEndpointErrors;
@@ -179,6 +238,9 @@ global.fetch = createMockFetch();
 // Reset fetch mock before each test
 beforeEach(() => {
   global.fetch.mockClear();
+  if (global.fetch.resetMocks) {
+    global.fetch.resetMocks();
+  }
   if (global.fetch.setEndpointResponse) {
     global.fetch.setEndpointResponse.mockClear();
   }

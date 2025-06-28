@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
@@ -516,37 +516,51 @@ describe('ApprovalDashboard Integration Tests', () => {
     it('should handle empty workflow list gracefully', async () => {
       // Mock empty response
       const mockFetch = (global as any).fetch;
-      mockFetch.setEndpointResponse('GET /api/workflows', {
-        status: 200,
-        data: { workflows: [], pagination: { total: 0 } }
+      
+      await act(async () => {
+        mockFetch.setEndpointResponse('/api/approval-workflow/workflows', {
+          status: 200,
+          data: { workflows: [], pagination: { total: 0, totalCount: 0 } }
+        });
       });
 
-      render(
-        <TestWrapper>
-          <ApprovalDashboard />
-        </TestWrapper>
-      );
+      await act(async () => {
+        render(
+          <TestWrapper>
+            <ApprovalDashboard />
+          </TestWrapper>
+        );
+      });
 
-      await waitFor(() => {
-        expect(screen.getByTestId('empty-workflows-state')).toBeInTheDocument();
-        expect(screen.getByText(/no workflows found/i)).toBeInTheDocument();
+      await waitFor(async () => {
+        await act(async () => {
+          expect(screen.getByTestId('empty-workflows-state')).toBeInTheDocument();
+          expect(screen.getByText(/no workflows found/i)).toBeInTheDocument();
+        });
       });
     });
 
     it('should handle network errors gracefully', async () => {
       // Simulate network error
       const mockFetch = (global as any).fetch;
-      mockFetch.simulateError('GET /api/workflows', 0, 'Network Error');
+      
+      await act(async () => {
+        mockFetch.simulateError('/api/approval-workflow/workflows', 0, 'Network Error');
+      });
 
-      render(
-        <TestWrapper>
-          <ApprovalDashboard />
-        </TestWrapper>
-      );
+      await act(async () => {
+        render(
+          <TestWrapper>
+            <ApprovalDashboard />
+          </TestWrapper>
+        );
+      });
 
-      await waitFor(() => {
-        expect(screen.getByTestId('network-error-message')).toBeInTheDocument();
-        expect(screen.getByText(/check your connection/i)).toBeInTheDocument();
+      await waitFor(async () => {
+        await act(async () => {
+          expect(screen.getByTestId('network-error-message')).toBeInTheDocument();
+          expect(screen.getByText(/check your connection/i)).toBeInTheDocument();
+        });
       });
 
       // Should have retry button
@@ -554,9 +568,15 @@ describe('ApprovalDashboard Integration Tests', () => {
       expect(retryButton).toBeInTheDocument();
 
       // Clicking retry should reload data
-      await user.click(retryButton);
-      await waitFor(() => {
-        ApiAssertions.expectApiCalled('GET /api/workflows', 2);
+      await act(async () => {
+        await user.click(retryButton);
+      });
+      
+      await waitFor(async () => {
+        await act(async () => {
+          // API should be called again (retry functionality)
+          expect(mockFetch).toHaveBeenCalledTimes(2);
+        });
       });
     });
 
