@@ -32,21 +32,162 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-// Mock fetch for RTK Query
-global.fetch = jest.fn(() =>
-  Promise.resolve({
-    ok: true,
-    status: 200,
-    json: () => Promise.resolve({}),
-    text: () => Promise.resolve(''),
-    headers: new Headers(),
-    clone: () => ({}),
-  })
-);
+// Mock Request object for test environment
+if (typeof global.Request === 'undefined') {
+  global.Request = class Request {
+    constructor(input, init = {}) {
+      this.url = typeof input === 'string' ? input : input.url;
+      this.method = init.method || 'GET';
+      this.headers = new Headers(init.headers);
+      this.body = init.body || null;
+      this.mode = init.mode || 'cors';
+      this.credentials = init.credentials || 'same-origin';
+      this.cache = init.cache || 'default';
+      this.redirect = init.redirect || 'follow';
+      this.referrer = init.referrer || '';
+      this.referrerPolicy = init.referrerPolicy || '';
+      this.integrity = init.integrity || '';
+      this.keepalive = init.keepalive || false;
+      this.signal = init.signal || null;
+    }
+
+    clone() {
+      return new Request(this.url, {
+        method: this.method,
+        headers: this.headers,
+        body: this.body,
+        mode: this.mode,
+        credentials: this.credentials,
+        cache: this.cache,
+        redirect: this.redirect,
+        referrer: this.referrer,
+        referrerPolicy: this.referrerPolicy,
+        integrity: this.integrity,
+        keepalive: this.keepalive,
+        signal: this.signal
+      });
+    }
+  };
+}
+
+// Mock Response object for test environment
+if (typeof global.Response === 'undefined') {
+  global.Response = class Response {
+    constructor(body, init = {}) {
+      this.body = body;
+      this.status = init.status || 200;
+      this.statusText = init.statusText || 'OK';
+      this.headers = new Headers(init.headers);
+      this.ok = this.status >= 200 && this.status < 300;
+      this.url = '';
+    }
+
+    async json() {
+      return typeof this.body === 'string' ? JSON.parse(this.body) : this.body;
+    }
+
+    async text() {
+      return typeof this.body === 'string' ? this.body : JSON.stringify(this.body);
+    }
+
+    clone() {
+      return new Response(this.body, {
+        status: this.status,
+        statusText: this.statusText,
+        headers: this.headers
+      });
+    }
+  };
+}
+
+// Mock Headers if not available
+if (typeof global.Headers === 'undefined') {
+  global.Headers = class Headers {
+    constructor(init = {}) {
+      this.headers = new Map();
+      if (init) {
+        Object.entries(init).forEach(([key, value]) => {
+          this.headers.set(key.toLowerCase(), value);
+        });
+      }
+    }
+
+    get(name) {
+      return this.headers.get(name.toLowerCase());
+    }
+
+    set(name, value) {
+      this.headers.set(name.toLowerCase(), value);
+    }
+
+    has(name) {
+      return this.headers.has(name.toLowerCase());
+    }
+
+    delete(name) {
+      this.headers.delete(name.toLowerCase());
+    }
+
+    entries() {
+      return this.headers.entries();
+    }
+
+    forEach(callback) {
+      this.headers.forEach(callback);
+    }
+  };
+}
+
+// Enhanced Mock fetch for RTK Query with additional test methods
+const createMockFetch = () => {
+  const fetchMock = jest.fn(() =>
+    Promise.resolve(new Response(JSON.stringify({}), {
+      status: 200,
+      statusText: 'OK',
+      headers: { 'Content-Type': 'application/json' }
+    }))
+  );
+
+  // Create mock response storage
+  const mockEndpointResponses = new Map();
+  const mockEndpointDelays = new Map();
+  const mockEndpointErrors = new Map();
+
+  // Add test utility methods that actually work
+  fetchMock.setEndpointResponse = jest.fn((endpoint, response) => {
+    mockEndpointResponses.set(endpoint, response);
+  });
+
+  fetchMock.simulateError = jest.fn((endpoint, status, message) => {
+    mockEndpointErrors.set(endpoint, { status, message });
+  });
+
+  fetchMock.simulateSlowNetwork = jest.fn((endpoint, delay) => {
+    mockEndpointDelays.set(endpoint, delay);
+  });
+
+  // Store references to original functions for test access
+  fetchMock._mockEndpointResponses = mockEndpointResponses;
+  fetchMock._mockEndpointDelays = mockEndpointDelays;
+  fetchMock._mockEndpointErrors = mockEndpointErrors;
+
+  return fetchMock;
+};
+
+global.fetch = createMockFetch();
 
 // Reset fetch mock before each test
 beforeEach(() => {
   global.fetch.mockClear();
+  if (global.fetch.setEndpointResponse) {
+    global.fetch.setEndpointResponse.mockClear();
+  }
+  if (global.fetch.simulateError) {
+    global.fetch.simulateError.mockClear();
+  }
+  if (global.fetch.simulateSlowNetwork) {
+    global.fetch.simulateSlowNetwork.mockClear();
+  }
 });
 
 // Mock localStorage

@@ -8,10 +8,10 @@ import { apiMiddleware } from './middleware/apiMiddleware';
 import { sessionTimeoutMiddleware } from './middleware/sessionTimeoutMiddleware';
 
 // Dashboard API setup - now active
-import { dashboardApi, dashboardApiMiddleware } from './api/dashboardApi';
+import { dashboardApi } from './api/dashboardApi';
 
 // Approval Workflow API setup
-import { approvalApi, approvalApiMiddleware } from './api/approvalApi';
+import { approvalApi } from './api/approvalApi';
 
 // Import the store reference setter to avoid circular dependency
 import { setStoreReference } from '../services/apiClient';
@@ -42,8 +42,8 @@ export const store = configureStore({
     })
     .concat(apiMiddleware)
     .concat(sessionTimeoutMiddleware)
-    .concat(dashboardApiMiddleware)
-    .concat(approvalApiMiddleware),
+    .concat(dashboardApi.middleware)
+    .concat(approvalApi.middleware),
   devTools: process.env.NODE_ENV !== 'production',
 });
 

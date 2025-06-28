@@ -21,6 +21,14 @@ const createMockStore = (initialState = {}) => {
       approvalApi: approvalApi.reducer,
       dashboardApi: dashboardApi.reducer,
     },
+    middleware: (getDefaultMiddleware: any) =>
+      getDefaultMiddleware({
+        serializableCheck: {
+          ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+        },
+      })
+      .concat(approvalApi.middleware)
+      .concat(dashboardApi.middleware),
     preloadedState: {
       auth: { 
         user: TestFramework.generateUser(), 
