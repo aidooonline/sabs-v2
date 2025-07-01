@@ -598,7 +598,7 @@ export class MobileDashboardService {
     }
 
     // Apply filters
-    let filteredTransactions = allTransactions.filter(transaction => {
+    const filteredTransactions = allTransactions.filter(transaction => {
       if (filters.type && transaction.type !== filters.type) return false;
       if (filters.category && transaction.category !== filters.category) return false;
       if (filters.minAmount && transaction.amount < filters.minAmount) return false;
@@ -741,7 +741,7 @@ export class MobileDashboardService {
   // ===== PRIVATE HELPER METHODS =====
 
   private async getRecentTransactions(customerId: string, limit: number): Promise<TransactionSummary[]> {
-    let allTransactions: TransactionSummary[] = [];
+    const allTransactions: TransactionSummary[] = [];
     
     const accounts = await this.getCustomerAccounts(customerId);
     for (const account of accounts) {

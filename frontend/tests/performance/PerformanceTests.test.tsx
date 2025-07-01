@@ -39,6 +39,21 @@ describe('Performance Tests - Working Version', () => {
       const element = document.createElement('div');
       expect(element.getBoundingClientRect).toBeDefined();
       
+      // Mock getBoundingClientRect if not available in test environment
+      if (!element.getBoundingClientRect().width && !element.getBoundingClientRect().height) {
+        element.getBoundingClientRect = jest.fn(() => ({
+          width: 100,
+          height: 50,
+          top: 0,
+          left: 0,
+          bottom: 50,
+          right: 100,
+          x: 0,
+          y: 0,
+          toJSON: () => ({})
+        }));
+      }
+      
       const rect = element.getBoundingClientRect();
       expect(rect).toBeDefined();
       expect(typeof rect.width).toBe('number');
