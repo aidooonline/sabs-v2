@@ -927,7 +927,7 @@ export class MobileLoanService {
     const schedule = [];
     const monthlyRate = loan.interestRate / 100 / 12;
     let balance = loan.principalAmount;
-    let currentDate = loan.firstPaymentDate || new Date();
+    const currentDate = loan.firstPaymentDate || new Date();
 
     for (let i = 1; i <= loan.termMonths; i++) {
       const interestAmount = balance * monthlyRate;
