@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, Like, In, Between } from 'typeorm';
+import { Repository, FindOptionsWhere, Like, In, Between, Not } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User, UserRole, UserStatus } from './entities/user.entity';
 import { Company } from '../companies/entities/company.entity';
@@ -505,7 +505,11 @@ export class StaffService {
         }
       } catch (error) {
         failed.push(staff.id);
-        this.logger.error(`Failed to update staff ${staff.id}: ${error.message}`);
+        if (error instanceof Error) {
+          this.logger.error(`Failed to update staff ${staff.id}: ${error.message}`);
+        } else {
+          this.logger.error(`Failed to update staff ${staff.id}: ${JSON.stringify(error)}`);
+        }
       }
     }
 

@@ -257,7 +257,7 @@ export class TransactionProcessingService {
           finalBalance: 0,
           finalAvailableBalance: 0,
           processingTimeMs: 0,
-          message: error.message,
+          message: error instanceof Error ? error.message : JSON.stringify(error),
           errorCode: 'BATCH_PROCESSING_ERROR',
         }))
       );
@@ -947,15 +947,19 @@ export class TransactionProcessingService {
       });
 
       if (transaction) {
-        transaction.fail(error.message, {
+        const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+        const errorStack = error instanceof Error ? error.stack : undefined;
+        
+        transaction.fail(errorMessage, {
           processingTimeMs,
-          errorStack: error.stack,
+          errorStack,
         });
 
         await this.transactionRepository.save(transaction);
       }
     } catch (updateError) {
-      this.logger.error(`Failed to update transaction with error: ${updateError.message}`);
+      const updateErrorMessage = updateError instanceof Error ? updateError.message : JSON.stringify(updateError);
+      this.logger.error(`Failed to update transaction with error: ${updateErrorMessage}`);
     }
   }
 
