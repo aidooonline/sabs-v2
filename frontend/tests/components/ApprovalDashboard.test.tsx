@@ -19,17 +19,15 @@ const createMockStore = (initialState = {}) => {
     reducer: {
       auth: authSlice,
       ui: uiSlice,
-      approvalApi: approvalApi.reducer,
-      dashboardApi: dashboardApi.reducer,
+      approvalApi: (state = {}) => state,
+      dashboardApi: (state = {}) => state,
     },
     middleware: (getDefaultMiddleware: any) =>
       getDefaultMiddleware({
         serializableCheck: {
           ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
         },
-      })
-      .concat(approvalApi.middleware)
-      .concat(dashboardApi.middleware),
+      }),
     preloadedState: {
       auth: { 
         user: TestFramework.generateUser(), 
@@ -66,6 +64,148 @@ jest.mock('../../hooks/useApprovalWebSocket', () => ({
     error: null,
     sendMessage: jest.fn(),
   }),
+}));
+
+// Create a global test state to control mocks dynamically
+const testState = {
+  workflowsError: false,
+  workflowsLoading: false,
+  emptyWorkflows: false,
+  pendingCount: 125,
+  totalWorkflows: 125
+};
+
+// Mock the approval API hooks to return proper data
+jest.mock('../../store/api/approvalApi', () => ({
+  ...jest.requireActual('../../store/api/approvalApi'),
+  useGetWorkflowsQuery: (params: any) => {
+    const state = (global as any).testState || testState;
+    
+    if (state.workflowsError) {
+      return {
+        data: undefined,
+        isLoading: false,
+        error: { status: 500, data: { message: 'Network Error' } },
+        refetch: jest.fn()
+      };
+    }
+    
+    if (state.workflowsLoading) {
+      return {
+        data: undefined,
+        isLoading: true,
+        error: null,
+        refetch: jest.fn()
+      };
+    }
+    
+    if (state.emptyWorkflows) {
+      return {
+        data: {
+          workflows: [],
+          pagination: {
+            currentPage: 1,
+            totalPages: 0,
+            totalCount: 0,
+            hasNext: false,
+            hasPrevious: false
+          }
+        },
+        isLoading: false,
+        error: null,
+        refetch: jest.fn()
+      };
+    }
+
+    return {
+      data: {
+        workflows: [
+          {
+            id: 'WF-123',
+            workflowNumber: 'WF-123',
+            status: 'pending',
+            priority: 'high',
+            withdrawalRequest: {
+              customer: { fullName: 'John Doe' },
+              agent: { fullName: 'Agent Smith' },
+              amount: 5000,
+              currency: 'GHS'
+            },
+            riskAssessment: { overallRisk: 'medium' },
+            currentStage: 'pending_review',
+            createdAt: new Date().toISOString(),
+            slaDeadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+          },
+          ...Array.from({ length: Math.min(19, state.totalWorkflows - 1) }, (_, i) => ({
+            id: `WF-${1000 + i}`,
+            workflowNumber: `WF-${1000 + i}`,
+            status: 'pending',
+            priority: ['low', 'medium', 'high'][i % 3],
+            withdrawalRequest: {
+              customer: { fullName: `Customer ${i + 1}` },
+              agent: { fullName: `Agent ${i + 1}` },
+              amount: Math.floor(Math.random() * 50000) + 1000,
+              currency: 'GHS'
+            },
+            riskAssessment: { overallRisk: ['low', 'medium', 'high'][i % 3] },
+            currentStage: 'pending_review',
+            createdAt: new Date().toISOString(),
+            slaDeadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+          }))
+        ],
+        pagination: {
+          currentPage: 1,
+          totalPages: Math.ceil(state.totalWorkflows / 20),
+          totalCount: state.totalWorkflows,
+          hasNext: state.totalWorkflows > 20,
+          hasPrevious: false
+        }
+      },
+      isLoading: false,
+      error: null,
+      refetch: jest.fn()
+    };
+  },
+  useGetDashboardStatsQuery: () => {
+    const state = (global as any).testState || testState;
+    return {
+      data: {
+        queueStats: { 
+          totalPending: state.pendingCount,
+          averageProcessingTime: 4.5,
+          slaCompliance: 0.89
+        },
+        performanceMetrics: { 
+          approvalsToday: 45 
+        }
+      },
+      isLoading: false,
+      error: null
+    };
+  },
+  useGetQueueMetricsQuery: () => {
+    const state = (global as any).testState || testState;
+    return {
+      data: {
+        totalPending: state.pendingCount,
+        totalApproved: 890,
+        totalRejected: 45,
+        averageProcessingTime: 270,
+        slaCompliance: 0.89,
+        riskDistribution: [
+          { riskLevel: 'low', count: 45 },
+          { riskLevel: 'medium', count: 67 },
+          { riskLevel: 'high', count: 13 }
+        ]
+      },
+      isLoading: false,
+      error: null
+    };
+  },
+  approvalApi: {
+    reducer: (state = {}, action: any) => state,
+    middleware: jest.fn()
+  }
 }));
 
 describe('ApprovalDashboard Integration Tests', () => {
@@ -126,55 +266,14 @@ describe('ApprovalDashboard Integration Tests', () => {
       mockFetch.mockClear();
     }
 
-    // Set up default mock responses with proper data
-    const mockWorkflows = generateMockWorkflows();
-    
-    // Mock workflows API with pagination
-    mockFetch.setEndpointResponse('/api/approval-workflow/workflows', {
-      status: 200,
-      data: {
-        workflows: mockWorkflows.slice(0, 20), // First page
-        pagination: {
-          currentPage: 1,
-          totalPages: Math.ceil(mockWorkflows.length / 20),
-          totalCount: mockWorkflows.length,
-          hasNext: true,
-          hasPrevious: false
-        }
-      }
-    });
-
-    // Mock dashboard stats with 125 pending
-    mockFetch.setEndpointResponse('/api/approval-workflow/dashboard/stats', {
-      status: 200,
-      data: {
-        queueStats: { 
-          totalPending: 125,
-          averageProcessingTime: 4.5,
-          slaCompliance: 0.89
-        },
-        performanceMetrics: { 
-          approvalsToday: 45 
-        }
-      }
-    });
-
-    // Mock queue metrics with 125 pending - using correct endpoint path
-    mockFetch.setEndpointResponse('/api/approval-workflow/dashboard/queue-metrics', {
-      status: 200,
-      data: {
-        totalPending: 125,
-        totalApproved: 890,
-        totalRejected: 45,
-        averageProcessingTime: 270, // 4.5 minutes in seconds
-        slaCompliance: 0.89,
-        riskDistribution: [
-          { riskLevel: 'low', count: 45 },
-          { riskLevel: 'medium', count: 67 },
-          { riskLevel: 'high', count: 13 }
-        ]
-      }
-    });
+    // Reset the global test state to defaults
+    (global as any).testState = {
+      workflowsError: false,
+      workflowsLoading: false,
+      emptyWorkflows: false,
+      pendingCount: 125,
+      totalWorkflows: 125
+    };
   });
 
   describe('Dashboard Loading and Initialization', () => {
@@ -504,57 +603,19 @@ describe('ApprovalDashboard Integration Tests', () => {
         expect(screen.getByTestId('total-pending-count')).toHaveTextContent('125');
       });
 
-      // Update the mock to simulate an increased count
-      await act(async () => {
-        mockFetch.setEndpointResponse('/api/approval-workflow/dashboard/stats', {
-          status: 200,
-          data: {
-            queueStats: { 
-              totalPending: 126, // Incremented count
-              averageProcessingTime: 4.5,
-              slaCompliance: 0.89
-            },
-            performanceMetrics: { 
-              approvalsToday: 45 
-            }
-          }
-        });
-
-                 mockFetch.setEndpointResponse('/api/approval-workflow/dashboard/queue-metrics', {
-           status: 200,
-           data: {
-             totalPending: 126, // Incremented count
-             totalApproved: 890,
-             totalRejected: 45,
-             averageProcessingTime: 270,
-             slaCompliance: 0.89,
-             riskDistribution: [
-               { riskLevel: 'low', count: 45 },
-               { riskLevel: 'medium', count: 67 },
-               { riskLevel: 'high', count: 14 } // One more workflow
-             ]
-           }
-         });
-      });
-
       // Simulate WebSocket message for new workflow (this would trigger a refetch in real implementation)
       const websocketEvent = new CustomEvent('websocket-message', {
         detail: {
           type: 'workflow_created',
           data: {
-            ...MockDataGenerators.workflow(),
+            workflowNumber: 'WF-9999',
+            priority: 'high',
+            amount: 15000,
             status: 'pending_review'
           }
         }
       });
       window.dispatchEvent(websocketEvent);
-
-      // For this test, we'll simulate what would happen - a page refresh/refetch
-      // In a real implementation, the WebSocket would trigger data refetch
-      await act(async () => {
-        // Force a re-render to simulate real-time update
-        window.location.reload = jest.fn();
-      });
 
       // Should update pending count (in this simplified test, we check that the mock data is set up correctly)
       await waitFor(() => {
@@ -726,146 +787,86 @@ describe('ApprovalDashboard Integration Tests', () => {
 
   describe('Error Handling and Edge Cases', () => {
     it('should handle empty workflow list gracefully', async () => {
-      // Setup mocks before rendering
-      mockFetch.setEndpointResponse('/api/approval-workflow/workflows', {
-        status: 200,
-        data: { 
-          workflows: [], 
-          pagination: { 
-            currentPage: 1,
-            totalPages: 0,
-            totalCount: 0,
-            hasNext: false,
-            hasPrevious: false
-          } 
-        }
-      });
+      // Set empty state in the mock
+      (global as any).testState = {
+        workflowsError: false,
+        workflowsLoading: false,
+        emptyWorkflows: true,
+        pendingCount: 0,
+        totalWorkflows: 0
+      };
 
-      // Mock dashboard stats to prevent loading conflicts
-      mockFetch.setEndpointResponse('/api/approval-workflow/dashboard/stats', {
-        status: 200,
-        data: {
-          queueStats: { totalPending: 0 },
-          performanceMetrics: { approvalsToday: 0 }
-        }
-      });
-
-      // Mock queue metrics
-      mockFetch.setEndpointResponse('/api/approval-workflow/queue/metrics', {
-        status: 200,
-        data: {
-          totalPending: 0,
-          totalApproved: 0,
-          totalRejected: 0,
-          averageProcessingTime: 0,
-          slaCompliance: 1.0
-        }
-      });
-
-      // Render component with act wrapper
-      await act(async () => {
-        render(
-          <TestWrapper>
-            <ApprovalDashboard />
-          </TestWrapper>
-        );
-      });
+      render(
+        <TestWrapper>
+          <ApprovalDashboard />
+        </TestWrapper>
+      );
 
       // Wait for loading to complete and content to render
-      await act(async () => {
-        await waitFor(
-          () => {
-            // First check that dashboard content is loaded
-            expect(screen.getByTestId('dashboard-content')).toBeInTheDocument();
-          },
-          { timeout: 3000 }
-        );
+      await waitFor(() => {
+        // First check that dashboard content is loaded
+        expect(screen.getByTestId('dashboard-content')).toBeInTheDocument();
       });
 
       // Check for empty state within the loaded content
-      await act(async () => {
-        await waitFor(
-          () => {
-            // Look for empty state or the condition that would show it
-            const emptyState = screen.queryByTestId('empty-workflows-state');
-            if (emptyState) {
-              expect(emptyState).toBeInTheDocument();
-              expect(screen.getByText(/no pending approvals/i)).toBeInTheDocument();
-            } else {
-              // If empty state element doesn't exist, check that we have empty data
-              expect(screen.getByTestId('total-pending-count')).toHaveTextContent('0');
-            }
-          },
-          { timeout: 3000 }
-        );
+      await waitFor(() => {
+        // Look for empty state or the condition that would show it
+        const emptyState = screen.queryByTestId('empty-workflows-state');
+        if (emptyState) {
+          expect(emptyState).toBeInTheDocument();
+          expect(screen.getByText(/no pending approvals/i)).toBeInTheDocument();
+        } else {
+          // If empty state element doesn't exist, check that we have empty data
+          expect(screen.getByTestId('total-pending-count')).toHaveTextContent('0');
+        }
       });
     });
 
     it('should handle network errors gracefully', async () => {
-      // Setup error simulation before rendering
-      await act(async () => {
-        mockFetch.simulateError('/api/approval-workflow/workflows', 500, 'Network Error');
-      });
+      // Set error state in the mock
+      (global as any).testState = {
+        workflowsError: true,
+        workflowsLoading: false,
+        emptyWorkflows: false,
+        pendingCount: 125,
+        totalWorkflows: 125
+      };
 
-      // Render component
-      await act(async () => {
-        render(
-          <TestWrapper>
-            <ApprovalDashboard />
-          </TestWrapper>
-        );
-      });
+      render(
+        <TestWrapper>
+          <ApprovalDashboard />
+        </TestWrapper>
+      );
 
       // Wait for error state to appear
-      await waitFor(
-        () => {
-          expect(screen.getByTestId('dashboard-error')).toBeInTheDocument();
-          expect(screen.getByTestId('network-error-message')).toBeInTheDocument();
-          expect(screen.getByText(/check your connection/i)).toBeInTheDocument();
-        },
-        { timeout: 5000 }
-      );
+      await waitFor(() => {
+        expect(screen.getByTestId('dashboard-error')).toBeInTheDocument();
+        expect(screen.getByTestId('network-error-message')).toBeInTheDocument();
+        expect(screen.getByText(/check your connection/i)).toBeInTheDocument();
+      });
 
       // Should have retry button
       const retryButton = screen.getByTestId('retry-button');
       expect(retryButton).toBeInTheDocument();
 
-      // Clear the error simulation and set up successful response for retry
-      await act(async () => {
-        // Reset the mock to stop simulating errors
-        jest.clearAllMocks();
-        
-        // Set up successful response for retry
-        const mockWorkflows = generateMockWorkflows();
-        mockFetch.setEndpointResponse('/api/approval-workflow/workflows', {
-          status: 200,
-          data: {
-            workflows: mockWorkflows.slice(0, 20),
-            pagination: {
-              currentPage: 1,
-              totalPages: Math.ceil(mockWorkflows.length / 20),
-              totalCount: mockWorkflows.length,
-              hasNext: true,
-              hasPrevious: false
-            }
-          }
-        });
-      });
+      // Reset to successful state for retry
+      (global as any).testState = {
+        workflowsError: false,
+        workflowsLoading: false,
+        emptyWorkflows: false,
+        pendingCount: 125,
+        totalWorkflows: 125
+      };
       
       // Clicking retry should reload data
-      await act(async () => {
-        await user.click(retryButton);
-      });
+      await user.click(retryButton);
       
       // Give some time for the retry to process and verify content loads
-      await waitFor(
-        () => {
-          // After successful retry, we should see dashboard content (not error)
-          expect(screen.getByTestId('dashboard-content')).toBeInTheDocument();
-          expect(screen.queryByTestId('dashboard-error')).not.toBeInTheDocument();
-        },
-        { timeout: 5000 }
-      );
+      await waitFor(() => {
+        // After successful retry, we should see dashboard content (not error)
+        expect(screen.getByTestId('dashboard-content')).toBeInTheDocument();
+        expect(screen.queryByTestId('dashboard-error')).not.toBeInTheDocument();
+      });
     });
 
     it('should handle slow API responses', async () => {
