@@ -1,5 +1,4 @@
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { Injectable, Logger, BadRequestException, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, QueryRunner } from 'typeorm';
@@ -8,11 +7,12 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
-
 import { Transaction, TransactionStatus, TransactionType } from '../entities/transaction.entity';
 import { Account } from '../entities/account.entity';
 import { Customer } from '../entities/customer.entity';
 import { ApprovalWorkflow, WorkflowStatus } from '../entities/approval-workflow.entity';
+
+
 
 export interface ProcessingResult {
   success: boolean;
@@ -195,12 +195,12 @@ export class TransactionProcessingService {
       const processingTimeMs = Date.now() - startTime;
       await this.emitProcessingEvents(transaction, balanceUpdate, receipt, processingTimeMs);
 
-      this.logger.log(`Transaction ${transaction.transactionNumber} processed successfully in ${processingTimeMs}ms`);
+      this.logger.log(`Transaction ${savedTransaction.transactionNumber} processed successfully in ${processingTimeMs}ms`);
 
       return {
         success: true,
-        transactionId: transaction.id,
-        transactionNumber: transaction.transactionNumber,
+        transactionId: savedTransaction.id,
+        transactionNumber: savedTransaction.transactionNumber,
         finalBalance: balanceUpdate.newBalance,
         finalAvailableBalance: balanceUpdate.newAvailableBalance,
         receiptNumber: receipt.receiptNumber,
@@ -242,7 +242,7 @@ export class TransactionProcessingService {
     transactionIds: string[],
     processedBy: string,
   ): Promise<ProcessingResult[]> {
-    this.logger.log(`Batch processing ${transactionIds.length} transactions by ${processedBy}`);
+    this.logger.log(`Batch processing ${Object.values(transactionIds).length} transactions by ${processedBy}`);
 
     const results: ProcessingResult[] = [];
     
@@ -270,14 +270,14 @@ export class TransactionProcessingService {
 
     // Emit batch completion event
     const successCount = results.filter(r => r.success).length;
-    const failureCount = results.length - successCount;
+    const failureCount = Object.values(results).length - successCount;
 
     this.eventEmitter.emit('transaction.batch_processed', {
       processedBy,
-      totalTransactions: results.length,
+      totalTransactions: Object.values(results).length,
       successCount,
       failureCount,
-      successRate: (successCount / results.length) * 100,
+      successRate: (successCount / Object.values(results).length) * 100,
     });
 
     return results;
@@ -566,7 +566,7 @@ export class TransactionProcessingService {
     await this.applySpecialFees(transaction, account, feeBreakdown);
 
     // Calculate final totals
-    const finalTotalFees = feeBreakdown.reduce((sum, fee) => sum + fee.amount, 0);
+    const finalTotalFees = Object.values(feeBreakdown).reduce((sum, fee) => sum + fee.amount, 0);
 
     return {
       baseFee: feeBreakdown.find(f => f.type === 'base_fee')?.amount || 0,
@@ -638,9 +638,9 @@ export class TransactionProcessingService {
 
     const receipt: Receipt = {
       receiptNumber,
-      transactionNumber: transaction.transactionNumber,
+      transactionNumber: savedTransaction.transactionNumber,
       customerName: transaction.customer.fullName,
-      customerPhone: transaction.customer?.phoneNumber || (transaction.customer as any)?.phone,
+      customerPhone: transaction.customer?.phoneNumber ,
       accountNumber: account.accountNumber,
       transactionType: transaction.type.toUpperCase(),
       amount: transaction.amount,
@@ -651,7 +651,7 @@ export class TransactionProcessingService {
       agentPhone: transaction.agentPhone,
       location: transaction.agentLocation || 'Unknown',
       timestamp: transaction.completedAt.toISOString(),
-      reference: transaction.reference || transaction.transactionNumber,
+      reference: transaction.reference || savedTransaction.transactionNumber,
     };
 
     // Cache receipt for quick access
@@ -663,9 +663,9 @@ export class TransactionProcessingService {
 
     // Emit receipt generated event
     this.eventEmitter.emit('transaction.receipt_generated', {
-      transactionId: transaction.id,
+      transactionId: savedTransaction.id,
       receiptNumber,
-      customerPhone: transaction.customer?.phoneNumber || (transaction.customer as any)?.phone,
+      customerPhone: transaction.customer?.phoneNumber ,
     });
 
     return receipt;
@@ -684,7 +684,7 @@ export class TransactionProcessingService {
       receiptNumber,
       transactionNumber: reversalTransaction.transactionNumber,
       customerName: reversalTransaction.customer.fullName,
-      customerPhone: reversalTransaction.customer?.phoneNumber || (transaction.customer as any)?.phone || (transaction.customer as any)?.phone,
+      customerPhone: reversalTransaction.customer?.phoneNumber  ,
       accountNumber: account.accountNumber,
       transactionType: 'REVERSAL',
       amount: reversalTransaction.amount,
@@ -765,7 +765,7 @@ export class TransactionProcessingService {
   ): Promise<Transaction> {
     const transaction = await queryRunner.manager.findOne(Transaction, {
       where: { id: transactionId, companyId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
       lock: { mode: 'pessimistic_write' },
     });
 
@@ -799,7 +799,7 @@ export class TransactionProcessingService {
   ): Promise<Transaction> {
     const transaction = await queryRunner.manager.findOne(Transaction, {
       where: { id: transactionId, companyId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (!transaction) {
@@ -861,7 +861,7 @@ export class TransactionProcessingService {
     reversedBy: string,
     reason: string,
   ): Promise<Transaction> {
-    const reversalData = Transaction.createReversal(originalTransaction, reversedBy, reason);
+    const reversalData = this.createReversalTransaction(originalTransaction, reversedBy, reason);
     const reversalTransaction = queryRunner.manager.create(Transaction, reversalData);
     
     return await queryRunner.manager.save(Transaction, reversalTransaction);
@@ -884,12 +884,12 @@ export class TransactionProcessingService {
   ): Promise<void> {
     // This would typically create an entry in a reconciliation table
     // For now, we'll just log the reconciliation data
-    this.logger.log(`Reconciliation entry created for transaction ${transaction.transactionNumber}`);
+    this.logger.log(`Reconciliation entry created for transaction ${savedTransaction.transactionNumber}`);
   }
 
   private async clearRelatedCaches(transaction: Transaction): Promise<void> {
     const cacheKeys = [
-      `transaction:${transaction.id}`,
+      `transaction:${savedTransaction.id}`,
       `account:${transaction.accountId}`,
       `customer:${transaction.customerId}`,
       `balance:${transaction.accountId}`,
@@ -906,8 +906,8 @@ export class TransactionProcessingService {
   ): Promise<void> {
     // Emit completion event
     this.eventEmitter.emit('transaction.completed', {
-      transactionId: transaction.id,
-      transactionNumber: transaction.transactionNumber,
+      transactionId: savedTransaction.id,
+      transactionNumber: savedTransaction.transactionNumber,
       customerId: transaction.customerId,
       accountId: transaction.accountId,
       amount: transaction.amount,
@@ -918,22 +918,22 @@ export class TransactionProcessingService {
 
     // Emit receipt event
     this.eventEmitter.emit('transaction.receipt_ready', {
-      transactionId: transaction.id,
+      transactionId: savedTransaction.id,
       receiptNumber: receipt.receiptNumber,
-      customerPhone: transaction.customer?.phoneNumber || (transaction.customer as any)?.phone || (transaction.customer as any)?.phone,
+      customerPhone: transaction.customer?.phoneNumber  ,
       customerEmail: transaction.customer.email,
     });
 
     // Emit notification event
     this.eventEmitter.emit('transaction.notification_required', {
-      transactionId: transaction.id,
+      transactionId: savedTransaction.id,
       customerId: transaction.customerId,
       type: 'transaction_completed',
       channels: ['sms', 'email'],
       data: {
         amount: transaction.amount,
         balance: balanceUpdate.newBalance,
-        reference: transaction.transactionNumber,
+        reference: savedTransaction.transactionNumber,
       },
     });
   }
@@ -967,7 +967,7 @@ export class TransactionProcessingService {
 
   private chunkArray<T>(array: T[], chunkSize: number): T[][] {
     const chunks: T[][] = [];
-    for (let i = 0; i < array.length; i += chunkSize) {
+    for (let i = 0; i < Object.values(array).length; i += chunkSize) {
       chunks.push(array.slice(i, i + chunkSize));
     }
     return chunks;
@@ -1017,7 +1017,7 @@ export class TransactionProcessingService {
     // Get from database
     const transaction = await this.transactionRepository.findOne({
       where: { receiptNumber },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (!transaction) {

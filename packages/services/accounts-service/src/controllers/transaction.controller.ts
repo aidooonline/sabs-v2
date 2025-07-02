@@ -1,17 +1,25 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, Request, Logger, HttpStatus, HttpException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { TransactionService, AgentInfo } from '../services/transaction.service';
+import {
+// Mock @Roles decorator to fix signature issues
+function Roles(...roles: any[]) {
+  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+    // Mock implementation
+    return descriptor;
+  };
+}
+
 
 
 // Mock imports - these should be replaced with actual implementations
 class JwtAuthGuard {}
 class RolesGuard {}
 class TenantGuard {}
-const Roles = (...roles: string[]) => (target: any) => target;
 
-import { TransactionService, AgentInfo } from '../services/transaction.service';
-import {
+
   CreateWithdrawalRequestDto,
   CustomerVerificationDto,
   ApproveTransactionDto,
@@ -547,7 +555,7 @@ export class TransactionController {
     failedCount: number; 
     results: Array<{ transactionId: string; success: boolean; error?: string }>;
   }> {
-    this.logger.log(`Performing bulk action '${bulkActionDto.action}' on ${bulkActionDto.transactionIds.length} transactions`);
+    this.logger.log(`Performing bulk action '${bulkActionDto.action}' on ${Object.values(bulkActionDto.transactionIds).length} transactions`);
 
     try {
       // Bulk operations logic would be implemented here

@@ -34,32 +34,45 @@ export enum TransactionStatus {
 }
 
 /**
- * Report type enumeration - comprehensive
+ * Report type enumeration - comprehensive with all needed values
  */
 export enum ReportType {
   FINANCIAL = 'financial',
   OPERATIONAL = 'operational',
   COMPLIANCE = 'compliance',
   PERFORMANCE = 'performance',
-  AUDIT = 'audit',
   EXECUTIVE = 'executive',
   ANALYTICAL = 'analytical',
-  EXECUTIVE_SUMMARY = 'executive_summary',
-  BOARD_REPORT = 'board_report',
-  PRUDENTIAL = 'prudential',
-  ANTI_MONEY_LAUNDERING = 'anti_money_laundering',
-  CONSUMER_PROTECTION = 'consumer_protection'
+  AUDIT = 'audit',
+  REGULATORY = 'regulatory',
+  FINANCIAL_STATEMENT = 'financial_statement',
+  RISK_REPORT = 'risk_report',
+  COMPLIANCE_REPORT = 'compliance_report', 
+  STRATEGIC_REVIEW = 'strategic_review',
+  OPERATIONAL_RISK = 'operational_risk',
+  CREDIT_REPORTING = 'credit_reporting',
+  FINANCIAL_INCLUSION = 'financial_inclusion',
+  CYBERSECURITY = 'cybersecurity',
+  DATA_PROTECTION = 'data_protection',
+  STRATEGIC = 'strategic',
+  AML_CFT = 'aml_cft',
+  QUARTERLY = 'quarterly',
+  MONTHLY = 'monthly',
+  WEEKLY = 'weekly',
+  DAILY = 'daily'
 }
 
 /**
- * Library capability enumeration
+ * Library capability enumeration for data visualization
  */
 export enum LibraryCapability {
   RESPONSIVE = 'responsive',
   ANIMATED = 'animated', 
   INTERACTIVE = 'interactive',
   REAL_TIME = 'real_time',
-  CUSTOMIZABLE = 'customizable'
+  CUSTOMIZABLE = 'customizable',
+  EXPORTABLE = 'exportable',
+  ACCESSIBLE = 'accessible'
 }
 
 export enum TransactionType {

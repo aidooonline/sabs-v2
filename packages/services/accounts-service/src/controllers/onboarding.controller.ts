@@ -1,6 +1,10 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { 
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { CustomerOnboardingService } from '../services/onboarding.service';
+
   Controller, 
   Post, 
   Get, 
@@ -21,10 +25,6 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiParam, ApiQuery } from '@nestjs/swagger';
-import { CustomerOnboardingService } from '../services/onboarding.service';
-import {
   StartOnboardingDto,
   UpdatePersonalInfoDto,
   UpdateContactInfoDto,

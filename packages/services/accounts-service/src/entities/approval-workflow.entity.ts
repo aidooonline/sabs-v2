@@ -1,8 +1,8 @@
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index, BeforeInsert } from 'typeorm';
 import { Transaction } from './transaction.entity';
 import { nanoid } from 'nanoid';
+
 
 export enum WorkflowStatus {
   PENDING = 'pending',
@@ -427,9 +427,9 @@ export class ApprovalWorkflow {
   }
 
   get stageProgress(): number {
-    const stages = Object.values(ApprovalStage);
-    const currentIndex = stages.indexOf(this.currentStage);
-    return Math.round(((currentIndex + 1) / stages.length) * 100);
+    const stages = ApprovalStage;
+    const currentIndex = Object.values(stages).indexOf(this.currentStage);
+    return Math.round(((currentIndex + 1) / Object.values(stages).length) * 100);
   }
 
   // Business Logic Methods
@@ -565,7 +565,7 @@ export class ApprovalWorkflow {
   }
 
   completeChecklistItem(itemIndex: number, completedBy: string, notes?: string): void {
-    if (!this.checklistItems || itemIndex >= this.checklistItems.length) {
+    if (!this.checklistItems || itemIndex >= Object.values(this.checklistItems).length) {
       throw new Error('Invalid checklist item index');
     }
 
@@ -655,19 +655,19 @@ export class ApprovalWorkflow {
   }
 
   private getNextStage(currentStage: ApprovalStage): ApprovalStage {
-    const stages = Object.values(ApprovalStage);
-    const currentIndex = stages.indexOf(currentStage);
-    return stages[Math.min(currentIndex + 1, stages.length - 1)];
+    const stages = ApprovalStage;
+    const currentIndex = Object.values(stages).indexOf(currentStage);
+    return stages[Math.min(currentIndex + 1, Object.values(stages).length - 1)];
   }
 
   private updateChecklistCompletion(): void {
-    if (!this.checklistItems || this.checklistItems.length === 0) {
+    if (!this.checklistItems || Object.values(this.checklistItems).length === 0) {
       this.checklistCompletionPercentage = 100;
       return;
     }
 
     const completedItems = this.checklistItems.filter(item => item.completed).length;
-    this.checklistCompletionPercentage = Math.round((completedItems / this.checklistItems.length) * 100);
+    this.checklistCompletionPercentage = Math.round((completedItems / Object.values(this.checklistItems).length) * 100);
   }
 
   private calculateEfficiencyScore(): void {
@@ -723,7 +723,7 @@ export class ApprovalWorkflow {
   }
 
   // Static factory methods
-  static createForTransaction(data: {
+  static createForTransaction(data, {
     companyId: string;
     transactionId: string;
     priority?: ApprovalPriority;

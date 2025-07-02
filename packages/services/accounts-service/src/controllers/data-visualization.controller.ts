@@ -1,6 +1,8 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import {
+import { nanoid } from 'nanoid';
+
   Controller,
   Get,
   Post,
@@ -15,7 +17,6 @@ import {
   Logger,
   Headers,
 } from '@nestjs/common';
-import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -24,7 +25,6 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 
-import {
   DataVisualizationService,
   Visualization,
   InteractiveReport,
@@ -32,12 +32,11 @@ import {
   VisualizationType,
   VisualizationCategory,
   ChartType,
-  ReportType,
+
   ReportStatus,
   CreateVisualizationRequest,
   CreateReportRequest,
 } from '../services/data-visualization.service';
-import { nanoid } from 'nanoid';
 
 // ===== REQUEST DTOs =====
 
@@ -257,7 +256,15 @@ export class DataVisualizationController {
       chartType: vizDto.chartType,
       dataSourceId: vizDto.dataSourceId,
       configuration: vizDto.configuration || {},
-      styling: vizDto.styling,
+      styling: {
+      theme: vizDto.styling?.theme || 'default',
+      colors: {
+        primary: vizDto.styling?.colors?.primary || '#007bff',
+        secondary: vizDto.styling?.colors?.secondary || '#6c757d',
+        accent: vizDto.styling?.colors?.accent || '#28a745',
+        scheme: vizDto.styling?.colors?.scheme || 'default'
+      }
+    },
     };
 
     const result = await this.vizService.createVisualization(request);
@@ -294,7 +301,7 @@ export class DataVisualizationController {
   @ApiQuery({ name: 'width', required: false, type: Number })
   @ApiQuery({ name: 'height', required: false, type: Number })
   @ApiQuery({ name: 'theme', required: false, type: String })
-  @ApiQuery({ name: 'interactive', required: false, type: Boolean })
+  @ApiQuery({ name: LibraryCapability.INTERACTIVE, required: false, type: Boolean })
   @ApiResponse({ status: 200, description: 'Visualization rendered successfully' })
   async renderVisualization(
     @Headers('authorization') authorization: string,
@@ -302,7 +309,7 @@ export class DataVisualizationController {
     @Query('width') width?: number,
     @Query('height') height?: number,
     @Query('theme') theme?: string,
-    @Query('interactive') interactive?: boolean,
+    @Query(LibraryCapability.INTERACTIVE) interactive?: boolean,
   ): Promise<{
     visualization: {
       id: string;
@@ -483,10 +490,10 @@ export class DataVisualizationController {
     if (status) filteredReports = filteredReports.filter(r => r.status === status);
 
     const summary = {
-      total: reports.length,
+      total: Object.values(reports).length,
       byType: this.groupByField(reports, 'type'),
       byStatus: this.groupByField(reports, 'status'),
-      averageLoadTime: reports.reduce((sum, r) => sum + r.estimatedLoadTime, 0) / reports.length,
+      averageLoadTime: Object.values(reports).reduce((sum, r) => sum + r.estimatedLoadTime, 0) / Object.values(reports).length,
     };
 
     const templates = [
@@ -929,67 +936,61 @@ export class DataVisualizationController {
   @Get('health')
   @ApiOperation({ summary: 'Check data visualization service health' })
   @ApiResponse({ status: 200, description: 'Service health status' })
+  
+  @Get('health')
+  @ApiOperation({ summary: 'Get system health status' })
+  @ApiResponse({ description: 'Health status retrieved successfully' })
   async getHealthStatus(): Promise<{
     status: string;
     timestamp: string;
     services: {
-      chartEngine: string;
-      dataProcessor: string;
-      reportGenerator: string;
-      exportService: string;
-      cacheLayer: string;
+      dashboardEngine: string;
+      metricsCollection: string;
+      queryEngine: string;
+      realtimeStreaming: string;
+      reportGeneration: string;
     };
     performance: {
-      activeVisualizations: number;
-      totalReports: number;
-      dailyExports: number;
-      averageRenderTime: number;
+      averageQueryTime: number;
       cacheHitRate: number;
-    };
-    capabilities: {
-      supportedChartTypes: number;
-      supportedExportFormats: number;
-      maxDataPoints: number;
-      concurrentUsers: number;
+      memoryUsage: number;
     };
   }> {
     return {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       services: {
-        chartEngine: 'operational',
-        dataProcessor: 'operational',
-        reportGenerator: 'operational',
-        exportService: 'operational',
-        cacheLayer: 'operational',
+        dashboardEngine: 'operational',
+        metricsCollection: 'operational',
+        queryEngine: 'operational',
+        realtimeStreaming: 'operational',
+        reportGeneration: 'operational',
       },
       performance: {
-        activeVisualizations: 156,
-        totalReports: 45,
-        dailyExports: 89,
-        averageRenderTime: 245, // ms
-        cacheHitRate: 85.5,
-      },
-      capabilities: {
-        supportedChartTypes: 12,
-        supportedExportFormats: 5,
-        maxDataPoints: 50000,
-        concurrentUsers: 500,
+        averageQueryTime: 245,
+        cacheHitRate: 0.89,
+        memoryUsage: 0.67,
       },
     };
   }
 
   // ===== PRIVATE HELPER METHODS =====
 
+  
   private async extractUserId(authorization: string): Promise<string> {
     if (!authorization || !authorization.startsWith('Bearer ')) {
-      throw new BadRequestException('Invalid authorization header');
+      throw new HttpException('Invalid authorization header', HttpStatus.UNAUTHORIZED);
     }
-    return 'user_viz_001';
+    // Extract user ID from JWT token
+    const token = authorization.substring(7);
+    // Mock implementation - replace with actual JWT decode
+
+  }
+
   }
 
   private groupByField<T extends Record<string, any>>(items: T[], field: keyof T): Record<string, number> {
-    return items.reduce((acc, item) => {
+    return Object.values(items).reduce((acc, item) => {
       const key = item[field] as string;
       acc[key] = (acc[key] || 0) + 1;
       return acc;

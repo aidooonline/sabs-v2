@@ -1,5 +1,4 @@
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,11 +7,12 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
-
 import { Transaction } from '../entities/transaction.entity';
 import { Customer } from '../entities/customer.entity';
 import { Account } from '../entities/account.entity';
 import { ApprovalWorkflow } from '../entities/approval-workflow.entity';
+
+
 
 // Audit Entity Interfaces
 export interface AuditLog {
@@ -461,7 +461,7 @@ export class AuditComplianceService {
     // Sort by timestamp (newest first)
     logs.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-    const total = logs.length;
+    const total = Object.values(logs).length;
     const offset = filters.offset || 0;
     const limit = filters.limit || 100;
 
@@ -531,7 +531,7 @@ export class AuditComplianceService {
 
       // Determine result
       const passedConditions = conditionResults.filter(r => r.passed).length;
-      const totalConditions = conditionResults.length;
+      const totalConditions = Object.values(conditionResults).length;
       const passRate = totalConditions > 0 ? passedConditions / totalConditions : 1;
 
       check.score = Math.round(passRate * 100);
@@ -633,7 +633,7 @@ export class AuditComplianceService {
     // Sort by creation date (newest first)
     checks.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-    const total = checks.length;
+    const total = Object.values(checks).length;
     const offset = filters.offset || 0;
     const limit = filters.limit || 100;
 
@@ -878,11 +878,11 @@ export class AuditComplianceService {
   private async getEntity(entityType: string, entityId: string): Promise<any> {
     switch (entityType) {
       case 'transaction':
-        return this.transactionRepository.findOne({ where: { id: entityId }, relations: [UserRole.CUSTOMER, 'account'] });
+        return this.transactionRepository.findOne({ where: { id: entityId }, relations: ["customer", 'account'] });
       case UserRole.CUSTOMER:
         return this.customerRepository.findOne({ where: { id: entityId } });
       case 'account':
-        return this.accountRepository.findOne({ where: { id: entityId }, relations: [UserRole.CUSTOMER] });
+        return this.accountRepository.findOne({ where: { id: entityId }, relations: ["customer"] });
       default:
         return null;
     }
@@ -972,15 +972,15 @@ export class AuditComplianceService {
   private getImpactDescription(severity: ComplianceSeverity): string {
     switch (severity) {
       case ComplianceSeverity.CRITICAL:
-        return 'Critical impact - immediate action required';
+
       case ComplianceSeverity.HIGH:
-        return 'High impact - urgent attention needed';
+
       case ComplianceSeverity.MEDIUM:
-        return 'Medium impact - should be addressed';
+
       case ComplianceSeverity.LOW:
-        return 'Low impact - monitor and review';
+
       default:
-        return 'Informational - no immediate action required';
+
     }
   }
 

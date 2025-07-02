@@ -4,6 +4,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
 // ===== ANALYTICS ENTITIES =====
 
@@ -481,7 +482,7 @@ export class AnalyticsService {
 
     const enhancedDashboards = dashboards.map(dashboard => ({
       ...dashboard,
-      widgetCount: dashboard.widgets.length,
+      widgetCount: Object.values(dashboard.widgets).length,
       lastAccessed: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000), // Mock
       performance: {
         loadTime: 250 + Math.random() * 200, // Mock load time
@@ -490,7 +491,7 @@ export class AnalyticsService {
     }));
 
     const summary = {
-      total: dashboards.length,
+      total: Object.values(dashboards).length,
       byType: this.groupByField(dashboards, 'type'),
       byCategory: this.groupByField(dashboards, 'category'),
     };
@@ -685,9 +686,9 @@ export class AnalyticsService {
     const executionTime = Date.now() - startTime;
 
     const aggregations = {
-      sum: data.reduce((sum, row) => sum + (row.value || 0), 0),
-      count: data.length,
-      average: data.reduce((sum, row) => sum + (row.value || 0), 0) / data.length,
+      sum: Object.values(data).reduce((sum, row) => sum + (row.value || 0), 0),
+      count: Object.values(data).length,
+      average: Object.values(data).reduce((sum, row) => sum + (row.value || 0), 0) / Object.values(data).length,
       min: Math.min(...data.map(row => row.value || 0)),
       max: Math.max(...data.map(row => row.value || 0)),
     };
@@ -695,7 +696,7 @@ export class AnalyticsService {
     return {
       data,
       metadata: {
-        totalRows: data.length,
+        totalRows: Object.values(data).length,
         executionTime,
         queryId,
         cached: false,
@@ -823,7 +824,7 @@ export class AnalyticsService {
     ];
 
     return {
-      insights,
+      insights: [],
       kpis,
       alerts: (alerts as any)?.alerts || alerts,
     };
@@ -857,9 +858,9 @@ export class AnalyticsService {
     const trends = this.generatePerformanceTrends(timeRange);
     
     const summary = {
-      averageResponseTime: trends.reduce((sum, t) => sum + t.responseTime, 0) / trends.length,
-      errorRate: trends.reduce((sum, t) => sum + t.errorRate, 0) / trends.length,
-      throughput: trends.reduce((sum, t) => sum + t.throughput, 0) / trends.length,
+      averageResponseTime: Object.values(trends).reduce((sum, t) => sum + t.responseTime, 0) / Object.values(trends).length,
+      errorRate: Object.values(trends).reduce((sum, t) => sum + t.errorRate, 0) / Object.values(trends).length,
+      throughput: Object.values(trends).reduce((sum, t) => sum + t.throughput, 0) / Object.values(trends).length,
       uptime: 99.95,
     };
 
@@ -1024,7 +1025,7 @@ export class AnalyticsService {
     };
 
     const values = dimensionValues[dimension] || ['unknown'];
-    return values[Math.floor(Math.random() * values.length)];
+    return values[Math.floor(Math.random() * Object.values(values).length)];
   }
 
   private generatePerformanceTrends(timeRange: TimeRange): Array<{
@@ -1049,7 +1050,7 @@ export class AnalyticsService {
   }
 
   private groupByField(items: any[], field: string): Record<string, number> {
-    return items.reduce((acc, item) => {
+    return Object.values(items).reduce((acc, item) => {
       const key = item[field];
       acc[key] = (acc[key] || 0) + 1;
       return acc;

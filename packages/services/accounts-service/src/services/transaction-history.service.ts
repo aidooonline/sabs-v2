@@ -4,10 +4,11 @@ import { Repository, SelectQueryBuilder, Between, In, MoreThanOrEqual, LessThanO
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-
 import { Transaction, TransactionStatus, TransactionType } from '../entities/transaction.entity';
 import { Account, AccountType } from '../entities/account.entity';
 import { Customer } from '../entities/customer.entity';
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 
 export interface TransactionSearchFilters {
   // Date range filters
@@ -259,7 +260,7 @@ export class TransactionHistoryService {
     // Cache result for 2 minutes
     await this.cacheManager.set(cacheKey, response, 120000);
 
-    this.logger.log(`Found ${transactions.length} transactions out of ${total} total`);
+    this.logger.log(`Found ${Object.values(transactions).length} transactions out of ${total} total`);
     return response;
   }
 
@@ -278,7 +279,7 @@ export class TransactionHistoryService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: transactionId, companyId },
-      relations: [UserRole.CUSTOMER, 'account', 'approvalWorkflows'],
+      relations: ["customer", 'account', 'approvalWorkflows'],
     });
 
     if (!transaction) {
@@ -441,11 +442,11 @@ export class TransactionHistoryService {
 
     const transactions = await queryBuilder.getMany();
 
-    if (transactions.length === 0) {
+    if (Object.values(transactions).length === 0) {
       throw new BadRequestException('No transactions found for export');
     }
 
-    this.logger.log(`Exporting ${transactions.length} transactions`);
+    this.logger.log(`Exporting ${Object.values(transactions).length} transactions`);
 
     // Generate export data based on format
     let data: string | Buffer;
@@ -476,7 +477,7 @@ export class TransactionHistoryService {
           exportDate: new Date().toISOString(),
           companyId,
           filters: exportFilters,
-          count: transactions.length,
+          count: Object.values(transactions).length,
           transactions: transactions.map(t => this.sanitizeTransactionForExport(t)),
         }, null, 2);
         mimeType = 'application/json';
@@ -491,7 +492,7 @@ export class TransactionHistoryService {
       data,
       fileName,
       mimeType,
-      size: Buffer.isBuffer(data) ? data.length : Buffer.byteLength(data),
+      size: Buffer.isBuffer(data) ? Object.values(data).length : Buffer.byteLength(data),
     };
   }
 
@@ -526,7 +527,7 @@ export class TransactionHistoryService {
         companyId,
         createdAt: MoreThanOrEqual(startDate),
       },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
       order: { createdAt: 'DESC' },
     });
 
@@ -651,7 +652,7 @@ export class TransactionHistoryService {
   ): SelectQueryBuilder<Transaction> {
     let query = this.transactionRepository
       .createQueryBuilder('transaction')
-      .leftJoinAndSelect('transaction.customer', UserRole.CUSTOMER)
+      .leftJoinAndSelect('transactionEntity.customer', UserRole.CUSTOMER)
       .leftJoinAndSelect('transaction.account', 'account')
       .leftJoinAndSelect('transaction.approvalWorkflows', 'approval')
       .where('transaction.companyId = :companyId', { companyId });
@@ -668,12 +669,12 @@ export class TransactionHistoryService {
     }
 
     // Transaction type filters
-    if (filters.transactionTypes && filters.transactionTypes.length > 0) {
+    if (filters.transactionTypes && Object.values(filters.transactionTypes).length > 0) {
       query = query.andWhere('transaction.type IN (:...types)', { types: filters.transactionTypes });
     }
 
     // Status filters
-    if (filters.statuses && filters.statuses.length > 0) {
+    if (filters.statuses && Object.values(filters.statuses).length > 0) {
       query = query.andWhere('transaction.status IN (:...statuses)', { statuses: filters.statuses });
     }
 
@@ -686,18 +687,18 @@ export class TransactionHistoryService {
     }
 
     // Account filters
-    if (filters.accountIds && filters.accountIds.length > 0) {
+    if (filters.accountIds && Object.values(filters.accountIds).length > 0) {
       query = query.andWhere('transaction.accountId IN (:...accountIds)', { accountIds: filters.accountIds });
     }
-    if (filters.accountTypes && filters.accountTypes.length > 0) {
+    if (filters.accountTypes && Object.values(filters.accountTypes).length > 0) {
       query = query.andWhere('account.accountType IN (:...accountTypes)', { accountTypes: filters.accountTypes });
     }
-    if (filters.accountNumbers && filters.accountNumbers.length > 0) {
+    if (filters.accountNumbers && Object.values(filters.accountNumbers).length > 0) {
       query = query.andWhere('account.accountNumber IN (:...accountNumbers)', { accountNumbers: filters.accountNumbers });
     }
 
     // Customer filters
-    if (filters.customerIds && filters.customerIds.length > 0) {
+    if (filters.customerIds && Object.values(filters.customerIds).length > 0) {
       query = query.andWhere('transaction.customerId IN (:...customerIds)', { customerIds: filters.customerIds });
     }
     if (filters.customerName) {
@@ -711,7 +712,7 @@ export class TransactionHistoryService {
     }
 
     // Agent filters
-    if (filters.agentIds && filters.agentIds.length > 0) {
+    if (filters.agentIds && Object.values(filters.agentIds).length > 0) {
       query = query.andWhere('transaction.agentId IN (:...agentIds)', { agentIds: filters.agentIds });
     }
     if (filters.agentName) {
@@ -719,13 +720,13 @@ export class TransactionHistoryService {
     }
 
     // Transaction detail filters
-    if (filters.transactionNumbers && filters.transactionNumbers.length > 0) {
+    if (filters.transactionNumbers && Object.values(filters.transactionNumbers).length > 0) {
       query = query.andWhere('transaction.transactionNumber IN (:...transactionNumbers)', { transactionNumbers: filters.transactionNumbers });
     }
-    if (filters.references && filters.references.length > 0) {
+    if (filters.references && Object.values(filters.references).length > 0) {
       query = query.andWhere('transaction.reference IN (:...references)', { references: filters.references });
     }
-    if (filters.receiptNumbers && filters.receiptNumbers.length > 0) {
+    if (filters.receiptNumbers && Object.values(filters.receiptNumbers).length > 0) {
       query = query.andWhere('transaction.receiptNumber IN (:...receiptNumbers)', { receiptNumbers: filters.receiptNumbers });
     }
 
@@ -741,12 +742,12 @@ export class TransactionHistoryService {
     if (filters.requiresApproval !== undefined) {
       query = query.andWhere('transaction.requiresApproval = :requiresApproval', { requiresApproval: filters.requiresApproval });
     }
-    if (filters.approvedBy && filters.approvedBy.length > 0) {
+    if (filters.approvedBy && Object.values(filters.approvedBy).length > 0) {
       query = query.andWhere('approval.approvedBy IN (:...approvedBy)', { approvedBy: filters.approvedBy });
     }
 
     // Location filters
-    if (filters.locations && filters.locations.length > 0) {
+    if (filters.locations && Object.values(filters.locations).length > 0) {
       query = query.andWhere('transaction.agentLocation IN (:...locations)', { locations: filters.locations });
     }
 
@@ -763,7 +764,7 @@ export class TransactionHistoryService {
       query = query.andWhere('transaction.reversed = :isReversed', { isReversed: filters.isReversed });
     }
 
-    if (filters.priority && filters.priority.length > 0) {
+    if (filters.priority && Object.values(filters.priority).length > 0) {
       query = query.andWhere('transaction.priority IN (:...priority)', { priority: filters.priority });
     }
 
@@ -840,11 +841,11 @@ export class TransactionHistoryService {
       totalFees: parseFloat(result.totalFees) || 0,
       transactionCount: parseInt(result.transactionCount) || 0,
       averageAmount: parseFloat(result.averageAmount) || 0,
-      statusBreakdown: statusBreakdown.reduce((acc, item) => {
+      statusBreakdown: Object.values(statusBreakdown).reduce((acc, item) => {
         acc[item.transaction_status] = parseInt(item.count);
         return acc;
       }, {}),
-      typeBreakdown: typeBreakdown.reduce((acc, item) => {
+      typeBreakdown: Object.values(typeBreakdown).reduce((acc, item) => {
         acc[item.transaction_type] = parseInt(item.count);
         return acc;
       }, {}),
@@ -890,7 +891,7 @@ export class TransactionHistoryService {
     }
   }
 
-  private getDateRange(filters: { startDate?: string; endDate?: string }): any {
+  private getDateRange(filters, { startDate?: string; endDate?: string }): any {
     if (!filters.startDate && !filters.endDate) {
       return {};
     }
@@ -1028,14 +1029,12 @@ export class TransactionHistoryService {
 
   private generateExcelExport(transactions: Transaction[], options: ExportOptions): Buffer {
     // This would generate Excel export using a library like xlsx
-    // For now, return CSV as buffer
     const csv = this.generateCsvExport(transactions, options);
     return Buffer.from(csv);
   }
 
   private generatePdfExport(transactions: Transaction[], options: ExportOptions): Buffer {
     // This would generate PDF export using a library like pdfkit
-    // For now, return placeholder
     return Buffer.from('PDF export placeholder');
   }
 

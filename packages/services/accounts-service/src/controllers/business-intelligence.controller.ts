@@ -1,4 +1,6 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import {
+import { nanoid } from 'nanoid';
   Controller,
   Get,
   Post,
@@ -12,7 +14,6 @@ import {
   Logger,
   Headers,
 } from '@nestjs/common';
-import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -21,7 +22,6 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 
-import {
   BusinessIntelligenceService,
   PredictiveModel,
   CustomerSegment,
@@ -42,7 +42,6 @@ import {
   ForecastRequest,
   SegmentationRequest,
 } from '../services/business-intelligence.service';
-import { nanoid } from 'nanoid';
 
 // ===== REQUEST DTOs =====
 
@@ -118,12 +117,7 @@ export class ForecastResponseDto {
     upperBound: number;
     lowerBound: number;
   }>;
-  accuracy: {
-    mape: number;
-    rmse: number;
-    mae: number;
-    historicalAccuracy: number;
-  };
+  ;
   methodology: {
     algorithm: string;
     features: string[];
@@ -250,7 +244,7 @@ export class BusinessIntelligenceController {
     if (status) filteredModels = filteredModels.filter(m => m.status === status);
 
     const summary = {
-      total: models.length,
+      total: Object.values(models).length,
       active: models.filter(m => m.status === ModelStatus.ACTIVE).length,
       training: models.filter(m => m.status === ModelStatus.TRAINING).length,
       averageAccuracy: models.filter(m => m.status === ModelStatus.ACTIVE)
@@ -359,11 +353,7 @@ export class BusinessIntelligenceController {
         prediction: number;
         confidence: number;
       }>;
-      accuracy: {
-        daily: number;
-        weekly: number;
-        monthly: number;
-      };
+      ;
     };
   }> {
     const userId = await this.extractUserId(authorization);
@@ -419,11 +409,7 @@ export class BusinessIntelligenceController {
         prediction: Math.random() > 0.5 ? 1 : 0,
         confidence: 0.7 + Math.random() * 0.3,
       })),
-      accuracy: {
-        daily: 0.94,
-        weekly: 0.92,
-        monthly: 0.91,
-      },
+      
     };
 
     return {
@@ -512,12 +498,7 @@ export class BusinessIntelligenceController {
           upperBound: 3200000 + i * 50000 + 200000,
           lowerBound: 3200000 + i * 50000 - 200000,
         })),
-        accuracy: {
-          mape: 8.5,
-          rmse: 150000,
-          mae: 120000,
-          historicalAccuracy: 0.92,
-        },
+        
         methodology: {
           algorithm: 'LSTM Neural Network',
           features: ['historical_revenue', 'customer_count', 'seasonality', 'marketing_spend'],
@@ -529,8 +510,8 @@ export class BusinessIntelligenceController {
     ];
 
     const summary = {
-      total: forecasts.length,
-      averageAccuracy: forecasts.reduce((sum, f) => sum + (100 - f.accuracy.mape), 0) / forecasts.length,
+      total: Object.values(forecasts).length,
+      averageAccuracy: Object.values(forecasts).reduce((sum, f) => sum + (100 - f.accuracy.mape), 0) / Object.values(forecasts).length,
       mostAccurate: 'monthly_revenue',
       recentlyGenerated: forecasts.filter(f => 
         (Date.now() - f.generatedAt.getTime()) < 24 * 60 * 60 * 1000
@@ -1100,13 +1081,17 @@ export class BusinessIntelligenceController {
     ];
 
     const performance = {
-      averageAccuracy: models.reduce((sum, m) => sum + m.performance.accuracy, 0) / models.length,
+      averageAccuracy: Object.values(models).reduce((sum, m) => sum + m.performance.accuracy, 0) / Object.values(models).length,
       totalAssessments: 125000,
       monthlyVolume: 15000,
     };
 
     return {
-      models: [],
+      models: {
+        
+        performance: { accuracy: 0, precision: 0, recall: 0, f1Score: 0 },
+      confidence: 0
+    },
       performance,
     };
   }
@@ -1215,10 +1200,10 @@ export class BusinessIntelligenceController {
     riskTypes: RiskType[];
   }> {
     return {
-      modelTypes: Object.values(ModelType),
+      modelTypes: ModelType,
       modelCategories: Object.values(ModelCategory),
-      mlAlgorithms: Object.values(MLAlgorithm),
-      modelStatuses: Object.values(ModelStatus),
+      mlAlgorithms: MLAlgorithm,
+      modelStatuses: ModelStatus,
       anomalyTypes: Object.values(AnomalyType),
       anomalySeverities: Object.values(AnomalySeverity),
       anomalyCategories: Object.values(AnomalyCategory),
@@ -1231,48 +1216,56 @@ export class BusinessIntelligenceController {
   @Get('health')
   @ApiOperation({ summary: 'Check business intelligence service health' })
   @ApiResponse({ status: 200, description: 'Service health status' })
+  
+  @Get('health')
+  @ApiOperation({ summary: 'Get system health status' })
+  @ApiResponse({ description: 'Health status retrieved successfully' })
   async getHealthStatus(): Promise<{
     status: string;
     timestamp: string;
     services: {
-      modelTraining: string;
-      anomalyDetection: string;
-      forecasting: string;
-      segmentation: string;
-      riskModeling: string;
+      dashboardEngine: string;
+      metricsCollection: string;
+      queryEngine: string;
+      realtimeStreaming: string;
+      reportGeneration: string;
     };
     performance: {
-      activeModels: number;
-      dailyPredictions: number;
-      anomaliesDetected: number;
-      averageResponseTime: number;
+      averageQueryTime: number;
+      cacheHitRate: number;
+      memoryUsage: number;
     };
   }> {
     return {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       services: {
-        modelTraining: 'operational',
-        anomalyDetection: 'operational',
-        forecasting: 'operational',
-        segmentation: 'operational',
-        riskModeling: 'operational',
+        dashboardEngine: 'operational',
+        metricsCollection: 'operational',
+        queryEngine: 'operational',
+        realtimeStreaming: 'operational',
+        reportGeneration: 'operational',
       },
       performance: {
-        activeModels: 8,
-        dailyPredictions: 25000,
-        anomaliesDetected: 12,
-        averageResponseTime: 185,
+        averageQueryTime: 245,
+        cacheHitRate: 0.89,
+        memoryUsage: 0.67,
       },
     };
   }
 
   // ===== PRIVATE HELPER METHODS =====
 
+  
   private async extractUserId(authorization: string): Promise<string> {
     if (!authorization || !authorization.startsWith('Bearer ')) {
-      throw new BadRequestException('Invalid authorization header');
+      throw new HttpException('Invalid authorization header', HttpStatus.UNAUTHORIZED);
     }
-    return 'user_admin_001';
+    // Extract user ID from JWT token
+    const token = authorization.substring(7);
+    // Mock implementation - replace with actual JWT decode
+
+  }
+
   }
 }

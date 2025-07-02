@@ -1,11 +1,11 @@
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
+
 
 // ===== DATA VISUALIZATION ENTITIES =====
 
@@ -345,7 +345,7 @@ export class DataVisualizationService {
     const performance = {
       dataLoadTime,
       renderTime: 50 + Math.random() * 100, // Simulated render time
-      totalPoints: data.length,
+      totalPoints: Object.values(data).length,
     };
 
     // Update metadata
@@ -455,7 +455,7 @@ export class DataVisualizationService {
       reportId,
       title: request.title,
       type: request.type,
-      visualizationCount: request.visualizations.length,
+      visualizationCount: Object.values(request.visualizations).length,
     });
 
     return {
@@ -815,7 +815,7 @@ export class DataVisualizationService {
       .map(viz => viz.name);
 
     return {
-      total: visualizations.length,
+      total: Object.values(visualizations).length,
       byType,
       byCategory,
       mostPopular,
@@ -877,7 +877,7 @@ export class DataVisualizationService {
 
   private estimateReportLoadTime(report: InteractiveReport): number {
     const baseTime = 200; // Base load time in ms
-    const visualizationCount = report.visualizations.length;
+    const visualizationCount = Object.values(report.visualizations).length;
     return baseTime + (visualizationCount * 100) + Math.random() * 200;
   }
 
@@ -919,11 +919,11 @@ export class DataVisualizationService {
         name: 'Chart.js',
         version: '4.4.0',
         chartTypes: [
-          { type: ChartType.LINE, capabilities: ['responsive', 'animated'] },
-          { type: ChartType.BAR, capabilities: ['responsive', 'stacked'] },
-          { type: ChartType.PIE, capabilities: ['responsive', 'doughnut'] },
+          { type: ChartType.LINE, capabilities: [LibraryCapability.RESPONSIVE, LibraryCapability.ANIMATED] },
+          { type: ChartType.BAR, capabilities: [LibraryCapability.RESPONSIVE, 'stacked'] },
+          { type: ChartType.PIE, capabilities: [LibraryCapability.RESPONSIVE, 'doughnut'] },
         ],
-        capabilities: ['responsive', 'animated', 'interactive'],
+        capabilities: [LibraryCapability.RESPONSIVE, LibraryCapability.ANIMATED, LibraryCapability.INTERACTIVE],
         themes: [
           { name: 'default', colors: ['#2563eb', '#10b981', '#f59e0b'] },
           { name: 'dark', colors: ['#3b82f6', '#06d6a0', '#ffd23f'] },

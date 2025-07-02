@@ -114,7 +114,6 @@ export class CompaniesService {
     const skip = (page - 1) * limit;
     
     // Build query conditions
-    const where: FindOptionsWhere<Company>[] = [];
     const baseCondition: FindOptionsWhere<Company> = {};
 
     if (status) {
@@ -125,18 +124,20 @@ export class CompaniesService {
       baseCondition.subscriptionPlan = subscriptionPlan;
     }
 
+    let where: FindOptionsWhere<Company> | FindOptionsWhere<Company>[];
+
     if (search) {
-      // Search across multiple fields
-      where.push(
+      // Search across multiple fields using array syntax for OR conditions
+      where = [
         { ...baseCondition, name: Like(`%${search}%`) },
         { ...baseCondition, email: Like(`%${search}%`) },
-      );
+      ];
     } else {
-      where.push(baseCondition);
+      where = baseCondition;
     }
 
     const [companies, total] = await this.companyRepository.findAndCount({
-      where: where.length > 1 ? where : where[0],
+      where,
       skip,
       take: limit,
       order: { [sortBy]: sortOrder },

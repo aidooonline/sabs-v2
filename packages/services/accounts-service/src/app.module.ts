@@ -4,15 +4,11 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CacheModule } from '@nestjs/cache-manager';
 import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-
-// Entities
 import { Customer } from './entities/customer.entity';
 import { Account } from './entities/account.entity';
 import { CustomerOnboarding } from './entities/customer-onboarding.entity';
 import { Transaction } from './entities/transaction.entity';
 import { ApprovalWorkflow } from './entities/approval-workflow.entity';
-
-// Services
 import { CustomerOnboardingService } from './services/onboarding.service';
 import { TransactionService } from './services/transaction.service';
 import { ApprovalService } from './services/approval.service';
@@ -20,8 +16,6 @@ import { TransactionProcessingService } from './services/transaction-processing.
 import { TransactionHistoryService } from './services/transaction-history.service';
 import { NotificationService } from './services/notification.service';
 import { AuditComplianceService } from './services/audit-compliance.service';
-
-// Controllers
 import { OnboardingController } from './controllers/onboarding.controller';
 import { TransactionController } from './controllers/transaction.controller';
 import { ApprovalController } from './controllers/approval.controller';
@@ -29,9 +23,15 @@ import { TransactionProcessingController } from './controllers/transaction-proce
 import { TransactionHistoryController } from './controllers/transaction-history.controller';
 import { NotificationController } from './controllers/notification.controller';
 import { AuditComplianceController } from './controllers/audit-compliance.controller';
+import { DatabaseModule } from '@sabs/database';
+
+// Entities
+
+// Services
+
+// Controllers
 
 // Shared modules
-import { DatabaseModule } from '@sabs/database';
 
 
 @Module({

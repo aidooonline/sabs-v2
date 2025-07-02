@@ -1,4 +1,6 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import {
+import { nanoid } from 'nanoid';
   Controller,
   Get,
   Post,
@@ -11,7 +13,6 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -20,7 +21,6 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 
-import {
   PerformanceAnalyticsService,
   PerformanceMetric,
   SystemBottleneck,
@@ -34,7 +34,6 @@ import {
   OptimizationRequest,
   TimePeriod,
 } from '../services/performance-analytics.service';
-import { nanoid } from 'nanoid';
 
 // ===== REQUEST DTOs =====
 
@@ -373,7 +372,7 @@ export class PerformanceAnalyticsController {
     return {
       analysis_id,
       period,
-      metrics_analyzed: analysisDto.metrics.length,
+      metrics_analyzed: Object.values(analysisDto.metrics).length,
       key_findings,
       performance_score,
       comparisons,
@@ -438,7 +437,7 @@ export class PerformanceAnalyticsController {
       bottlenecks = bottlenecks.filter(b => b.severity === severity);
     }
 
-    const by_component = bottlenecks.reduce((acc, b) => {
+    const by_component = Object.values(bottlenecks).reduce((acc, b) => {
       acc[b.component] = (acc[b.component] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -928,7 +927,7 @@ export class PerformanceAnalyticsController {
         'Database query performance degradation',
         'Memory utilization trending upward',
       ],
-      recommendations_count: result.report.recommendations.length,
+      recommendations_count: result.Object.values(report.recommendations).length,
     };
 
     const performance_trends = result.report.trends.map(trend => ({
@@ -999,75 +998,69 @@ export class PerformanceAnalyticsController {
   @Get('health')
   @ApiOperation({ summary: 'Check performance analytics service health' })
   @ApiResponse({ status: 200, description: 'Service health status' })
+  
+  @Get('health')
+  @ApiOperation({ summary: 'Get system health status' })
+  @ApiResponse({ description: 'Health status retrieved successfully' })
   async getHealthStatus(): Promise<{
     status: string;
     timestamp: string;
     services: {
-      metric_collector: string;
-      bottleneck_detector: string;
-      optimization_engine: string;
-      report_generator: string;
-      alert_system: string;
+      dashboardEngine: string;
+      metricsCollection: string;
+      queryEngine: string;
+      realtimeStreaming: string;
+      reportGeneration: string;
     };
     performance: {
-      active_metrics: number;
-      detected_bottlenecks: number;
-      optimization_plans: number;
-      reports_generated: number;
-      alerts_sent: number;
-    };
-    capabilities: {
-      metric_types: number;
-      bottleneck_categories: number;
-      optimization_strategies: number;
-      supported_formats: string[];
+      averageQueryTime: number;
+      cacheHitRate: number;
+      memoryUsage: number;
     };
   }> {
     return {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       services: {
-        metric_collector: 'operational',
-        bottleneck_detector: 'operational',
-        optimization_engine: 'operational',
-        report_generator: 'operational',
-        alert_system: 'operational',
+        dashboardEngine: 'operational',
+        metricsCollection: 'operational',
+        queryEngine: 'operational',
+        realtimeStreaming: 'operational',
+        reportGeneration: 'operational',
       },
       performance: {
-        active_metrics: 247,
-        detected_bottlenecks: 8,
-        optimization_plans: 12,
-        reports_generated: 156,
-        alerts_sent: 45,
-      },
-      capabilities: {
-        metric_types: 6,
-        bottleneck_categories: 6,
-        optimization_strategies: 15,
-        supported_formats: ['json', 'pdf', 'csv', 'xlsx'],
+        averageQueryTime: 245,
+        cacheHitRate: 0.89,
+        memoryUsage: 0.67,
       },
     };
   }
 
   // ===== PRIVATE HELPER METHODS =====
 
+  
   private async extractUserId(authorization: string): Promise<string> {
     if (!authorization || !authorization.startsWith('Bearer ')) {
-      throw new BadRequestException('Invalid authorization header');
+      throw new HttpException('Invalid authorization header', HttpStatus.UNAUTHORIZED);
     }
-    return 'user_perf_001';
+    // Extract user ID from JWT token
+    const token = authorization.substring(7);
+    // Mock implementation - replace with actual JWT decode
+
+  }
+
   }
 
   private getMetricStatus(metric: PerformanceMetric): string {
     if (metric.value > metric.threshold.critical) return 'critical';
     if (metric.value > metric.threshold.warning) return 'warning';
-    return 'normal';
+
   }
 
   private getSeverityFromImpact(impact: string): string {
     if (impact.includes('dramatically') || impact.includes('critical')) return 'critical';
     if (impact.includes('increased') || impact.includes('degraded')) return 'warning';
-    return 'info';
+
   }
 
   private getCorrelationDescription(metric: string, correlation: number): string {

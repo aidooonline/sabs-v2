@@ -4,6 +4,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
 // ===== BUSINESS INTELLIGENCE ENTITIES =====
 
@@ -512,8 +513,8 @@ export class BusinessIntelligenceService {
     const segments = this.generateCustomerSegments(request);
     
     const summary = {
-      totalSegments: segments.length,
-      coverage: segments.reduce((sum, s) => sum + s.percentage, 0),
+      totalSegments: Object.values(segments).length,
+      coverage: Object.values(segments).reduce((sum, s) => sum + s.percentage, 0),
       silhouetteScore: request.method === 'ml_clustering' ? 0.85 : undefined,
     };
 
@@ -525,7 +526,7 @@ export class BusinessIntelligenceService {
     ];
 
     this.eventEmitter.emit('bi.segmentation_completed', {
-      segmentCount: segments.length,
+      segmentCount: Object.values(segments).length,
       method: request.method,
       coverage: summary.coverage,
     });
@@ -618,7 +619,7 @@ export class BusinessIntelligenceService {
 
   // ===== ANOMALY DETECTION =====
 
-  async detectAnomalies(timeRange: { start: Date; end: Date }): Promise<{
+  async detectAnomalies(timeRange, { start: Date; end: Date }): Promise<{
     anomalies: AnomalyDetection[];
     summary: {
       total: number;
@@ -639,10 +640,10 @@ export class BusinessIntelligenceService {
     );
 
     const summary = {
-      total: anomalies.length,
+      total: Object.values(anomalies).length,
       critical: anomalies.filter(a => a.severity === AnomalySeverity.CRITICAL).length,
       confirmed: anomalies.filter(a => a.status === AnomalyStatus.CONFIRMED).length,
-      falsePositiveRate: anomalies.filter(a => a.falsePositive).length / anomalies.length,
+      falsePositiveRate: anomalies.filter(a => a.falsePositive).length / Object.values(anomalies).length,
     };
 
     const patterns = this.analyzeAnomalyPatterns(anomalies);
@@ -881,7 +882,7 @@ export class BusinessIntelligenceService {
     if (featureName.includes('amount') || featureName.includes('count')) return 'numeric';
     if (featureName.includes('date') || featureName.includes('time')) return 'datetime';
     if (featureName.includes('text') || featureName.includes('description')) return 'text';
-    return 'categorical';
+
   }
 
   private getInitialPerformance(): ModelPerformance {
@@ -1184,7 +1185,7 @@ export class BusinessIntelligenceService {
     if (score >= 700) return 'B';
     if (score >= 650) return 'C';
     if (score >= 600) return 'D';
-    return 'E';
+
   }
 
   private calculateDefaultProbability(score: number, riskType: RiskType): number {
@@ -1248,9 +1249,9 @@ export class BusinessIntelligenceService {
     if (Math.random() < 0.05) { // 5% chance of detecting anomaly
       const anomaly: AnomalyDetection = {
         id: `anomaly_${nanoid(8)}`,
-        type: Object.values(AnomalyType)[Math.floor(Math.random() * 4)],
-        severity: Object.values(AnomalySeverity)[Math.floor(Math.random() * 4)],
-        category: Object.values(AnomalyCategory)[Math.floor(Math.random() * 5)],
+        type: AnomalyType[Math.floor(Math.random() * 4)],
+        severity: AnomalySeverity[Math.floor(Math.random() * 4)],
+        category: AnomalyCategory[Math.floor(Math.random() * 5)],
         description: 'Automated anomaly detection alert',
         detectedAt: new Date(),
         dataPoints: [],

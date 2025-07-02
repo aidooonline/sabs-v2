@@ -1,11 +1,11 @@
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
+
 
 // ===== PERFORMANCE ANALYTICS ENTITIES =====
 
@@ -308,8 +308,8 @@ export class PerformanceAnalyticsService {
 
     this.eventEmitter.emit('metrics.collected', {
       component,
-      metric_count: metrics.length,
-      alerts: alerts.length,
+      metric_count: Object.values(metrics).length,
+      alerts: Object.values(alerts).length,
     });
 
     return {
@@ -371,7 +371,7 @@ export class PerformanceAnalyticsService {
       },
     ];
 
-    const overall_health = components.reduce((sum, comp) => sum + comp.score, 0) / components.length;
+    const overall_health = Object.values(components).reduce((sum, comp) => sum + comp.score, 0) / Object.values(components).length;
     const recent_issues = Array.from(this.bottlenecks.values())
       .filter(b => b.status !== BottleneckStatus.RESOLVED)
       .slice(0, 5);
@@ -419,7 +419,7 @@ export class PerformanceAnalyticsService {
 
     this.eventEmitter.emit('bottlenecks.detected', {
       component,
-      count: bottlenecks.length,
+      count: Object.values(bottlenecks).length,
       critical: bottlenecks.filter(b => b.severity === BottleneckSeverity.CRITICAL).length,
     });
 
@@ -604,7 +604,7 @@ export class PerformanceAnalyticsService {
     this.eventEmitter.emit('optimization.plan_generated', {
       plan_id,
       component: request.component,
-      recommendations_count: recommendations.length,
+      recommendations_count: Object.values(recommendations).length,
       total_cost: implementation_roadmap.total_cost,
     });
 
@@ -783,7 +783,7 @@ export class PerformanceAnalyticsService {
 
     return {
       report,
-      insights,
+      insights: [],
       benchmarks,
     };
   }
@@ -899,7 +899,7 @@ export class PerformanceAnalyticsService {
   private getComponentStatus(score: number): string {
     if (score >= 90) return 'healthy';
     if (score >= 70) return 'warning';
-    return 'critical';
+
   }
 
   private generateTrendingMetrics(): PerformanceTrend[] {
@@ -965,7 +965,7 @@ export class PerformanceAnalyticsService {
     });
 
     return {
-      total_detected: bottlenecks.length,
+      total_detected: Object.values(bottlenecks).length,
       by_severity,
       by_category,
       resolution_time: {

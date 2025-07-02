@@ -383,7 +383,7 @@ export class Customer {
   }
 
   // Static factory methods
-  static createBasicCustomer(data: {
+  static createBasicCustomer(data, {
     companyId: string;
     firstName: string;
     lastName: string;
@@ -412,7 +412,7 @@ export class Customer {
     };
   }
 
-  static createBusinessCustomer(data: {
+  static createBusinessCustomer(data, {
     companyId: string;
     firstName: string;
     lastName: string;

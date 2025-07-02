@@ -1,5 +1,4 @@
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { Injectable, Logger, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, MoreThan, LessThan, Between } from 'typeorm';
@@ -7,11 +6,12 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-
 import { ApprovalWorkflow, WorkflowStatus, ApprovalStage, EscalationReason, ApprovalPriority } from '../entities/approval-workflow.entity';
 import { Transaction, TransactionStatus } from '../entities/transaction.entity';
-
 import {
+
+
+
   AssignWorkflowDto,
   ReassignWorkflowDto,
   StartReviewDto,
@@ -96,7 +96,7 @@ export class ApprovalService {
     // Get transaction details
     const transaction = await this.transactionRepository.findOne({
       where: { id: transactionId, companyId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (!transaction) {
@@ -408,7 +408,7 @@ export class ApprovalService {
     approverId: string,
     bulkDto: BulkApprovalDto,
   ): Promise<BulkActionResultDto> {
-    this.logger.log(`Bulk approving ${bulkDto.workflowIds.length} workflows by ${approverId}`);
+    this.logger.log(`Bulk approving ${Object.values(bulkDto.workflowIds).length} workflows by ${approverId}`);
 
     const results: Array<{
       workflowId: string;
@@ -458,13 +458,13 @@ export class ApprovalService {
     // Emit bulk approval event
     this.eventEmitter.emit('approval.bulk_approved', {
       approverId,
-      totalProcessed: bulkDto.workflowIds.length,
+      totalProcessed: Object.values(bulkDto.workflowIds).length,
       successCount,
       failedCount,
     });
 
     return {
-      totalProcessed: bulkDto.workflowIds.length,
+      totalProcessed: Object.values(bulkDto.workflowIds).length,
       successCount,
       failedCount,
       results,
@@ -472,7 +472,7 @@ export class ApprovalService {
         action: 'BULK_APPROVAL',
         performedBy: approverId,
         performedAt: new Date().toISOString(),
-        successRate: (successCount / bulkDto.workflowIds.length) * 100,
+        successRate: (successCount / Object.values(bulkDto.workflowIds).length) * 100,
       },
     };
   }
@@ -482,7 +482,7 @@ export class ApprovalService {
     rejecterId: string,
     bulkDto: BulkRejectionDto,
   ): Promise<BulkActionResultDto> {
-    this.logger.log(`Bulk rejecting ${bulkDto.workflowIds.length} workflows by ${rejecterId}`);
+    this.logger.log(`Bulk rejecting ${Object.values(bulkDto.workflowIds).length} workflows by ${rejecterId}`);
 
     const results: Array<{
       workflowId: string;
@@ -530,13 +530,13 @@ export class ApprovalService {
     // Emit bulk rejection event
     this.eventEmitter.emit('approval.bulk_rejected', {
       rejecterId,
-      totalProcessed: bulkDto.workflowIds.length,
+      totalProcessed: Object.values(bulkDto.workflowIds).length,
       successCount,
       failedCount,
     });
 
     return {
-      totalProcessed: bulkDto.workflowIds.length,
+      totalProcessed: Object.values(bulkDto.workflowIds).length,
       successCount,
       failedCount,
       results,
@@ -544,7 +544,7 @@ export class ApprovalService {
         action: 'BULK_REJECTION',
         performedBy: rejecterId,
         performedAt: new Date().toISOString(),
-        successRate: (successCount / bulkDto.workflowIds.length) * 100,
+        successRate: (successCount / Object.values(bulkDto.workflowIds).length) * 100,
       },
     };
   }
@@ -558,7 +558,7 @@ export class ApprovalService {
     const queryBuilder = this.workflowRepository
       .createQueryBuilder('workflow')
       .leftJoinAndSelect('workflow.transaction', 'transaction')
-      .leftJoinAndSelect('transaction.customer', UserRole.CUSTOMER)
+      .leftJoinAndSelect('transactionEntity.customer', UserRole.CUSTOMER)
       .leftJoinAndSelect('transaction.account', 'account')
       .where('workflow.companyId = :companyId', { companyId });
 
@@ -728,7 +728,7 @@ export class ApprovalService {
 
     const workflow = await this.workflowRepository.findOne({
       where: { id: workflowId, companyId },
-      relations: ['transaction', 'transaction.customer', 'transaction.account'],
+      relations: ['transaction', 'transactionEntity.customer', 'transaction.account'],
     });
 
     if (!workflow) {
@@ -824,11 +824,11 @@ export class ApprovalService {
   }
 
   private async validateCompletedChecklist(workflow: ApprovalWorkflow): Promise<void> {
-    if (workflow.checklistItems && workflow.checklistItems.length > 0) {
+    if (workflow.checklistItems && Object.values(workflow.checklistItems).length > 0) {
       const requiredItems = workflow.checklistItems.filter(item => item.required);
       const completedRequired = requiredItems.filter(item => item.completed);
       
-      if (completedRequired.length < requiredItems.length) {
+      if (Object.values(completedRequired).length < Object.values(requiredItems).length) {
         throw new BadRequestException('Required checklist items must be completed before approval');
       }
     }
@@ -953,7 +953,7 @@ export class ApprovalService {
         amount: workflow.transaction.amount,
         currency: workflow.transaction.currency,
         customerId: workflow.transaction.customerId,
-        customerName: workflow.transaction.customer?.fullName || 'Unknown',
+        customerName: workflow.transactionEntity.customer?.fullName || 'Unknown',
         agentId: workflow.transaction.agentId,
         agentName: workflow.transaction.agentName,
         riskScore: workflow.transaction.riskScore,

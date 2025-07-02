@@ -1,5 +1,4 @@
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,10 +7,11 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
-
 import { Transaction, TransactionStatus, TransactionType } from '../entities/transaction.entity';
 import { Customer } from '../entities/customer.entity';
 import { Account } from '../entities/account.entity';
+
+
 
 // Notification Entity (would be a separate entity file in production)
 export interface NotificationRecord {
@@ -292,7 +292,7 @@ export class NotificationService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: event.transactionId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (!transaction) {
@@ -310,7 +310,7 @@ export class NotificationService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: event.transactionId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (!transaction) {
@@ -328,7 +328,7 @@ export class NotificationService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: event.transactionId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (transaction) {
@@ -342,7 +342,7 @@ export class NotificationService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: event.transactionId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (transaction) {
@@ -356,7 +356,7 @@ export class NotificationService {
 
     const account = await this.accountRepository.findOne({
       where: { id: event.accountId },
-      relations: [UserRole.CUSTOMER],
+      relations: ["customer"],
     });
 
     if (account) {
@@ -370,7 +370,7 @@ export class NotificationService {
 
     const account = await this.accountRepository.findOne({
       where: { id: event.accountId },
-      relations: [UserRole.CUSTOMER],
+      relations: ["customer"],
     });
 
     if (account) {
@@ -413,7 +413,7 @@ export class NotificationService {
     failedCount: number;
     notificationIds: string[];
   }> {
-    this.logger.log(`Sending bulk notification: ${request.type} to ${request.recipients.length} recipients`);
+    this.logger.log(`Sending bulk notification: ${request.type} to ${Object.values(request.recipients).length} recipients`);
 
     const batchId = `batch_${nanoid(8)}`;
     const batchSize = request.batchSize || 100;
@@ -422,7 +422,7 @@ export class NotificationService {
     let failedCount = 0;
 
     // Process recipients in batches
-    for (let i = 0; i < request.recipients.length; i += batchSize) {
+    for (let i = 0; i < Object.values(request.recipients).length; i += batchSize) {
       const batch = request.recipients.slice(i, i + batchSize);
       
       const batchPromises = batch.map(async (recipient) => {
@@ -459,7 +459,7 @@ export class NotificationService {
       await Promise.all(batchPromises);
 
       // Add delay between batches to avoid rate limiting
-      if (i + batchSize < request.recipients.length) {
+      if (i + batchSize < Object.values(request.recipients).length) {
         await this.delay(1000); // 1 second delay between batches
       }
     }
@@ -468,7 +468,7 @@ export class NotificationService {
 
     return {
       batchId,
-      totalRecipients: request.recipients.length,
+      totalRecipients: Object.values(request.recipients).length,
       scheduledCount,
       failedCount,
       notificationIds,
@@ -701,13 +701,13 @@ export class NotificationService {
     transaction: Transaction, 
     type: NotificationType
   ): Promise<void> {
-    if (!transaction.customer) {
+    if (!transactionEntity.customer) {
       this.logger.error(`Customer not found for transaction: ${transaction.id}`);
       return;
     }
 
     const data = {
-      customerName: transaction.customer.fullName,
+      customerName: transactionEntity.customer.fullName,
       transactionType: transaction.type.toUpperCase(),
       transactionNumber: transaction.transactionNumber,
       amount: transaction.amount.toFixed(2),

@@ -496,7 +496,7 @@ export class Account {
     this.updatedAt = new Date();
   }
 
-  updateLimits(limits: {
+  updateLimits(limits, {
     dailyWithdrawalLimit?: number;
     dailyDepositLimit?: number;
     monthlyTransactionLimit?: number;
@@ -594,7 +594,7 @@ export class Account {
   }
 
   // Static factory methods
-  static createSavingsAccount(data: {
+  static createSavingsAccount(data, {
     companyId: string;
     customerId: string;
     accountName: string;
@@ -623,7 +623,7 @@ export class Account {
     };
   }
 
-  static createCurrentAccount(data: {
+  static createCurrentAccount(data, {
     companyId: string;
     customerId: string;
     accountName: string;
@@ -644,7 +644,7 @@ export class Account {
     };
   }
 
-  static createWalletAccount(data: {
+  static createWalletAccount(data, {
     companyId: string;
     customerId: string;
     accountName: string;
