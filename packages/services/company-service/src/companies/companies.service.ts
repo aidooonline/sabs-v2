@@ -124,24 +124,29 @@ export class CompaniesService {
       baseCondition.subscriptionPlan = subscriptionPlan;
     }
 
-    let where: FindOptionsWhere<Company> | FindOptionsWhere<Company>[];
+    let findOptions: { where: FindOptionsWhere<Company> | FindOptionsWhere<Company>[]; skip: number; take: number; order: Record<string, any> };
 
     if (search) {
       // Search across multiple fields using array syntax for OR conditions
-      where = [
-        { ...baseCondition, name: Like(`%${search}%`) },
-        { ...baseCondition, email: Like(`%${search}%`) },
-      ];
+      findOptions = {
+        where: [
+          { ...baseCondition, name: Like(`%${search}%`) },
+          { ...baseCondition, email: Like(`%${search}%`) },
+        ],
+        skip,
+        take: limit,
+        order: { [sortBy]: sortOrder },
+      };
     } else {
-      where = baseCondition;
+      findOptions = {
+        where: baseCondition,
+        skip,
+        take: limit,
+        order: { [sortBy]: sortOrder },
+      };
     }
 
-    const [companies, total] = await this.companyRepository.findAndCount({
-      where,
-      skip,
-      take: limit,
-      order: { [sortBy]: sortOrder },
-    });
+    const [companies, total] = await this.companyRepository.findAndCount(findOptions);
 
     return {
       data: companies,
