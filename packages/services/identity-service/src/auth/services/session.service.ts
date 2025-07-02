@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserSession } from '../entities/user-session.entity';
 import { SessionFilterDto, InvalidateSessionDto } from '../dto/enhanced-auth.dto';
-import * as UAParser from 'ua-parser-js';
+import UAParser from 'ua-parser-js';
 import * as geoip from 'geoip-lite';
 import { v4 as uuidv4 } from 'uuid';
 

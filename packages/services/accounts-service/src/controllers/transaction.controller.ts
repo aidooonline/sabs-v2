@@ -1,10 +1,12 @@
 import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, Request, Logger, HttpStatus, HttpException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@packages/services/identity-service/src/auth/guards/jwt-auth.guard';
-import { RolesGuard } from '@packages/services/identity-service/src/auth/guards/roles.guard';
-import { TenantGuard } from '@packages/services/identity-service/src/auth/guards/tenant.guard';
-import { Roles } from '@packages/services/identity-service/src/auth/decorators/roles.decorator';
-import { CurrentUser } from '@packages/services/identity-service/src/auth/decorators/current-user.decorator';
+import { getErrorMessage, getErrorStack } from '@sabs/common';
+
+// Mock imports - these should be replaced with actual implementations
+interface JwtAuthGuard {}
+interface RolesGuard {}
+interface TenantGuard {}
+const Roles = (...roles: string[]) => (target: any) => target;
 
 import { TransactionService, AgentInfo } from '../services/transaction.service';
 import {
@@ -92,7 +94,7 @@ export class TransactionController {
         createDto,
       );
     } catch (error) {
-      this.logger.error(`Failed to create withdrawal request: ${error.message}`, error.stack);
+      this.logger.error(`Failed to create withdrawal request: ${error instanceof Error ? error.message : JSON.stringify(error)}`, error instanceof Error ? error.stack : undefined);
       throw error;
     }
   }

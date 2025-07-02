@@ -58,9 +58,12 @@ export class UsersController {
 
     const user = await this.usersService.create(createUserDto);
     
-    // Remove sensitive information
+    // Remove sensitive information and add fullName
     const { password, resetToken, resetTokenExpiry, ...userResponse } = user;
-    return userResponse as UserResponseDto;
+    return {
+      ...userResponse,
+      fullName: user.fullName
+    } as UserResponseDto;
   }
 
   @Get()
@@ -80,19 +83,22 @@ export class UsersController {
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 10,
     @Query('role') role?: UserRole,
     @Query('companyId') companyId?: string,
-    @CurrentUser() currentUser: AuthUser,
+    @CurrentUser() currentUser?: AuthUser,
   ): Promise<UserListResponseDto> {
     // Company admins can only see users from their own company
-    if (currentUser.role === UserRole.COMPANY_ADMIN) {
+    if (currentUser?.role === UserRole.COMPANY_ADMIN) {
       companyId = currentUser.companyId;
     }
 
     const result = await this.usersService.findAll(companyId, role, page, limit);
     
-    // Remove sensitive information from all users
+    // Remove sensitive information from all users and add fullName
     const users = result.users.map(user => {
       const { password, resetToken, resetTokenExpiry, ...userResponse } = user;
-      return userResponse as UserResponseDto;
+      return {
+        ...userResponse,
+        fullName: user.fullName
+      } as UserResponseDto;
     });
 
     return {
@@ -114,16 +120,19 @@ export class UsersController {
   async search(
     @Query('q') query: string,
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 10,
-    @CurrentUser() currentUser: AuthUser,
+    @CurrentUser() currentUser?: AuthUser,
   ): Promise<UserResponseDto[]> {
     // Non-super-admins can only search within their company
-    const companyId = currentUser.role === UserRole.SUPER_ADMIN ? undefined : currentUser.companyId;
+    const companyId = currentUser?.role === UserRole.SUPER_ADMIN ? undefined : currentUser?.companyId;
     
     const users = await this.usersService.search(query, companyId, limit);
     
     return users.map(user => {
       const { password, resetToken, resetTokenExpiry, ...userResponse } = user;
-      return userResponse as UserResponseDto;
+      return {
+        ...userResponse,
+        fullName: user.fullName
+      } as UserResponseDto;
     });
   }
 
@@ -134,8 +143,8 @@ export class UsersController {
     status: 200,
     description: 'User statistics',
   })
-  async getStats(@CurrentUser() currentUser: AuthUser) {
-    const companyId = currentUser.role === UserRole.SUPER_ADMIN ? undefined : currentUser.companyId;
+  async getStats(@CurrentUser() currentUser?: AuthUser) {
+    const companyId = currentUser?.role === UserRole.SUPER_ADMIN ? undefined : currentUser?.companyId;
     
     const stats = {
       totalUsers: companyId 
@@ -175,7 +184,10 @@ export class UsersController {
     }
 
     const { password, resetToken, resetTokenExpiry, ...userResponse } = user;
-    return userResponse as UserResponseDto;
+    return {
+      ...userResponse,
+      fullName: user.fullName
+    } as UserResponseDto;
   }
 
   @Patch(':id')
@@ -213,7 +225,10 @@ export class UsersController {
     const user = await this.usersService.update(id, updateUserDto);
     
     const { password, resetToken, resetTokenExpiry, ...userResponse } = user;
-    return userResponse as UserResponseDto;
+    return {
+      ...userResponse,
+      fullName: user.fullName
+    } as UserResponseDto;
   }
 
   @Patch(':id/activate')

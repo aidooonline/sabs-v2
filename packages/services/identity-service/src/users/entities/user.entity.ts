@@ -3,7 +3,9 @@ import {
   Column, 
   Index,
   BeforeInsert,
-  BeforeUpdate
+  BeforeUpdate,
+  OneToMany,
+  OneToOne
 } from 'typeorm';
 import { BaseEntity } from '@sabs/database';
 import { UserRole } from '@sabs/common';
@@ -69,6 +71,12 @@ export class User extends BaseEntity {
 
   @Column({ type: 'jsonb', nullable: true })
   metadata?: Record<string, any>;
+
+  // Relationship properties for TypeORM
+  roleEntity?: any; // For role relationship
+  mfa?: any; // For MFA relationship  
+  userPermissions?: any[]; // For user permissions relationship
+  sessions?: any[]; // For sessions relationship
 
   // Virtual property for full name
   get fullName(): string {

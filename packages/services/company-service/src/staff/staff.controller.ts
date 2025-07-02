@@ -167,8 +167,8 @@ export class StaffController {
   })
   @ApiParam({ name: 'companyId', type: 'string', format: 'uuid', description: 'Company ID' })
   @ApiParam({ name: 'staffId', type: 'string', format: 'uuid', description: 'Staff member ID' })
-  @ApiQuery({ name: 'startDate', required: false, type: String, format: 'date', description: 'Start date for performance period' })
-  @ApiQuery({ name: 'endDate', required: false, type: String, format: 'date', description: 'End date for performance period' })
+  @ApiQuery({ name: 'startDate', required: false, type: String, description: 'Start date for performance period' })
+  @ApiQuery({ name: 'endDate', required: false, type: String, description: 'End date for performance period' })
   @ApiResponse({
     status: 200,
     description: 'Staff performance retrieved successfully',
