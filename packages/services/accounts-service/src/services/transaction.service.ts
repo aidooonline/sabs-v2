@@ -1,6 +1,4 @@
-import { UserRole } from '@sabs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { Injectable, Logger, BadRequestException, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, Not, In, Like, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
@@ -8,12 +6,13 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-
 import { Transaction, TransactionType, TransactionStatus, TransactionChannel, AuthenticationMethod, ApprovalLevel } from '../entities/transaction.entity';
 import { Customer } from '../entities/customer.entity';
 import { Account } from '../entities/account.entity';
-
 import {
+
+
+
   CreateWithdrawalRequestDto,
   CustomerVerificationDto,
   ApproveTransactionDto,
@@ -204,7 +203,7 @@ export class TransactionService {
       case AuthenticationMethod.OTP:
         if (verificationDto.otpCode && verificationDto.otpVerified) {
           // Here you would integrate with OTP service
-          const otpValid = await this.validateOtp(transaction.customer?.phoneNumber , verificationDto.otpCode);
+          const otpValid = await this.validateOtp(transactionEntity.customer?.phoneNumber , verificationDto.otpCode);
           if (otpValid) {
             transaction.setOtp(true);
           }
@@ -545,7 +544,7 @@ export class TransactionService {
   ): Promise<TransactionListResponseDto> {
     const queryBuilder = this.transactionRepository
       .createQueryBuilder('transaction')
-      .leftJoinAndSelect('transaction.customer', UserRole.CUSTOMER)
+      .leftJoinAndSelect('transactionEntity.customer', UserRole.CUSTOMER)
       .leftJoinAndSelect('transaction.account', 'account')
       .where('transaction.companyId = :companyId', { companyId });
 
@@ -756,7 +755,7 @@ export class TransactionService {
     let riskScore = 0;
 
     // Customer risk factors
-    if ((transaction.customer as any).riskLevel === 'high') {
+    if ((transactionEntity.customer as any).riskLevel === 'high') {
       riskScore += 30;
       flags.push({ flag: 'HIGH_RISK_CUSTOMER', severity: 'HIGH', description: 'Customer marked as high risk' });
     }
@@ -869,18 +868,18 @@ export class TransactionService {
 
   private async sendTransactionNotifications(transaction: Transaction): Promise<void> {
     // Send SMS notification
-    if (transaction.customer?.phoneNumber ) {
+    if (transactionEntity.customer?.phoneNumber ) {
       this.eventEmitter.emit('notification.sms', {
-        phoneNumber: transaction.customer?.phoneNumber ,
+        phoneNumber: transactionEntity.customer?.phoneNumber ,
         message: `Transaction ${transaction.transactionNumber} completed. Amount: ${transaction.currency} ${transaction.amount}. New balance: ${transaction.currency} ${transaction.accountBalanceAfter}`,
         transactionId: transaction.id,
       });
     }
 
     // Send email notification if available
-    if (transaction.customer.email) {
+    if (transactionEntity.customer.email) {
       this.eventEmitter.emit('notification.email', {
-        email: transaction.customer.email,
+        email: transactionEntity.customer.email,
         subject: 'Transaction Completed',
         transactionId: transaction.id,
       });
@@ -953,7 +952,7 @@ export class TransactionService {
   }
 
   private calculateTransactionStatistics(transactions: Transaction[]): TransactionStatsResponseDto {
-    const total = transactions.length;
+    const total = Object.values(transactions).length;
     const completed = transactions.filter(t => t.status === TransactionStatus.COMPLETED).length;
     const pending = transactions.filter(t => t.status === TransactionStatus.PENDING).length;
     const approved = transactions.filter(t => t.status === TransactionStatus.APPROVED).length;
@@ -962,19 +961,19 @@ export class TransactionService {
     const cancelled = transactions.filter(t => t.status === TransactionStatus.CANCELLED).length;
     const reversed = transactions.filter(t => t.reversed).length;
 
-    const totalVolume = transactions.reduce((sum, t) => sum + t.amount, 0);
+    const totalVolume = Object.values(transactions).reduce((sum, t) => sum + t.amount, 0);
     const averageAmount = total > 0 ? totalVolume / total : 0;
     const successRate = total > 0 ? (completed / total) * 100 : 0;
 
     const processingTimes = transactions
       .filter(t => t.processingTimeMs)
       .map(t => t.processingTimeMs);
-    const averageProcessingTime = processingTimes.length > 0 
-      ? processingTimes.reduce((sum, time) => sum + time, 0) / processingTimes.length 
+    const averageProcessingTime = Object.values(processingTimes).length > 0 
+      ? Object.values(processingTimes).reduce((sum, time) => sum + time, 0) / Object.values(processingTimes).length 
       : 0;
 
     const averageRiskScore = total > 0 
-      ? transactions.reduce((sum, t) => sum + t.riskScore, 0) / total 
+      ? Object.values(transactions).reduce((sum, t) => sum + t.riskScore, 0) / total 
       : 0;
 
     // Additional statistics would be calculated here...
@@ -1029,10 +1028,10 @@ export class TransactionService {
         location: transaction.agentLocation,
       },
       customer: {
-        id: transaction.customer.id,
-        fullName: transaction.customer.fullName,
-        phoneNumber: transaction.customer?.phoneNumber ,
-        customerNumber: transaction.customer.customerNumber,
+        id: transactionEntity.customer.id,
+        fullName: transactionEntity.customer.fullName,
+        phoneNumber: transactionEntity.customer?.phoneNumber ,
+        customerNumber: transactionEntity.customer.customerNumber,
       },
       account: {
         id: transaction.account.id,

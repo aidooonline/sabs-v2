@@ -1,12 +1,11 @@
-import { UserRole } from '@sabs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
+
 
 // ===== REGULATORY REPORTING ENTITIES =====
 
@@ -554,7 +553,7 @@ export class RegulatoryReportingService {
       assessmentId,
       overallScore,
       riskLevel,
-      violationCount: violations.length,
+      violationCount: Object.values(violations).length,
     });
 
     return {
@@ -614,7 +613,7 @@ export class RegulatoryReportingService {
     ];
 
     return {
-      activeRules: activeRules.length,
+      activeRules: Object.values(activeRules).length,
       violations,
       alerts: (alerts as any)?.alerts || alerts,
       recommendations,
@@ -701,7 +700,7 @@ export class RegulatoryReportingService {
     const timestamps = entries.map(e => e.timestamp);
 
     const summary = {
-      totalEntries: entries.length,
+      totalEntries: Object.values(entries).length,
       actions,
       users,
       timeRange: {
@@ -851,7 +850,7 @@ export class RegulatoryReportingService {
     }
 
     return {
-      valid: errors.length === 0,
+      valid: Object.values(errors).length === 0,
       errors,
       warnings,
       completeness: 95.5,
@@ -930,7 +929,7 @@ export class RegulatoryReportingService {
   }
 
   private calculateOverallScore(categories: CategoryAssessment[]): number {
-    return categories.reduce((sum, cat) => sum + cat.score, 0) / categories.length;
+    return Object.values(categories).reduce((sum, cat) => sum + cat.score, 0) / Object.values(categories).length;
   }
 
   private async identifyViolations(categories: ComplianceCategory[], period: ReportingPeriod): Promise<ComplianceViolation[]> {
@@ -997,9 +996,9 @@ export class RegulatoryReportingService {
     const significantEntities = ['regulatory_report', 'compliance_rule', 'audit_trail'];
     
     if (significantActions.includes(action) || significantEntities.includes(entityType)) {
-      return 'high';
+
     }
-    return 'medium';
+
   }
 
   private initializeComplianceRules(): void {

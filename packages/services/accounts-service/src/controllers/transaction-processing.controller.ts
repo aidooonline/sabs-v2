@@ -1,5 +1,10 @@
-import { UserRole } from '@sabs/common';
-
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+import {
+import { TransactionProcessingService, ProcessingResult, Receipt } from '../services/transaction-processing.service';
+import { JwtAuthGuard } from '../../../identity-service/src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../identity-service/src/auth/guards/roles.guard';
+import { TenantGuard } from '../../../identity-service/src/auth/guards/tenant.guard';
+import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
 // Mock @Roles decorator to fix signature issues
 function Roles(...roles: any[]) {
   return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
@@ -7,9 +12,7 @@ function Roles(...roles: any[]) {
     return descriptor;
   };
 }
-import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
-import {
   Controller,
   Get,
   Post,
@@ -23,7 +26,6 @@ import {
   HttpCode,
   BadRequestException,
 } from '@nestjs/common';
-import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -32,12 +34,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 
-import { TransactionProcessingService, ProcessingResult, Receipt } from '../services/transaction-processing.service';
-import { JwtAuthGuard } from '../../../identity-service/src/auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../identity-service/src/auth/guards/roles.guard';
-import { TenantGuard } from '../../../identity-service/src/auth/guards/tenant.guard';
 
-import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
 
 // DTOs for transaction processing
 export class ProcessTransactionDto {
@@ -117,13 +114,13 @@ export class TransactionProcessingController {
     @Body() batchDto: ProcessMultipleTransactionsDto,
     @CurrentUser() user: JwtPayload,
   ): Promise<ProcessingResult[]> {
-    this.logger.log(`Batch processing ${batchDto.transactionIds.length} transactions by ${user.sub}`);
+    this.logger.log(`Batch processing ${Object.values(batchDto.transactionIds).length} transactions by ${user.sub}`);
 
-    if (!batchDto.transactionIds || batchDto.transactionIds.length === 0) {
+    if (!batchDto.transactionIds || Object.values(batchDto.transactionIds).length === 0) {
       throw new BadRequestException('Transaction IDs are required');
     }
 
-    if (batchDto.transactionIds.length > 50) {
+    if (Object.values(batchDto.transactionIds).length > 50) {
       throw new BadRequestException('Maximum 50 transactions can be processed in a single batch');
     }
 

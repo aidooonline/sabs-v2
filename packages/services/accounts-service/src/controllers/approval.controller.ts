@@ -1,5 +1,11 @@
-import { UserRole } from '@sabs/common';
-
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+import {
+import { Request } from 'express';
+import { ApprovalService } from '../services/approval.service';
+import { JwtAuthGuard } from '../../../identity-service/src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../identity-service/src/auth/guards/roles.guard';
+import { TenantGuard } from '../../../identity-service/src/auth/guards/tenant.guard';
+import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
 // Mock @Roles decorator to fix signature issues
 function Roles(...roles: any[]) {
   return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
@@ -7,9 +13,7 @@ function Roles(...roles: any[]) {
     return descriptor;
   };
 }
-import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
-import {
   Controller,
   Get,
   Post,
@@ -25,7 +29,6 @@ import {
   HttpCode,
   Req,
 } from '@nestjs/common';
-import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -34,16 +37,9 @@ import {
   ApiBearerAuth,
   ApiBody,
 } from '@nestjs/swagger';
-import { Request } from 'express';
 
-import { ApprovalService } from '../services/approval.service';
-import { JwtAuthGuard } from '../../../identity-service/src/auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../identity-service/src/auth/guards/roles.guard';
-import { TenantGuard } from '../../../identity-service/src/auth/guards/tenant.guard';
 
-import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
 
-import {
   AssignWorkflowDto,
   ReassignWorkflowDto,
   StartReviewDto,
@@ -237,8 +233,7 @@ export class ApprovalController {
   async approveWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
     @Body() approvalDto: ApprovalDecisionDto,
-    @CurrentUser() user: JwtPayload,
-    @Req() req: Request,
+    @Req() req: Request, @CurrentUser() user: JwtPayload,
   ): Promise<ApprovalWorkflowResponseDto> {
     this.logger.log(`Approving workflow ${workflowId} by ${user.sub}`);
 
@@ -268,8 +263,7 @@ export class ApprovalController {
   async rejectWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
     @Body() rejectionDto: RejectionDecisionDto,
-    @CurrentUser() user: JwtPayload,
-    @Req() req: Request,
+    @Req() req: Request, @CurrentUser() user: JwtPayload,
   ): Promise<ApprovalWorkflowResponseDto> {
     this.logger.log(`Rejecting workflow ${workflowId} by ${user.sub}`);
 
@@ -325,7 +319,7 @@ export class ApprovalController {
     @Body() bulkDto: BulkApprovalDto,
     @CurrentUser() user: JwtPayload,
   ): Promise<BulkActionResultDto> {
-    this.logger.log(`Bulk approving ${bulkDto.workflowIds.length} workflows by ${user.sub}`);
+    this.logger.log(`Bulk approving ${Object.values(bulkDto.workflowIds).length} workflows by ${user.sub}`);
 
     return await this.approvalService.bulkApproveWorkflows(
       user.companyId,
@@ -347,7 +341,7 @@ export class ApprovalController {
     @Body() bulkDto: BulkRejectionDto,
     @CurrentUser() user: JwtPayload,
   ): Promise<BulkActionResultDto> {
-    this.logger.log(`Bulk rejecting ${bulkDto.workflowIds.length} workflows by ${user.sub}`);
+    this.logger.log(`Bulk rejecting ${Object.values(bulkDto.workflowIds).length} workflows by ${user.sub}`);
 
     return await this.approvalService.bulkRejectWorkflows(
       user.companyId,

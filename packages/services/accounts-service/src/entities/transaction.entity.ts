@@ -1,10 +1,9 @@
-import { UserRole } from '@sabs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany, Index, BeforeInsert } from 'typeorm';
 import { Customer } from './customer.entity';
 import { Account } from './account.entity';
 import { nanoid } from 'nanoid';
+
 
 export enum TransactionType {
   WITHDRAWAL = 'withdrawal',
@@ -764,13 +763,13 @@ export class Transaction {
 
   private isCustomerFullyVerified(): boolean {
     // Basic verification requires at least one method
-    if (!this.verificationMethod || this.verificationMethod.length === 0) {
+    if (!this.verificationMethod || Object.values(this.verificationMethod).length === 0) {
       return false;
     }
 
     // For high-risk transactions, require multiple verification methods
     if (this.isHighRisk) {
-      return this.verificationMethod.length >= 2 && 
+      return Object.values(this.verificationMethod).length >= 2 && 
              (this.pinVerified || this.otpVerified) && 
              this.verificationMethod.includes(AuthenticationMethod.BIOMETRIC);
     }
@@ -805,7 +804,7 @@ export class Transaction {
   }
 
   // Static factory methods
-  static createWithdrawalRequest(data: {
+  static createWithdrawalRequest(data, {
     companyId: string;
     customerId: string;
     accountId: string;

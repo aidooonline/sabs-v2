@@ -614,7 +614,7 @@ export class CustomerOnboardingService {
     const onboardings = await queryBuilder.getMany();
 
     const stats = {
-      total: onboardings.length,
+      total: Object.values(onboardings).length,
       completed: onboardings.filter(o => o.status === OnboardingStatus.COMPLETED).length,
       pending: onboardings.filter(o => o.isPending).length,
       rejected: onboardings.filter(o => o.status === OnboardingStatus.REJECTED).length,
@@ -631,27 +631,27 @@ export class CustomerOnboardingService {
       stats.completionRate = (stats.completed / stats.total) * 100;
       
       const completedOnboardings = onboardings.filter(o => o.isCompleted);
-      if (completedOnboardings.length > 0) {
-        stats.averageCompletionTime = completedOnboardings.reduce((sum, o) => sum + (o.totalTimeMinutes || 0), 0) / completedOnboardings.length;
-        stats.averageRiskScore = completedOnboardings.reduce((sum, o) => sum + o.riskScore, 0) / completedOnboardings.length;
+      if (Object.values(completedOnboardings).length > 0) {
+        stats.averageCompletionTime = Object.values(completedOnboardings).reduce((sum, o) => sum + (o.totalTimeMinutes || 0), 0) / Object.values(completedOnboardings).length;
+        stats.averageRiskScore = Object.values(completedOnboardings).reduce((sum, o) => sum + o.riskScore, 0) / Object.values(completedOnboardings).length;
       }
 
       // Calculate step statistics
       const steps = OnboardingStep;
-      stats.stepStats = steps.reduce((acc, step) => {
+      stats.stepStats = Object.values(steps).reduce((acc, step) => {
         const stepOnboardings = onboardings.filter(o => o.completedSteps.includes(step));
         acc[step] = {
           started: onboardings.filter(o => o.currentStep === step || o.completedSteps.includes(step)).length,
-          completed: stepOnboardings.length,
-          averageTimeMinutes: stepOnboardings.length > 0 
-            ? stepOnboardings.reduce((sum, o) => sum + (o.stepDurations?.[step] || 0), 0) / stepOnboardings.length
+          completed: Object.values(stepOnboardings).length,
+          averageTimeMinutes: Object.values(stepOnboardings).length > 0 
+            ? Object.values(stepOnboardings).reduce((sum, o) => sum + (o.stepDurations?.[step] || 0), 0) / Object.values(stepOnboardings).length
             : 0,
         };
         return acc;
       }, {} as any);
 
       // Calculate agent statistics
-      const agentGroups = onboardings.reduce((acc, o) => {
+      const agentGroups = Object.values(onboardings).reduce((acc, o) => {
         if (!acc[o.agentId]) {
           acc[o.agentId] = {
             agentId: o.agentId,
@@ -668,9 +668,9 @@ export class CustomerOnboardingService {
         return {
           agentId: group.agentId,
           agentName: group.agentName,
-          total: group.onboardings.length,
+          total: Object.values(group.onboardings).length,
           completed,
-          completionRate: (completed / group.onboardings.length) * 100,
+          completionRate: (completed / Object.values(group.onboardings).length) * 100,
           averageTime: completed > 0 
             ? group.onboardings.filter((o: any) => o.isCompleted).reduce((sum: number, o: any) => sum + (o.totalTimeMinutes || 0), 0) / completed
             : 0,

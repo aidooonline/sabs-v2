@@ -1,10 +1,10 @@
-import { UserRole } from '@sabs/common';
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
 // ===== BUSINESS INTELLIGENCE ENTITIES =====
 
@@ -419,9 +419,7 @@ export class BusinessIntelligenceService {
       lastTrained: new Date(),
       nextRetrain: new Date(Date.now() + this.biConfig.retrainingFrequency * 24 * 60 * 60 * 1000),
       status: ModelStatus.TRAINING,
-      predictions: {
-      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
-    },
+      predictions: [],
     };
 
     this.models.set(modelId, model);
@@ -461,9 +459,7 @@ export class BusinessIntelligenceService {
       id: forecastId,
       metric: request.metric,
       timeHorizon: request.timeHorizon,
-      predictions: {
-      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
-    },
+      predictions: [],
       confidence,
       accuracy,
       methodology: {
@@ -517,8 +513,8 @@ export class BusinessIntelligenceService {
     const segments = this.generateCustomerSegments(request);
     
     const summary = {
-      totalSegments: segments.length,
-      coverage: segments.reduce((sum, s) => sum + s.percentage, 0),
+      totalSegments: Object.values(segments).length,
+      coverage: Object.values(segments).reduce((sum, s) => sum + s.percentage, 0),
       silhouetteScore: request.method === 'ml_clustering' ? 0.85 : undefined,
     };
 
@@ -530,7 +526,7 @@ export class BusinessIntelligenceService {
     ];
 
     this.eventEmitter.emit('bi.segmentation_completed', {
-      segmentCount: segments.length,
+      segmentCount: Object.values(segments).length,
       method: request.method,
       coverage: summary.coverage,
     });
@@ -623,7 +619,7 @@ export class BusinessIntelligenceService {
 
   // ===== ANOMALY DETECTION =====
 
-  async detectAnomalies(timeRange: { start: Date; end: Date }): Promise<{
+  async detectAnomalies(timeRange, { start: Date; end: Date }): Promise<{
     anomalies: AnomalyDetection[];
     summary: {
       total: number;
@@ -644,10 +640,10 @@ export class BusinessIntelligenceService {
     );
 
     const summary = {
-      total: anomalies.length,
+      total: Object.values(anomalies).length,
       critical: anomalies.filter(a => a.severity === AnomalySeverity.CRITICAL).length,
       confirmed: anomalies.filter(a => a.status === AnomalyStatus.CONFIRMED).length,
-      falsePositiveRate: anomalies.filter(a => a.falsePositive).length / anomalies.length,
+      falsePositiveRate: anomalies.filter(a => a.falsePositive).length / Object.values(anomalies).length,
     };
 
     const patterns = this.analyzeAnomalyPatterns(anomalies);
@@ -867,9 +863,7 @@ export class BusinessIntelligenceService {
       trends,
       opportunities,
       threats,
-      predictions: {
-      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
-    },
+      predictions: [],
     };
   }
 
@@ -888,7 +882,7 @@ export class BusinessIntelligenceService {
     if (featureName.includes('amount') || featureName.includes('count')) return 'numeric';
     if (featureName.includes('date') || featureName.includes('time')) return 'datetime';
     if (featureName.includes('text') || featureName.includes('description')) return 'text';
-    return 'categorical';
+
   }
 
   private getInitialPerformance(): ModelPerformance {
@@ -896,7 +890,7 @@ export class BusinessIntelligenceService {
       accuracy: 0,
       precision: 0,
       recall: 0,
-      f1_score: 0,
+      f1Score: 0,
       auc: 0,
     };
   }
@@ -1191,7 +1185,7 @@ export class BusinessIntelligenceService {
     if (score >= 700) return 'B';
     if (score >= 650) return 'C';
     if (score >= 600) return 'D';
-    return 'E';
+
   }
 
   private calculateDefaultProbability(score: number, riskType: RiskType): number {

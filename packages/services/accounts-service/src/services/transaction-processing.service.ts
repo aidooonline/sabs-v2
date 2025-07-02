@@ -1,6 +1,4 @@
-import { UserRole } from '@sabs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { Injectable, Logger, BadRequestException, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, QueryRunner } from 'typeorm';
@@ -9,11 +7,12 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
-
 import { Transaction, TransactionStatus, TransactionType } from '../entities/transaction.entity';
 import { Account } from '../entities/account.entity';
 import { Customer } from '../entities/customer.entity';
 import { ApprovalWorkflow, WorkflowStatus } from '../entities/approval-workflow.entity';
+
+
 
 export interface ProcessingResult {
   success: boolean;
@@ -243,7 +242,7 @@ export class TransactionProcessingService {
     transactionIds: string[],
     processedBy: string,
   ): Promise<ProcessingResult[]> {
-    this.logger.log(`Batch processing ${transactionIds.length} transactions by ${processedBy}`);
+    this.logger.log(`Batch processing ${Object.values(transactionIds).length} transactions by ${processedBy}`);
 
     const results: ProcessingResult[] = [];
     
@@ -271,14 +270,14 @@ export class TransactionProcessingService {
 
     // Emit batch completion event
     const successCount = results.filter(r => r.success).length;
-    const failureCount = results.length - successCount;
+    const failureCount = Object.values(results).length - successCount;
 
     this.eventEmitter.emit('transaction.batch_processed', {
       processedBy,
-      totalTransactions: results.length,
+      totalTransactions: Object.values(results).length,
       successCount,
       failureCount,
-      successRate: (successCount / results.length) * 100,
+      successRate: (successCount / Object.values(results).length) * 100,
     });
 
     return results;
@@ -567,7 +566,7 @@ export class TransactionProcessingService {
     await this.applySpecialFees(transaction, account, feeBreakdown);
 
     // Calculate final totals
-    const finalTotalFees = feeBreakdown.reduce((sum, fee) => sum + fee.amount, 0);
+    const finalTotalFees = Object.values(feeBreakdown).reduce((sum, fee) => sum + fee.amount, 0);
 
     return {
       baseFee: feeBreakdown.find(f => f.type === 'base_fee')?.amount || 0,
@@ -640,8 +639,8 @@ export class TransactionProcessingService {
     const receipt: Receipt = {
       receiptNumber,
       transactionNumber: transaction.transactionNumber,
-      customerName: transaction.customer.fullName,
-      customerPhone: transaction.customer?.phoneNumber ,
+      customerName: transactionEntity.customer.fullName,
+      customerPhone: transactionEntity.customer?.phoneNumber ,
       accountNumber: account.accountNumber,
       transactionType: transaction.type.toUpperCase(),
       amount: transaction.amount,
@@ -666,7 +665,7 @@ export class TransactionProcessingService {
     this.eventEmitter.emit('transaction.receipt_generated', {
       transactionId: transaction.id,
       receiptNumber,
-      customerPhone: transaction.customer?.phoneNumber ,
+      customerPhone: transactionEntity.customer?.phoneNumber ,
     });
 
     return receipt;
@@ -921,8 +920,8 @@ export class TransactionProcessingService {
     this.eventEmitter.emit('transaction.receipt_ready', {
       transactionId: transaction.id,
       receiptNumber: receipt.receiptNumber,
-      customerPhone: transaction.customer?.phoneNumber  ,
-      customerEmail: transaction.customer.email,
+      customerPhone: transactionEntity.customer?.phoneNumber  ,
+      customerEmail: transactionEntity.customer.email,
     });
 
     // Emit notification event
@@ -968,7 +967,7 @@ export class TransactionProcessingService {
 
   private chunkArray<T>(array: T[], chunkSize: number): T[][] {
     const chunks: T[][] = [];
-    for (let i = 0; i < array.length; i += chunkSize) {
+    for (let i = 0; i < Object.values(array).length; i += chunkSize) {
       chunks.push(array.slice(i, i + chunkSize));
     }
     return chunks;

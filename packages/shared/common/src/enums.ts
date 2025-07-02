@@ -53,7 +53,13 @@ export enum ReportType {
   CREDIT_REPORTING = 'credit_reporting',
   FINANCIAL_INCLUSION = 'financial_inclusion',
   CYBERSECURITY = 'cybersecurity',
-  DATA_PROTECTION = 'data_protection'
+  DATA_PROTECTION = 'data_protection',
+  STRATEGIC = 'strategic',
+  AML_CFT = 'aml_cft',
+  QUARTERLY = 'quarterly',
+  MONTHLY = 'monthly',
+  WEEKLY = 'weekly',
+  DAILY = 'daily'
 }
 
 /**

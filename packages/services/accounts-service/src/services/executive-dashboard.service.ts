@@ -1,12 +1,11 @@
-import { UserRole } from '@sabs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
+
 
 // ===== EXECUTIVE DASHBOARD ENTITIES =====
 
@@ -513,14 +512,14 @@ export class ExecutiveDashboardService {
       audience: dashboard.audience,
       lastViewed: dashboard.lastViewed,
       viewCount: dashboard.viewCount,
-      widgetCount: dashboard.widgets.length,
+      widgetCount: Object.values(dashboard.widgets).length,
       status: this.getDashboardStatus(dashboard),
     }));
 
     const summary = {
-      totalDashboards: dashboards.length,
+      totalDashboards: Object.values(dashboards).length,
       activeDashboards: dashboards.filter(d => d.status === 'active').length,
-      averageViewCount: dashboards.reduce((sum, d) => sum + d.viewCount, 0) / dashboards.length,
+      averageViewCount: Object.values(dashboards).reduce((sum, d) => sum + d.viewCount, 0) / Object.values(dashboards).length,
       lastActivity: new Date(Math.max(...dashboards.map(d => d.lastViewed.getTime()))),
     };
 
@@ -593,7 +592,7 @@ export class ExecutiveDashboardService {
     }
 
     const summary = {
-      totalKPIs: kpis.length,
+      totalKPIs: Object.values(kpis).length,
       onTarget: kpis.filter(k => k.status === KPIStatus.ON_TARGET).length,
       aboveTarget: kpis.filter(k => k.status === KPIStatus.ABOVE_TARGET).length,
       belowTarget: kpis.filter(k => k.status === KPIStatus.BELOW_TARGET).length,
@@ -718,7 +717,7 @@ export class ExecutiveDashboardService {
       .filter(alert => alert.status === AlertStatus.ACTIVE);
 
     const summary = {
-      total: alerts.length,
+      total: Object.values(alerts).length,
       critical: alerts.filter(a => a.severity === AlertSeverity.CRITICAL).length,
       high: alerts.filter(a => a.severity === AlertSeverity.HIGH).length,
       medium: alerts.filter(a => a.severity === AlertSeverity.MEDIUM).length,
@@ -896,7 +895,7 @@ export class ExecutiveDashboardService {
     
     if (hoursSinceLastView > 168) return 'critical'; // 1 week
     if (hoursSinceLastView > 24) return 'stale'; // 1 day
-    return 'active';
+
   }
 
   private async generateRealTimeData(dashboard: ExecutiveDashboard): Promise<Record<string, any>> {
@@ -938,7 +937,7 @@ export class ExecutiveDashboardService {
     });
 
     return Array.from(categoryMap.entries()).map(([category, categoryKPIs]) => {
-      const avgVariance = categoryKPIs.reduce((sum, kpi) => sum + kpi.variance, 0) / categoryKPIs.length;
+      const avgVariance = Object.values(categoryKPIs).reduce((sum, kpi) => sum + kpi.variance, 0) / Object.values(categoryKPIs).length;
       const performanceScore = Math.max(0, Math.min(100, 100 - Math.abs(avgVariance)));
       
       return {
@@ -1097,24 +1096,11 @@ export class ExecutiveDashboardService {
     const typeMap = {
       [ReportType.EXECUTIVE]: 'Executive Summary',
       [ReportType.EXECUTIVE]: 'Board Report',
-      [ReportType.FINANCIAL_STATEMENT]: 'Financial Statement',
-      [ReportType.RISK_REPORT]: 'Risk Report',
-      [ReportType.COMPLIANCE_REPORT]: 'Compliance Report',
-      [ReportType.STRATEGIC_REVIEW]: 'Strategic Review',
-    };
-
-    return `${periodMap[period]} ${typeMap[type]} - ${new Date().toLocaleDateString()}`;
-  }
-
-  private async generateExecutiveSummary(request: GenerateReportRequest): Promise<string> {
-    // Generate AI-powered executive summary based on report type
-    const summaryTemplates = {
-      [ReportType.EXECUTIVE]: 'Q4 performance exceeded expectations with 15% revenue growth. Key strategic initiatives on track with strong customer acquisition and operational efficiency improvements.',
-      [ReportType.EXECUTIVE]: 'Strategic objectives achieved with ROI above targets. Risk management framework strengthened and regulatory compliance maintained at 99.5%.',
+      [ReportType.STRATEGIC]: 'Strategic objectives achieved with ROI above targets. Risk management framework strengthened and regulatory compliance maintained at 99.5%.',
       [ReportType.FINANCIAL_STATEMENT]: 'Strong financial performance with improved margins and cash flow. Capital allocation optimized for growth investments and shareholder returns.',
     };
 
-    return summaryTemplates[request.type] || 'Executive summary generated based on current performance metrics and strategic objectives.';
+    const summaryTemplates = { [ReportType.EXECUTIVE]: "Executive Report" }; return summaryTemplates[request.type] || 'Executive summary generated based on current performance metrics and strategic objectives.';
   }
 
   private async generateKeyFindings(request: GenerateReportRequest): Promise<string[]> {
@@ -1323,5 +1309,8 @@ export class ExecutiveDashboardService {
       const newValue = kpi.currentValue * (1 + variation);
       await this.updateKPIValue(kpi.id, newValue);
     });
+  }
+  private generateExecutiveSummary(request: any): string {
+    return 'Executive summary generated based on current performance metrics and strategic objectives.';
   }
 }

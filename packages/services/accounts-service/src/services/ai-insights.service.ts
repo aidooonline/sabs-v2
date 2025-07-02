@@ -352,7 +352,7 @@ export class AIInsightsService {
     
     let recommendations: Recommendation[] = [];
     if (request.includeRecommendations) {
-      recommendations = await this.generateRecommendations(insights, request);
+      recommendations = await this.generateRecommendations(insights: [], request);
     }
 
     let predictions: PredictionResult[] = [];
@@ -361,29 +361,23 @@ export class AIInsightsService {
     }
 
     const summary = this.generateInsightsSummary(insights);
-    const naturalLanguageSummary = await this.generateNaturalLanguageSummary(insights, recommendations);
+    const naturalLanguageSummary = await this.generateNaturalLanguageSummary(insights: [], recommendations);
     const actionPlan = this.generateActionPlan(recommendations);
 
     this.eventEmitter.emit('ai.insights_generated', {
-      insight_count: insights.length,
-      recommendation_count: recommendations.length,
+      insight_count: Object.values(insights).length,
+      recommendation_count: Object.values(recommendations).length,
       categories: request.categories,
       confidence: summary.confidence,
     });
 
     return {
-      insights,
+      insights: [],
       summary,
       recommendations,
-      predictions: {
-      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
-    },
+      predictions: [],
       naturalLanguageSummary,
-      actionPlan: {
-      immediate: [],
-      shortTerm: [],
-      longTerm: []
-    },
+      actionPlan: {    },
     };
   }
 
@@ -428,17 +422,15 @@ export class AIInsightsService {
     const report: BusinessIntelligenceReport = {
       id: reportId,
       title: `AI-Powered Business Intelligence Report - ${this.formatPeriod(period)}`,
-      summary: await this.generateExecutiveSummary(insights, recommendations),
+      summary: await this.generateExecutiveSummary(insights: [], recommendations),
       period,
-      insights,
+      insights: [],
       recommendations,
       keyMetrics: await this.calculateKeyMetrics(period),
       trends: await this.analyzeTrends(period),
-      predictions: {
-      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
-    },
+      predictions: [],
       actionItems: this.generateActionItems(recommendations),
-      executiveSummary: await this.generateDetailedExecutiveSummary(insights, recommendations, predictions),
+      executiveSummary: await this.generateDetailedExecutiveSummary(insights: [], recommendations, predictions),
       generated: new Date(),
     };
 
@@ -465,9 +457,9 @@ export class AIInsightsService {
 
     const performanceScore = {
       overall: this.calculateOverallPerformance(insights),
-      financial: this.calculateCategoryPerformance(insights, InsightCategory.FINANCIAL_PERFORMANCE),
-      operational: this.calculateCategoryPerformance(insights, InsightCategory.OPERATIONAL_EFFICIENCY),
-      strategic: this.calculateCategoryPerformance(insights, InsightCategory.STRATEGIC_PLANNING),
+      financial: this.calculateCategoryPerformance(insights: [], InsightCategory.FINANCIAL_PERFORMANCE),
+      operational: this.calculateCategoryPerformance(insights: [], InsightCategory.OPERATIONAL_EFFICIENCY),
+      strategic: this.calculateCategoryPerformance(insights: [], InsightCategory.STRATEGIC_PLANNING),
     };
 
     const competitiveAnalysis = await this.performCompetitiveAnalysis();
@@ -601,12 +593,10 @@ export class AIInsightsService {
     const insights = await this.generateRecommendations([], {} as any);
 
     return {
-      predictions: {
-      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
-    },
+      predictions: [],
       models: {
-      used: [],
-      performance: { accuracy: 0, precision: 0, recall: 0, f1_score: 0 },
+        
+        performance: { accuracy: 0, precision: 0, recall: 0, f1Score: 0 },
       confidence: 0
     },
       scenarios: { optimistic: { probability: 0, outcome: {}, factors: [] }, realistic: { probability: 0, outcome: {}, factors: [] }, pessimistic: { probability: 0, outcome: {}, factors: [] } },
@@ -642,12 +632,8 @@ export class AIInsightsService {
 
     return {
       segments: [],
-      insights,
-      actionPlan: {
-      immediate: [],
-      shortTerm: [],
-      longTerm: []
-    },
+      insights: [],
+      actionPlan: {    },
     };
   }
 
@@ -817,10 +803,10 @@ export class AIInsightsService {
     });
 
     return {
-      total: insights.length,
+      total: Object.values(insights).length,
       byCategory,
       byPriority,
-      confidence: totalConfidence / insights.length,
+      confidence: totalConfidence / Object.values(insights).length,
     };
   }
 
@@ -828,9 +814,9 @@ export class AIInsightsService {
     const topInsight = insights[0];
     const urgentRecommendations = recommendations.filter(r => r.priority === RecommendationPriority.URGENT).length;
 
-    return `AI analysis reveals ${insights.length} key insights with ${(insights.filter(i => i.confidence > 0.8).length / insights.length * 100).toFixed(0)}% high-confidence findings. ` +
+    return `AI analysis reveals ${Object.values(insights).length} key insights with ${(insights.filter(i => i.confidence > 0.8).length / Object.values(insights).length * 100).toFixed(0)}% high-confidence findings. ` +
            `Primary insight: ${topInsight?.title || 'No critical insights found'}. ` +
-           `Generated ${recommendations.length} actionable recommendations with ${urgentRecommendations} requiring immediate attention. ` +
+           `Generated ${Object.values(recommendations).length} actionable recommendations with ${urgentRecommendations} requiring immediate attention. ` +
            `Overall business health shows positive trends in customer behavior and operational efficiency.`;
   }
 
@@ -949,7 +935,7 @@ export class AIInsightsService {
   }
 
   private async generateExecutiveSummary(insights: AIInsight[], recommendations: Recommendation[]): Promise<string> {
-    return 'Executive summary';
+
   }
 
   private calculateOverallPerformance(insights: AIInsight[]): number {
@@ -1103,7 +1089,7 @@ interface ModelPerformanceMetrics {
   accuracy: number;
   precision: number;
   recall: number;
-  f1_score: number;
+  f1Score: number;
 }
 
 interface ScenarioResult {
@@ -1168,7 +1154,7 @@ interface ModelPerformance {
   accuracy: number;
   precision: number;
   recall: number;
-  f1_score: number;
+  f1Score: number;
   confusion_matrix: number[][];
 }
 
@@ -1183,4 +1169,7 @@ interface InfluencingFactor {
   factor: string;
   impact: number;
   confidence: number;
+  private generateExecutiveSummary(request: any): string {
+    return 'Executive summary generated based on current performance metrics and strategic objectives.';
+  }
 }

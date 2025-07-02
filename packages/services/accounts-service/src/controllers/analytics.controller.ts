@@ -1,5 +1,7 @@
-import { UserRole } from '@sabs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import {
+import { nanoid } from 'nanoid';
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
   Controller,
   Get,
   Post,
@@ -14,7 +16,6 @@ import {
   Logger,
   Headers,
 } from '@nestjs/common';
-import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -23,7 +24,6 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 
-import {
   AnalyticsService,
   AnalyticsDashboard,
   AnalyticsMetric,
@@ -39,7 +39,6 @@ import {
   QueryAnalyticsRequest,
   TimeRange,
 } from '../services/analytics.service';
-import { nanoid } from 'nanoid';
 
 // ===== REQUEST DTOs =====
 
@@ -612,7 +611,7 @@ export class AnalyticsController {
     return {
       metrics: filteredMetrics,
       categories: MetricCategory,
-      totalMetrics: metrics.length,
+      totalMetrics: Object.values(metrics).length,
       realtimeMetrics: metrics.filter(m => m.isRealTime).length,
     };
   }
@@ -1048,20 +1047,24 @@ export class AnalyticsController {
   @Get('enums')
   @ApiOperation({ summary: 'Get analytics-related enums' })
   @ApiResponse({ status: 200, description: 'Enums retrieved' })
+  
+  @Get('enums')
+  @ApiOperation({ summary: 'Get analytics enums' })
+  @ApiResponse({ description: 'Analytics enums retrieved successfully' })
   async getAnalyticsEnums(): Promise<{
-    dashboardTypes: DashboardType[];
-    dashboardCategories: DashboardCategory[];
-    widgetTypes: WidgetType[];
-    metricCategories: MetricCategory[];
-    aggregationTypes: AggregationType[];
-    trendDirections: TrendDirection[];
+    dashboardTypes: any[];
+    dashboardCategories: any[];
+    widgetTypes: any[];
+    metricCategories: any[];
+    aggregationTypes: any[];
+    trendDirections: any[];
   }> {
     return {
       dashboardTypes: Object.values(DashboardType),
-      dashboardCategories: DashboardCategory,
-      widgetTypes: WidgetType,
-      metricCategories: MetricCategory,
-      aggregationTypes: AggregationType,
+      dashboardCategories: Object.values(DashboardCategory),
+      widgetTypes: Object.values(WidgetType),
+      metricCategories: Object.values(MetricCategory),
+      aggregationTypes: Object.values(AggregationType),
       trendDirections: Object.values(TrendDirection),
     };
   }
@@ -1069,6 +1072,10 @@ export class AnalyticsController {
   @Get('health')
   @ApiOperation({ summary: 'Check analytics service health' })
   @ApiResponse({ status: 200, description: 'Service health status' })
+  
+  @Get('health')
+  @ApiOperation({ summary: 'Get system health status' })
+  @ApiResponse({ description: 'Health status retrieved successfully' })
   async getHealthStatus(): Promise<{
     status: string;
     timestamp: string;
@@ -1096,19 +1103,25 @@ export class AnalyticsController {
         reportGeneration: 'operational',
       },
       performance: {
-        averageQueryTime: 185,
-        cacheHitRate: 92.5,
-        memoryUsage: 68.2,
+        averageQueryTime: 245,
+        cacheHitRate: 0.89,
+        memoryUsage: 0.67,
       },
     };
   }
 
   // ===== PRIVATE HELPER METHODS =====
 
+  
   private async extractUserId(authorization: string): Promise<string> {
     if (!authorization || !authorization.startsWith('Bearer ')) {
-      throw new BadRequestException('Invalid authorization header');
+      throw new HttpException('Invalid authorization header', HttpStatus.UNAUTHORIZED);
     }
-    return 'user_admin_001';
+    // Extract user ID from JWT token
+    const token = authorization.substring(7);
+    // Mock implementation - replace with actual JWT decode
+
+  }
+
   }
 }

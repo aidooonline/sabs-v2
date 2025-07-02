@@ -1,6 +1,8 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import {
+import { nanoid } from 'nanoid';
+
   Controller,
   Get,
   Post,
@@ -14,7 +16,6 @@ import {
   Logger,
   Headers,
 } from '@nestjs/common';
-import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -23,7 +24,6 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 
-import {
   ExecutiveDashboardService,
   ExecutiveDashboard,
   KPIMetric,
@@ -44,7 +44,6 @@ import {
   CreateAlertRequest,
   GenerateReportRequest,
 } from '../services/executive-dashboard.service';
-import { nanoid } from 'nanoid';
 
 // ===== REQUEST DTOs =====
 
@@ -235,7 +234,7 @@ export class ExecutiveDashboardController {
       type: dashboardDto.type,
       audience: dashboardDto.audience,
       layout: dashboardDto.layout || {},
-      widgets: dashboardDto.widgets || [],
+      widgets: (dashboardDto.widgets || []).map(w => ({ ...w, type: w.type as any })),
     };
 
     const result = await this.executiveService.createExecutiveDashboard(request);
@@ -816,9 +815,9 @@ export class ExecutiveDashboardController {
       title: meeting.title,
       date: meeting.date,
       duration: meeting.duration,
-      attendees: meeting.attendees.length,
-      agendaItems: meeting.agenda.length,
-      materialsReady: meeting.materials.length > 0,
+      attendees: Object.values(meeting.attendees).length,
+      agendaItems: Object.values(meeting.agenda).length,
+      materialsReady: Object.values(meeting.materials).length > 0,
     }));
 
     const recentDecisions = result.recentDecisions.map(decision => ({
@@ -846,9 +845,9 @@ export class ExecutiveDashboardController {
     };
 
     const boardPackageSummary = {
-      totalMaterials: result.boardPackage.materials.length,
-      reportsIncluded: result.boardPackage.reports.length,
-      criticalItems: result.boardPackage.kpiSummary.critical.length,
+      totalMaterials: result.Object.values(boardPackage.materials).length,
+      reportsIncluded: result.Object.values(boardPackage.reports).length,
+      criticalItems: result.boardPackage.Object.values(kpiSummary.critical).length,
       preparationStatus: 92,
     };
 
@@ -985,27 +984,24 @@ export class ExecutiveDashboardController {
   @Get('health')
   @ApiOperation({ summary: 'Check executive dashboard service health' })
   @ApiResponse({ status: 200, description: 'Service health status' })
+  
+  @Get('health')
+  @ApiOperation({ summary: 'Get system health status' })
+  @ApiResponse({ description: 'Health status retrieved successfully' })
   async getHealthStatus(): Promise<{
     status: string;
     timestamp: string;
     services: {
       dashboardEngine: string;
-      kpiMonitoring: string;
-      alertSystem: string;
-      reportGenerator: string;
-      boardSupport: string;
+      metricsCollection: string;
+      queryEngine: string;
+      realtimeStreaming: string;
+      reportGeneration: string;
     };
     performance: {
-      activeDashboards: number;
-      realTimeKPIs: number;
-      activeAlerts: number;
-      dailyReports: number;
-      averageResponseTime: number;
-    };
-    uptime: {
-      current: number;
-      monthly: number;
-      quarterly: number;
+      averageQueryTime: number;
+      cacheHitRate: number;
+      memoryUsage: number;
     };
   }> {
     return {
@@ -1013,33 +1009,32 @@ export class ExecutiveDashboardController {
       timestamp: new Date().toISOString(),
       services: {
         dashboardEngine: 'operational',
-        kpiMonitoring: 'operational',
-        alertSystem: 'operational',
-        reportGenerator: 'operational',
-        boardSupport: 'operational',
+        metricsCollection: 'operational',
+        queryEngine: 'operational',
+        realtimeStreaming: 'operational',
+        reportGeneration: 'operational',
       },
       performance: {
-        activeDashboards: 12,
-        realTimeKPIs: 45,
-        activeAlerts: 8,
-        dailyReports: 15,
-        averageResponseTime: 145,
-      },
-      uptime: {
-        current: 99.95,
-        monthly: 99.92,
-        quarterly: 99.88,
+        averageQueryTime: 245,
+        cacheHitRate: 0.89,
+        memoryUsage: 0.67,
       },
     };
   }
 
   // ===== PRIVATE HELPER METHODS =====
 
+  
   private async extractUserId(authorization: string): Promise<string> {
     if (!authorization || !authorization.startsWith('Bearer ')) {
-      throw new BadRequestException('Invalid authorization header');
+      throw new HttpException('Invalid authorization header', HttpStatus.UNAUTHORIZED);
     }
-    return 'user_executive_001';
+    // Extract user ID from JWT token
+    const token = authorization.substring(7);
+    // Mock implementation - replace with actual JWT decode
+
+  }
+
   }
 
   private getKeyDrivers(category: KPICategory): string[] {

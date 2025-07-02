@@ -346,8 +346,8 @@ export class CustomerOnboarding {
   }
 
   get documentCompletionRate(): number {
-    const required = this.documentsRequired.length;
-    const completed = this.documentsCompleted.length;
+    const required = Object.values(this.documentsRequired).length;
+    const completed = Object.values(this.documentsCompleted).length;
     return required > 0 ? Math.round((completed / required) * 100) : 0;
   }
 
@@ -370,8 +370,8 @@ export class CustomerOnboarding {
 
   get nextStep(): OnboardingStep | null {
     const steps = OnboardingStep;
-    const currentIndex = steps.indexOf(this.currentStep);
-    return currentIndex < steps.length - 1 ? steps[currentIndex + 1] : null;
+    const currentIndex = Object.values(steps).indexOf(this.currentStep);
+    return currentIndex < Object.values(steps).length - 1 ? steps[currentIndex + 1] : null;
   }
 
   // Business logic methods
@@ -392,7 +392,7 @@ export class CustomerOnboarding {
 
   updateProgress(): void {
     const totalSteps = Object.values(OnboardingStep).length;
-    const completed = this.completedSteps.length;
+    const completed = Object.values(this.completedSteps).length;
     this.progressPercentage = Math.round((completed / totalSteps) * 100);
   }
 
@@ -416,7 +416,7 @@ export class CustomerOnboarding {
     return true;
   }
 
-  addDocument(doc: {
+  addDocument(doc, {
     type: DocumentType;
     url: string;
     fileName: string;
@@ -573,7 +573,7 @@ export class CustomerOnboarding {
   }
 
   // Static factory methods
-  static create(data: {
+  static create(data, {
     companyId: string;
     agentId: string;
     agentName: string;

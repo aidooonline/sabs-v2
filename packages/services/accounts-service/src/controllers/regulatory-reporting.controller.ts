@@ -1,6 +1,8 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import {
+import { nanoid } from 'nanoid';
+
   Controller,
   Get,
   Post,
@@ -13,7 +15,6 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -22,7 +23,6 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 
-import {
   RegulatoryReportingService,
   RegulatoryReport,
   ComplianceRule,
@@ -40,7 +40,6 @@ import {
   ComplianceCheckRequest,
   ReportingPeriod,
 } from '../services/regulatory-reporting.service';
-import { nanoid } from 'nanoid';
 
 // ===== REQUEST DTOs =====
 
@@ -209,7 +208,7 @@ export class RegulatoryReportingController {
     const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
     const summary = {
-      total: allReports.length,
+      total: Object.values(allReports).length,
       byStatus,
       byRegulator,
       overdue: allReports.filter(r => r.dueDate < now && r.status !== ReportStatus.SUBMITTED).length,
@@ -313,8 +312,8 @@ export class RegulatoryReportingController {
       dueDate: result.report.dueDate,
       validation: {
         valid: result.validation.valid,
-        errors: result.validation.errors.length,
-        warnings: result.validation.warnings.length,
+        errors: result.Object.values(validation.errors).length,
+        warnings: result.Object.values(validation.warnings).length,
         completeness: result.validation.completeness,
       },
       timeline: {
@@ -325,7 +324,7 @@ export class RegulatoryReportingController {
       compliance: {
         score: result.complianceImpact.score,
         riskLevel: result.complianceImpact.riskLevel,
-        violations: result.complianceImpact.violations.length,
+        violations: result.Object.values(complianceImpact.violations).length,
       },
       nextSteps,
     };
@@ -692,11 +691,7 @@ export class RegulatoryReportingController {
       violations,
       recommendations,
       trend,
-      actionPlan: {
-      immediate: [],
-      shortTerm: [],
-      longTerm: []
-    },
+      actionPlan: {    },
     };
   }
 
@@ -927,7 +922,7 @@ export class RegulatoryReportingController {
     });
 
     const summary = {
-      total: allRules.length,
+      total: Object.values(allRules).length,
       active: allRules.filter(r => r.status === 'active').length,
       bySeverity,
       byCategory,
@@ -1120,62 +1115,56 @@ export class RegulatoryReportingController {
   @Get('health')
   @ApiOperation({ summary: 'Check regulatory reporting service health' })
   @ApiResponse({ status: 200, description: 'Service health status' })
+  
+  @Get('health')
+  @ApiOperation({ summary: 'Get system health status' })
+  @ApiResponse({ description: 'Health status retrieved successfully' })
   async getHealthStatus(): Promise<{
     status: string;
     timestamp: string;
     services: {
-      report_generator: string;
-      compliance_monitor: string;
-      audit_tracker: string;
-      validation_engine: string;
-      submission_gateway: string;
+      dashboardEngine: string;
+      metricsCollection: string;
+      queryEngine: string;
+      realtimeStreaming: string;
+      reportGeneration: string;
     };
     performance: {
-      active_reports: number;
-      pending_submissions: number;
-      compliance_violations: number;
-      audit_entries: number;
-      average_processing_time: number;
-    };
-    compliance: {
-      overall_score: number;
-      last_assessment: Date;
-      next_assessment: Date;
-      regulatory_updates: number;
+      averageQueryTime: number;
+      cacheHitRate: number;
+      memoryUsage: number;
     };
   }> {
     return {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       services: {
-        report_generator: 'operational',
-        compliance_monitor: 'operational',
-        audit_tracker: 'operational',
-        validation_engine: 'operational',
-        submission_gateway: 'operational',
+        dashboardEngine: 'operational',
+        metricsCollection: 'operational',
+        queryEngine: 'operational',
+        realtimeStreaming: 'operational',
+        reportGeneration: 'operational',
       },
       performance: {
-        active_reports: 12,
-        pending_submissions: 3,
-        compliance_violations: 5,
-        audit_entries: 1247,
-        average_processing_time: 2.3, // seconds
-      },
-      compliance: {
-        overall_score: 88.3,
-        last_assessment: new Date('2024-11-25'),
-        next_assessment: new Date('2024-12-25'),
-        regulatory_updates: 8,
+        averageQueryTime: 245,
+        cacheHitRate: 0.89,
+        memoryUsage: 0.67,
       },
     };
   }
 
   // ===== PRIVATE HELPER METHODS =====
 
+  
   private async extractUserId(authorization: string): Promise<string> {
     if (!authorization || !authorization.startsWith('Bearer ')) {
-      throw new BadRequestException('Invalid authorization header');
+      throw new HttpException('Invalid authorization header', HttpStatus.UNAUTHORIZED);
     }
-    return 'user_regulatory_001';
+    // Extract user ID from JWT token
+    const token = authorization.substring(7);
+    // Mock implementation - replace with actual JWT decode
+
+  }
+
   }
 }

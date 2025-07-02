@@ -1,5 +1,12 @@
-import { UserRole } from '@sabs/common';
-
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+import {
+import { Response } from 'express';
+import { Transaction, TransactionType, TransactionStatus } from '../entities/transaction.entity';
+import { AccountType } from '../entities/account.entity';
+import { JwtAuthGuard } from '../../../identity-service/src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../identity-service/src/auth/guards/roles.guard';
+import { TenantGuard } from '../../../identity-service/src/auth/guards/tenant.guard';
+import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
 // Mock @Roles decorator to fix signature issues
 function Roles(...roles: any[]) {
   return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
@@ -7,9 +14,7 @@ function Roles(...roles: any[]) {
     return descriptor;
   };
 }
-import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
-import {
   Controller,
   Get,
   Post,
@@ -24,7 +29,6 @@ import {
   Header,
   Res,
 } from '@nestjs/common';
-import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -33,9 +37,7 @@ import {
   ApiBody,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { Response } from 'express';
 
-import { 
   TransactionHistoryService, 
   TransactionSearchFilters, 
   TransactionHistoryResponse,
@@ -43,13 +45,7 @@ import {
   ReconciliationReport,
   ExportOptions
 } from '../services/transaction-history.service';
-import { Transaction, TransactionType, TransactionStatus } from '../entities/transaction.entity';
-import { AccountType } from '../entities/account.entity';
-import { JwtAuthGuard } from '../../../identity-service/src/auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../identity-service/src/auth/guards/roles.guard';
-import { TenantGuard } from '../../../identity-service/src/auth/guards/tenant.guard';
 
-import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
 
 // DTOs for transaction history
 export class TransactionSearchDto implements Partial<TransactionSearchFilters> {
@@ -259,8 +255,7 @@ export class TransactionHistoryController {
   @ApiResponse({ status: 200, description: 'Transaction insights generated' })
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionInsights(
-    @CurrentUser() user: JwtPayload,
-    @Query('timeRange') timeRange: 'daily' | 'weekly' | 'monthly' = 'weekly',
+    @Query('timeRange') timeRange: 'daily' | 'weekly' | 'monthly' = 'weekly', @CurrentUser() user: JwtPayload,
   ): Promise<{
     insights: Array<{
       type: 'trend' | 'anomaly' | 'opportunity' | 'risk';
@@ -500,8 +495,7 @@ export class TransactionHistoryController {
   @ApiResponse({ status: 200, description: 'Dashboard data retrieved' })
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getDashboardData(
-    @CurrentUser() user: JwtPayload,
-    @Query('period') period: 'today' | 'week' | 'month' = 'today',
+    @Query('period') period: 'today' | 'week' | 'month' = 'today', @CurrentUser() user: JwtPayload,
   ): Promise<{
     summary: {
       totalTransactions: number;
@@ -587,8 +581,7 @@ export class TransactionHistoryController {
   @ApiResponse({ status: 200, description: 'Transaction summary retrieved' })
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionSummary(
-    @CurrentUser() user: JwtPayload,
-    @Query('groupBy') groupBy: 'day' | 'week' | 'month' = 'day',
+    @Query('groupBy') groupBy: 'day' | 'week' | 'month' = 'day', @CurrentUser() user: JwtPayload,
     @Query('compare') compare: boolean = false,
   ): Promise<{
     current: {

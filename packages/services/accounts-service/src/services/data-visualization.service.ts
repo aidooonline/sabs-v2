@@ -1,12 +1,11 @@
-import { UserRole } from '@sabs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
+
 
 // ===== DATA VISUALIZATION ENTITIES =====
 
@@ -346,7 +345,7 @@ export class DataVisualizationService {
     const performance = {
       dataLoadTime,
       renderTime: 50 + Math.random() * 100, // Simulated render time
-      totalPoints: data.length,
+      totalPoints: Object.values(data).length,
     };
 
     // Update metadata
@@ -456,7 +455,7 @@ export class DataVisualizationService {
       reportId,
       title: request.title,
       type: request.type,
-      visualizationCount: request.visualizations.length,
+      visualizationCount: Object.values(request.visualizations).length,
     });
 
     return {
@@ -816,7 +815,7 @@ export class DataVisualizationService {
       .map(viz => viz.name);
 
     return {
-      total: visualizations.length,
+      total: Object.values(visualizations).length,
       byType,
       byCategory,
       mostPopular,
@@ -878,7 +877,7 @@ export class DataVisualizationService {
 
   private estimateReportLoadTime(report: InteractiveReport): number {
     const baseTime = 200; // Base load time in ms
-    const visualizationCount = report.visualizations.length;
+    const visualizationCount = Object.values(report.visualizations).length;
     return baseTime + (visualizationCount * 100) + Math.random() * 200;
   }
 
