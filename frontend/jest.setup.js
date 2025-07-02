@@ -1,5 +1,48 @@
 import '@testing-library/jest-dom'
 
+// ===== MSW POLYFILLS FOR NODE.JS ENVIRONMENT =====
+// Required for MSW to work in Node.js test environment
+import { TextEncoder, TextDecoder } from 'util';
+
+// Add polyfills for Node.js environment
+if (typeof global.TextEncoder === 'undefined') {
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder;
+}
+
+// Add ReadableStream polyfill if needed
+if (typeof global.ReadableStream === 'undefined') {
+  global.ReadableStream = class ReadableStream {
+    constructor() {}
+    getReader() {
+      return {
+        read: () => Promise.resolve({ done: true }),
+        cancel: () => Promise.resolve(),
+        releaseLock: () => {}
+      };
+    }
+  };
+}
+
+// Add BroadcastChannel polyfill for MSW
+if (typeof global.BroadcastChannel === 'undefined') {
+  global.BroadcastChannel = class BroadcastChannel {
+    constructor(name) {
+      this.name = name;
+    }
+    postMessage() {}
+    close() {}
+    addEventListener() {}
+    removeEventListener() {}
+    dispatchEvent() { return true; }
+  };
+}
+
+// Add other MSW required polyfills
+if (typeof global.structuredClone === 'undefined') {
+  global.structuredClone = (obj) => JSON.parse(JSON.stringify(obj));
+}
+
 // ===== BROWSER API MOCKS =====
 
 // Mock ResizeObserver - Required for chart libraries and responsive components
@@ -51,8 +94,23 @@ if (typeof global.Request === 'undefined') {
       this.signal = init.signal || null;
     }
 
+    async arrayBuffer() {
+      if (typeof this.body === 'string') {
+        return new TextEncoder().encode(this.body).buffer;
+      }
+      return this.body || new ArrayBuffer(0);
+    }
+
+    async text() {
+      return typeof this.body === 'string' ? this.body : JSON.stringify(this.body);
+    }
+
+    async json() {
+      return typeof this.body === 'string' ? JSON.parse(this.body) : this.body;
+    }
+
     clone() {
-      return new Request(this.url, {
+      const cloned = new Request(this.url, {
         method: this.method,
         headers: this.headers,
         body: this.body,
@@ -66,6 +124,7 @@ if (typeof global.Request === 'undefined') {
         keepalive: this.keepalive,
         signal: this.signal
       });
+      return cloned;
     }
   };
 }
@@ -88,6 +147,13 @@ if (typeof global.Response === 'undefined') {
 
     async text() {
       return typeof this.body === 'string' ? this.body : JSON.stringify(this.body);
+    }
+
+    async arrayBuffer() {
+      if (typeof this.body === 'string') {
+        return new TextEncoder().encode(this.body).buffer;
+      }
+      return this.body || new ArrayBuffer(0);
     }
 
     clone() {
@@ -325,22 +391,24 @@ class MockWebSocket {
 
 global.WebSocket = MockWebSocket;
 
-// Reset fetch mock before each test
+// Reset fetch mock before each test - only if it's our mock (not MSW)
 beforeEach(() => {
-  global.fetch.mockClear();
-  if (global.fetch.resetMocks) {
+  if (global.fetch && typeof global.fetch.mockClear === 'function') {
+    global.fetch.mockClear();
+  }
+  if (global.fetch && typeof global.fetch.resetMocks === 'function') {
     global.fetch.resetMocks();
   }
-  if (global.fetch.clearMocks) {
+  if (global.fetch && global.fetch.clearMocks && typeof global.fetch.clearMocks.mockClear === 'function') {
     global.fetch.clearMocks.mockClear();
   }
-  if (global.fetch.setEndpointResponse) {
+  if (global.fetch && global.fetch.setEndpointResponse && typeof global.fetch.setEndpointResponse.mockClear === 'function') {
     global.fetch.setEndpointResponse.mockClear();
   }
-  if (global.fetch.simulateError) {
+  if (global.fetch && global.fetch.simulateError && typeof global.fetch.simulateError.mockClear === 'function') {
     global.fetch.simulateError.mockClear();
   }
-  if (global.fetch.simulateSlowNetwork) {
+  if (global.fetch && global.fetch.simulateSlowNetwork && typeof global.fetch.simulateSlowNetwork.mockClear === 'function') {
     global.fetch.simulateSlowNetwork.mockClear();
   }
 });

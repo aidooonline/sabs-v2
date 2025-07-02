@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import { http, HttpResponse } from 'msw';
+import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 
 // Import real Redux slices and APIs
@@ -17,23 +17,35 @@ import { TestFramework } from '../setup/testFramework';
 // Import component
 import ApprovalDashboard from '../../app/approval/dashboard/page';
 
-// Simple mock data
+// Simple mock data with proper structure
 const mockWorkflowsData = {
   workflows: [{
     id: 'WF-123',
     workflowNumber: 'WF-123',
     status: 'pending',
     priority: 'high',
+    currentStage: 'clerk_review',
+    createdAt: new Date().toISOString(),
+    dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     withdrawalRequest: {
-      customer: { fullName: 'John Doe' },
-      agent: { fullName: 'Agent Smith' },
+      customer: { 
+        fullName: 'John Doe',
+        accountNumber: 'ACC000123',
+        phoneNumber: '+233123456789'
+      },
+      agent: { 
+        fullName: 'Agent Smith',
+        id: 'agent-1',
+        branch: 'Branch 1'
+      },
       amount: 5000,
       currency: 'GHS'
     },
-    riskAssessment: { overallRisk: 'medium' },
-    currentStage: 'pending_review',
-    createdAt: new Date().toISOString(),
-    slaDeadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+    riskAssessment: { 
+      riskScore: 45,
+      riskLevel: 'medium',
+      factors: ['Factor 1']
+    }
   }],
   pagination: {
     currentPage: 1,
@@ -57,21 +69,21 @@ const mockDashboardStats = {
 
 // Simple MSW server
 const server = setupServer(
-  http.get('/api/approval-workflow/workflows', () => {
-    return HttpResponse.json(mockWorkflowsData);
+  rest.get('/api/approval-workflow/workflows', (req, res, ctx) => {
+    return res(ctx.json(mockWorkflowsData));
   }),
-  http.get('/api/approval-workflow/dashboard/stats', () => {
-    return HttpResponse.json(mockDashboardStats);
+  rest.get('/api/approval-workflow/dashboard/stats', (req, res, ctx) => {
+    return res(ctx.json(mockDashboardStats));
   }),
-  http.get('/api/approval-workflow/dashboard/queue-metrics', () => {
-    return HttpResponse.json({
+  rest.get('/api/approval-workflow/dashboard/queue-metrics', (req, res, ctx) => {
+    return res(ctx.json({
       totalPending: 1,
       totalApproved: 890,
       totalRejected: 45,
       averageProcessingTime: 270,
       slaCompliance: 0.89,
       riskDistribution: []
-    });
+    }));
   })
 );
 
