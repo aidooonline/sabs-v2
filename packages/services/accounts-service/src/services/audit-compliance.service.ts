@@ -1,3 +1,4 @@
+import { UserRole } from '@sabs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
 import { Injectable, Logger } from '@nestjs/common';
@@ -878,11 +879,11 @@ export class AuditComplianceService {
   private async getEntity(entityType: string, entityId: string): Promise<any> {
     switch (entityType) {
       case 'transaction':
-        return this.transactionRepository.findOne({ where: { id: entityId }, relations: [UserRole.CUSTOMER, 'account'] });
+        return this.transactionRepository.findOne({ where: { id: entityId }, relations: ["customer", 'account'] });
       case UserRole.CUSTOMER:
         return this.customerRepository.findOne({ where: { id: entityId } });
       case 'account':
-        return this.accountRepository.findOne({ where: { id: entityId }, relations: [UserRole.CUSTOMER] });
+        return this.accountRepository.findOne({ where: { id: entityId }, relations: ["customer"] });
       default:
         return null;
     }

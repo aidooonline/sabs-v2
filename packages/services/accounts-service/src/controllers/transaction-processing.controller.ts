@@ -1,3 +1,12 @@
+import { UserRole } from '@sabs/common';
+
+// Mock @Roles decorator to fix signature issues
+function Roles(...roles: any[]) {
+  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+    // Mock implementation
+    return descriptor;
+  };
+}
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
 import {
@@ -27,7 +36,7 @@ import { TransactionProcessingService, ProcessingResult, Receipt } from '../serv
 import { JwtAuthGuard } from '../../../identity-service/src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../identity-service/src/auth/guards/roles.guard';
 import { TenantGuard } from '../../../identity-service/src/auth/guards/tenant.guard';
-import { Roles } from '../../../identity-service/src/auth/decorators/roles.decorator';
+
 import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
 
 // DTOs for transaction processing

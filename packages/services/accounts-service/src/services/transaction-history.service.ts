@@ -1,3 +1,4 @@
+import { UserRole } from '@sabs/common';
 import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder, Between, In, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
@@ -278,7 +279,7 @@ export class TransactionHistoryService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: transactionId, companyId },
-      relations: [UserRole.CUSTOMER, 'account', 'approvalWorkflows'],
+      relations: ["customer", 'account', 'approvalWorkflows'],
     });
 
     if (!transaction) {
@@ -526,7 +527,7 @@ export class TransactionHistoryService {
         companyId,
         createdAt: MoreThanOrEqual(startDate),
       },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
       order: { createdAt: 'DESC' },
     });
 

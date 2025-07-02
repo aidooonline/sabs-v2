@@ -314,7 +314,7 @@ export class AIInsightsService {
     max_recommendations: 10,
     insight_retention_days: 90,
     model_retraining_interval: 7, // days
-    supported_algorithms: Object.values(MLAlgorithm),
+    supported_algorithms: MLAlgorithm,
     natural_language_enabled: true,
     real_time_processing: true,
   };
@@ -375,9 +375,15 @@ export class AIInsightsService {
       insights,
       summary,
       recommendations,
-      predictions: [],
+      predictions: {
+      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
+    },
       naturalLanguageSummary,
-      actionPlan: [],
+      actionPlan: {
+      immediate: [],
+      shortTerm: [],
+      longTerm: []
+    },
     };
   }
 
@@ -428,7 +434,9 @@ export class AIInsightsService {
       recommendations,
       keyMetrics: await this.calculateKeyMetrics(period),
       trends: await this.analyzeTrends(period),
-      predictions: [],
+      predictions: {
+      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
+    },
       actionItems: this.generateActionItems(recommendations),
       executiveSummary: await this.generateDetailedExecutiveSummary(insights, recommendations, predictions),
       generated: new Date(),
@@ -504,7 +512,7 @@ export class AIInsightsService {
     return {
       recommendations,
       prioritization: { quickWins: [], majorProjects: [], strategicInitiatives: [] },
-      implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: [] }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } },
+      implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: "Q1-Q4 2024" }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } },
       roi_analysis: { totalInvestment: 0, expectedReturn: 0, paybackPeriod: 0, netPresentValue: 0 },
     };
   }
@@ -593,8 +601,14 @@ export class AIInsightsService {
     const insights = await this.generateRecommendations([], {} as any);
 
     return {
-      predictions: [],
-      models: [],
+      predictions: {
+      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
+    },
+      models: {
+      used: [],
+      performance: { accuracy: 0, precision: 0, recall: 0, f1_score: 0 },
+      confidence: 0
+    },
       scenarios: { optimistic: { probability: 0, outcome: {}, factors: [] }, realistic: { probability: 0, outcome: {}, factors: [] }, pessimistic: { probability: 0, outcome: {}, factors: [] } },
       insights: [],
     };
@@ -629,7 +643,11 @@ export class AIInsightsService {
     return {
       segments: [],
       insights,
-      actionPlan: [],
+      actionPlan: {
+      immediate: [],
+      shortTerm: [],
+      longTerm: []
+    },
     };
   }
 

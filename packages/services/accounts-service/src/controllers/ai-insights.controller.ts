@@ -285,7 +285,11 @@ export class AIInsightsController {
       summary,
       recommendations,
       naturalLanguageSummary: result.naturalLanguageSummary,
-      actionPlan: [],
+      actionPlan: {
+      immediate: [],
+      shortTerm: [],
+      longTerm: []
+    },
       processingMetrics,
     };
   }
@@ -587,7 +591,9 @@ export class AIInsightsController {
       executiveSummary,
       insights,
       recommendations,
-      predictions: [],
+      predictions: {
+      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
+    },
       performanceScore,
       competitiveAnalysis,
     };
@@ -729,7 +735,7 @@ export class AIInsightsController {
     return {
       recommendations,
       prioritization: { quickWins: [], majorProjects: [], strategicInitiatives: [] },
-      implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: [] }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } },
+      implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: "Q1-Q4 2024" }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } },
       roiAnalysis,
       success_metrics,
     };
@@ -981,8 +987,14 @@ export class AIInsightsController {
     ];
 
     return {
-      predictions: [],
-      models: [],
+      predictions: {
+      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
+    },
+      models: {
+      used: [],
+      performance: { accuracy: 0, precision: 0, recall: 0, f1_score: 0 },
+      confidence: 0
+    },
       scenarios: { optimistic: { probability: 0, outcome: {}, factors: [] }, realistic: { probability: 0, outcome: {}, factors: [] }, pessimistic: { probability: 0, outcome: {}, factors: [] } },
       insights: result.insights,
       recommendations,
@@ -1119,7 +1131,11 @@ export class AIInsightsController {
     return {
       segments: [],
       insights: result.insights,
-      actionPlan: [],
+      actionPlan: {
+      immediate: [],
+      shortTerm: [],
+      longTerm: []
+    },
       performance,
     };
   }
@@ -1235,7 +1251,11 @@ export class AIInsightsController {
     };
 
     return {
-      models: [],
+      models: {
+      used: [],
+      performance: { accuracy: 0, precision: 0, recall: 0, f1_score: 0 },
+      confidence: 0
+    },
       summary,
     };
   }

@@ -1,3 +1,4 @@
+import { UserRole } from '@sabs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
 import { Injectable, Logger, BadRequestException, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
@@ -203,7 +204,7 @@ export class TransactionService {
       case AuthenticationMethod.OTP:
         if (verificationDto.otpCode && verificationDto.otpVerified) {
           // Here you would integrate with OTP service
-          const otpValid = await this.validateOtp(transaction.customer?.phoneNumber || (transaction.customer as any)?.phone, verificationDto.otpCode);
+          const otpValid = await this.validateOtp(transaction.customer?.phoneNumber , verificationDto.otpCode);
           if (otpValid) {
             transaction.setOtp(true);
           }
@@ -445,7 +446,7 @@ export class TransactionService {
   ): Promise<BalanceInquiryResponseDto> {
     const account = await this.accountRepository.findOne({
       where: { id: accountId, companyId },
-      relations: [UserRole.CUSTOMER],
+      relations: ["customer"],
     });
 
     if (!account) {
@@ -636,7 +637,7 @@ export class TransactionService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: transactionId, companyId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (!transaction) {
@@ -820,7 +821,7 @@ export class TransactionService {
   private async validateApprovalAuthority(approverId: string, requiredLevel: ApprovalLevel): Promise<void> {
     // Here you would integrate with the identity service to check user roles
     // For now, we'll assume the validation passes
-    // In a real implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: [] }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } }, you'd check if the approver has the required role level
+    // In a real implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: "Q1-Q4 2024" }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } }, you'd check if the approver has the required role level
   }
 
   private async performFinalComplianceCheck(transaction: Transaction): Promise<void> {
@@ -868,9 +869,9 @@ export class TransactionService {
 
   private async sendTransactionNotifications(transaction: Transaction): Promise<void> {
     // Send SMS notification
-    if (transaction.customer?.phoneNumber || (transaction.customer as any)?.phone) {
+    if (transaction.customer?.phoneNumber ) {
       this.eventEmitter.emit('notification.sms', {
-        phoneNumber: transaction.customer?.phoneNumber || (transaction.customer as any)?.phone,
+        phoneNumber: transaction.customer?.phoneNumber ,
         message: `Transaction ${transaction.transactionNumber} completed. Amount: ${transaction.currency} ${transaction.amount}. New balance: ${transaction.currency} ${transaction.accountBalanceAfter}`,
         transactionId: transaction.id,
       });
@@ -1030,7 +1031,7 @@ export class TransactionService {
       customer: {
         id: transaction.customer.id,
         fullName: transaction.customer.fullName,
-        phoneNumber: transaction.customer?.phoneNumber || (transaction.customer as any)?.phone,
+        phoneNumber: transaction.customer?.phoneNumber ,
         customerNumber: transaction.customer.customerNumber,
       },
       account: {

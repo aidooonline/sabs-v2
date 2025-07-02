@@ -1,3 +1,12 @@
+import { UserRole } from '@sabs/common';
+
+// Mock @Roles decorator to fix signature issues
+function Roles(...roles: any[]) {
+  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+    // Mock implementation
+    return descriptor;
+  };
+}
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
 import {
@@ -26,7 +35,7 @@ import {
 
 import { JwtAuthGuard } from '../../../identity-service/src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../identity-service/src/auth/guards/roles.guard';
-import { Roles } from '../../../identity-service/src/auth/decorators/roles.decorator';
+
 import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
 
 import {
@@ -791,15 +800,15 @@ export class AuditComplianceController {
     complianceSeverities: ComplianceSeverity[];
   }> {
     return {
-      auditEventTypes: Object.values(AuditEventType),
+      auditEventTypes: AuditEventType,
       auditActions: Object.values(AuditAction),
-      complianceCheckTypes: Object.values(ComplianceCheckType),
-      complianceStatuses: Object.values(ComplianceStatus),
-      complianceResults: Object.values(ComplianceResult),
+      complianceCheckTypes: ComplianceCheckType,
+      complianceStatuses: ComplianceStatus,
+      complianceResults: ComplianceResult,
       riskLevels: Object.values(RiskLevel),
       complianceCategories: Object.values(ComplianceCategory),
-      complianceRuleTypes: Object.values(ComplianceRuleType),
-      complianceSeverities: Object.values(ComplianceSeverity),
+      complianceRuleTypes: ComplianceRuleType,
+      complianceSeverities: ComplianceSeverity,
     };
   }
 

@@ -28,7 +28,7 @@ import {
   ComplianceRule,
   ComplianceAssessment,
   AuditTrail,
-  ReportType,
+
   RegulatorType,
   ReportingFrequency,
   ReportStatus,
@@ -692,7 +692,11 @@ export class RegulatoryReportingController {
       violations,
       recommendations,
       trend,
-      actionPlan: [],
+      actionPlan: {
+      immediate: [],
+      shortTerm: [],
+      longTerm: []
+    },
     };
   }
 

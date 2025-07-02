@@ -334,7 +334,7 @@ export class CustomerOnboardingService {
       throw new BadRequestException('Onboarding session has expired');
     }
 
-    // TODO: In a real implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: [] }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } }, you would upload the file to cloud storage
+    // TODO: In a real implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: "Q1-Q4 2024" }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } }, you would upload the file to cloud storage
     // For now, we'll store the content as metadata
     const documentUrl = await this.uploadDocumentToStorage(dto);
 
@@ -637,7 +637,7 @@ export class CustomerOnboardingService {
       }
 
       // Calculate step statistics
-      const steps = Object.values(OnboardingStep);
+      const steps = OnboardingStep;
       stats.stepStats = steps.reduce((acc, step) => {
         const stepOnboardings = onboardings.filter(o => o.completedSteps.includes(step));
         acc[step] = {
@@ -663,7 +663,7 @@ export class CustomerOnboardingService {
         return acc;
       }, {} as any);
 
-      stats.agentStats = Object.values(agentGroups).map((group: any) => {
+      stats.agentStats = agentGroups.map((group: any) => {
         const completed = group.onboardings.filter((o: any) => o.isCompleted).length;
         return {
           agentId: group.agentId,

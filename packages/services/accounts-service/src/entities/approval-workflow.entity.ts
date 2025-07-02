@@ -1,3 +1,4 @@
+import { UserRole } from '@sabs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index, BeforeInsert } from 'typeorm';
@@ -427,7 +428,7 @@ export class ApprovalWorkflow {
   }
 
   get stageProgress(): number {
-    const stages = Object.values(ApprovalStage);
+    const stages = ApprovalStage;
     const currentIndex = stages.indexOf(this.currentStage);
     return Math.round(((currentIndex + 1) / stages.length) * 100);
   }
@@ -655,7 +656,7 @@ export class ApprovalWorkflow {
   }
 
   private getNextStage(currentStage: ApprovalStage): ApprovalStage {
-    const stages = Object.values(ApprovalStage);
+    const stages = ApprovalStage;
     const currentIndex = stages.indexOf(currentStage);
     return stages[Math.min(currentIndex + 1, stages.length - 1)];
   }

@@ -1,3 +1,4 @@
+import { UserRole } from '@sabs/common';
 import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';

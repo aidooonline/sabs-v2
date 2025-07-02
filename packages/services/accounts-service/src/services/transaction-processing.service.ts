@@ -1,3 +1,4 @@
+import { UserRole } from '@sabs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
 import { Injectable, Logger, BadRequestException, NotFoundException, ConflictException } from '@nestjs/common';
@@ -640,7 +641,7 @@ export class TransactionProcessingService {
       receiptNumber,
       transactionNumber: transaction.transactionNumber,
       customerName: transaction.customer.fullName,
-      customerPhone: transaction.customer?.phoneNumber || (transaction.customer as any)?.phone,
+      customerPhone: transaction.customer?.phoneNumber ,
       accountNumber: account.accountNumber,
       transactionType: transaction.type.toUpperCase(),
       amount: transaction.amount,
@@ -665,7 +666,7 @@ export class TransactionProcessingService {
     this.eventEmitter.emit('transaction.receipt_generated', {
       transactionId: transaction.id,
       receiptNumber,
-      customerPhone: transaction.customer?.phoneNumber || (transaction.customer as any)?.phone,
+      customerPhone: transaction.customer?.phoneNumber ,
     });
 
     return receipt;
@@ -684,7 +685,7 @@ export class TransactionProcessingService {
       receiptNumber,
       transactionNumber: reversalTransaction.transactionNumber,
       customerName: reversalTransaction.customer.fullName,
-      customerPhone: reversalTransaction.customer?.phoneNumber || (transaction.customer as any)?.phone || (transaction.customer as any)?.phone,
+      customerPhone: reversalTransaction.customer?.phoneNumber  ,
       accountNumber: account.accountNumber,
       transactionType: 'REVERSAL',
       amount: reversalTransaction.amount,
@@ -765,7 +766,7 @@ export class TransactionProcessingService {
   ): Promise<Transaction> {
     const transaction = await queryRunner.manager.findOne(Transaction, {
       where: { id: transactionId, companyId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
       lock: { mode: 'pessimistic_write' },
     });
 
@@ -799,7 +800,7 @@ export class TransactionProcessingService {
   ): Promise<Transaction> {
     const transaction = await queryRunner.manager.findOne(Transaction, {
       where: { id: transactionId, companyId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (!transaction) {
@@ -920,7 +921,7 @@ export class TransactionProcessingService {
     this.eventEmitter.emit('transaction.receipt_ready', {
       transactionId: transaction.id,
       receiptNumber: receipt.receiptNumber,
-      customerPhone: transaction.customer?.phoneNumber || (transaction.customer as any)?.phone || (transaction.customer as any)?.phone,
+      customerPhone: transaction.customer?.phoneNumber  ,
       customerEmail: transaction.customer.email,
     });
 
@@ -1017,7 +1018,7 @@ export class TransactionProcessingService {
     // Get from database
     const transaction = await this.transactionRepository.findOne({
       where: { receiptNumber },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (!transaction) {

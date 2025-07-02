@@ -201,7 +201,7 @@ export class BusinessIntelligenceController {
           accuracy: 0.92,
           precision: 0.89,
           recall: 0.94,
-          f1Score: 0.91,
+          f1_score: 0.91,
           auc: 0.96,
         },
         lastTrained: new Date('2024-11-15'),
@@ -218,7 +218,7 @@ export class BusinessIntelligenceController {
           accuracy: 0.87,
           precision: 0.85,
           recall: 0.89,
-          f1Score: 0.87,
+          f1_score: 0.87,
           auc: 0.93,
         },
         lastTrained: new Date('2024-11-10'),
@@ -235,7 +235,7 @@ export class BusinessIntelligenceController {
           accuracy: 0.0,
           precision: 0.0,
           recall: 0.0,
-          f1Score: 0.0,
+          f1_score: 0.0,
           auc: 0.0,
         },
         lastTrained: new Date('2024-11-28'),
@@ -380,7 +380,7 @@ export class BusinessIntelligenceController {
         accuracy: 0.92,
         precision: 0.89,
         recall: 0.94,
-        f1Score: 0.91,
+        f1_score: 0.91,
         auc: 0.96,
       },
       lastTrained: new Date('2024-11-15'),
@@ -397,7 +397,7 @@ export class BusinessIntelligenceController {
       validationMetrics: {
         precision: 0.89,
         recall: 0.94,
-        f1Score: 0.91,
+        f1_score: 0.91,
         confusionMatrix: [[850, 45], [32, 573]],
       },
       featureImportance: [
@@ -429,7 +429,9 @@ export class BusinessIntelligenceController {
     return {
       model,
       performance,
-      predictions: [],
+      predictions: {
+      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
+    },
     };
   }
 
@@ -1106,7 +1108,11 @@ export class BusinessIntelligenceController {
     };
 
     return {
-      models: [],
+      models: {
+      used: [],
+      performance: { accuracy: 0, precision: 0, recall: 0, f1_score: 0 },
+      confidence: 0
+    },
       performance,
     };
   }
@@ -1215,10 +1221,10 @@ export class BusinessIntelligenceController {
     riskTypes: RiskType[];
   }> {
     return {
-      modelTypes: Object.values(ModelType),
+      modelTypes: ModelType,
       modelCategories: Object.values(ModelCategory),
-      mlAlgorithms: Object.values(MLAlgorithm),
-      modelStatuses: Object.values(ModelStatus),
+      mlAlgorithms: MLAlgorithm,
+      modelStatuses: ModelStatus,
       anomalyTypes: Object.values(AnomalyType),
       anomalySeverities: Object.values(AnomalySeverity),
       anomalyCategories: Object.values(AnomalyCategory),

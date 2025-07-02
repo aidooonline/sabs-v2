@@ -1,3 +1,4 @@
+import { UserRole } from '@sabs/common';
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -418,7 +419,9 @@ export class BusinessIntelligenceService {
       lastTrained: new Date(),
       nextRetrain: new Date(Date.now() + this.biConfig.retrainingFrequency * 24 * 60 * 60 * 1000),
       status: ModelStatus.TRAINING,
-      predictions: [],
+      predictions: {
+      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
+    },
     };
 
     this.models.set(modelId, model);
@@ -458,7 +461,9 @@ export class BusinessIntelligenceService {
       id: forecastId,
       metric: request.metric,
       timeHorizon: request.timeHorizon,
-      predictions: [],
+      predictions: {
+      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
+    },
       confidence,
       accuracy,
       methodology: {
@@ -862,7 +867,9 @@ export class BusinessIntelligenceService {
       trends,
       opportunities,
       threats,
-      predictions: [],
+      predictions: {
+      recent: [], accuracy: { daily: 0, weekly: 0, monthly: 0 }
+    },
     };
   }
 
@@ -889,7 +896,7 @@ export class BusinessIntelligenceService {
       accuracy: 0,
       precision: 0,
       recall: 0,
-      f1Score: 0,
+      f1_score: 0,
       auc: 0,
     };
   }
@@ -1248,9 +1255,9 @@ export class BusinessIntelligenceService {
     if (Math.random() < 0.05) { // 5% chance of detecting anomaly
       const anomaly: AnomalyDetection = {
         id: `anomaly_${nanoid(8)}`,
-        type: Object.values(AnomalyType)[Math.floor(Math.random() * 4)],
-        severity: Object.values(AnomalySeverity)[Math.floor(Math.random() * 4)],
-        category: Object.values(AnomalyCategory)[Math.floor(Math.random() * 5)],
+        type: AnomalyType[Math.floor(Math.random() * 4)],
+        severity: AnomalySeverity[Math.floor(Math.random() * 4)],
+        category: AnomalyCategory[Math.floor(Math.random() * 5)],
         description: 'Automated anomaly detection alert',
         detectedAt: new Date(),
         dataPoints: [],

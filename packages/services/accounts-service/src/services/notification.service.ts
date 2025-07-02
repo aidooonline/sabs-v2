@@ -1,3 +1,4 @@
+import { UserRole } from '@sabs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
@@ -292,7 +293,7 @@ export class NotificationService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: event.transactionId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (!transaction) {
@@ -310,7 +311,7 @@ export class NotificationService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: event.transactionId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (!transaction) {
@@ -328,7 +329,7 @@ export class NotificationService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: event.transactionId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (transaction) {
@@ -342,7 +343,7 @@ export class NotificationService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: event.transactionId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (transaction) {
@@ -356,7 +357,7 @@ export class NotificationService {
 
     const account = await this.accountRepository.findOne({
       where: { id: event.accountId },
-      relations: [UserRole.CUSTOMER],
+      relations: ["customer"],
     });
 
     if (account) {
@@ -370,7 +371,7 @@ export class NotificationService {
 
     const account = await this.accountRepository.findOne({
       where: { id: event.accountId },
-      relations: [UserRole.CUSTOMER],
+      relations: ["customer"],
     });
 
     if (account) {

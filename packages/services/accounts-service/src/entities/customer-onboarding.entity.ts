@@ -369,7 +369,7 @@ export class CustomerOnboarding {
   }
 
   get nextStep(): OnboardingStep | null {
-    const steps = Object.values(OnboardingStep);
+    const steps = OnboardingStep;
     const currentIndex = steps.indexOf(this.currentStep);
     return currentIndex < steps.length - 1 ? steps[currentIndex + 1] : null;
   }

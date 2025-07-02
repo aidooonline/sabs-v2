@@ -38,7 +38,7 @@ import {
   AlertCategory,
   AlertSeverity,
   AlertStatus,
-  ReportType,
+
   ReportPeriod,
   CreateDashboardRequest,
   CreateAlertRequest,

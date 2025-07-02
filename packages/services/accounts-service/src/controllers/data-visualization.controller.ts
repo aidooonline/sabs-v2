@@ -32,7 +32,7 @@ import {
   VisualizationType,
   VisualizationCategory,
   ChartType,
-  ReportType,
+
   ReportStatus,
   CreateVisualizationRequest,
   CreateReportRequest,
@@ -257,7 +257,15 @@ export class DataVisualizationController {
       chartType: vizDto.chartType,
       dataSourceId: vizDto.dataSourceId,
       configuration: vizDto.configuration || {},
-      styling: vizDto.styling,
+      styling: {
+      theme: vizDto.styling?.theme || 'default',
+      colors: {
+        primary: vizDto.styling?.colors?.primary || '#007bff',
+        secondary: vizDto.styling?.colors?.secondary || '#6c757d',
+        accent: vizDto.styling?.colors?.accent || '#28a745',
+        scheme: vizDto.styling?.colors?.scheme || 'default'
+      }
+    },
     };
 
     const result = await this.vizService.createVisualization(request);
@@ -294,7 +302,7 @@ export class DataVisualizationController {
   @ApiQuery({ name: 'width', required: false, type: Number })
   @ApiQuery({ name: 'height', required: false, type: Number })
   @ApiQuery({ name: 'theme', required: false, type: String })
-  @ApiQuery({ name: 'interactive', required: false, type: Boolean })
+  @ApiQuery({ name: LibraryCapability.INTERACTIVE, required: false, type: Boolean })
   @ApiResponse({ status: 200, description: 'Visualization rendered successfully' })
   async renderVisualization(
     @Headers('authorization') authorization: string,
@@ -302,7 +310,7 @@ export class DataVisualizationController {
     @Query('width') width?: number,
     @Query('height') height?: number,
     @Query('theme') theme?: string,
-    @Query('interactive') interactive?: boolean,
+    @Query(LibraryCapability.INTERACTIVE) interactive?: boolean,
   ): Promise<{
     visualization: {
       id: string;

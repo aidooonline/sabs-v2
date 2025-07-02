@@ -1,3 +1,4 @@
+import { UserRole } from '@sabs/common';
 import {
   Controller,
   Get,
@@ -610,7 +611,7 @@ export class AnalyticsController {
 
     return {
       metrics: filteredMetrics,
-      categories: Object.values(MetricCategory),
+      categories: MetricCategory,
       totalMetrics: metrics.length,
       realtimeMetrics: metrics.filter(m => m.isRealTime).length,
     };
@@ -1057,10 +1058,10 @@ export class AnalyticsController {
   }> {
     return {
       dashboardTypes: Object.values(DashboardType),
-      dashboardCategories: Object.values(DashboardCategory),
-      widgetTypes: Object.values(WidgetType),
-      metricCategories: Object.values(MetricCategory),
-      aggregationTypes: Object.values(AggregationType),
+      dashboardCategories: DashboardCategory,
+      widgetTypes: WidgetType,
+      metricCategories: MetricCategory,
+      aggregationTypes: AggregationType,
       trendDirections: Object.values(TrendDirection),
     };
   }

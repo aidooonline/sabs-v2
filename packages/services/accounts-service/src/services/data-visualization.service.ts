@@ -1,3 +1,4 @@
+import { UserRole } from '@sabs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
@@ -919,11 +920,11 @@ export class DataVisualizationService {
         name: 'Chart.js',
         version: '4.4.0',
         chartTypes: [
-          { type: ChartType.LINE, capabilities: ['responsive', 'animated'] },
-          { type: ChartType.BAR, capabilities: ['responsive', 'stacked'] },
-          { type: ChartType.PIE, capabilities: ['responsive', 'doughnut'] },
+          { type: ChartType.LINE, capabilities: [LibraryCapability.RESPONSIVE, LibraryCapability.ANIMATED] },
+          { type: ChartType.BAR, capabilities: [LibraryCapability.RESPONSIVE, 'stacked'] },
+          { type: ChartType.PIE, capabilities: [LibraryCapability.RESPONSIVE, 'doughnut'] },
         ],
-        capabilities: ['responsive', 'animated', 'interactive'],
+        capabilities: [LibraryCapability.RESPONSIVE, LibraryCapability.ANIMATED, LibraryCapability.INTERACTIVE],
         themes: [
           { name: 'default', colors: ['#2563eb', '#10b981', '#f59e0b'] },
           { name: 'dark', colors: ['#3b82f6', '#06d6a0', '#ffd23f'] },

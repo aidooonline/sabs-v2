@@ -1,3 +1,4 @@
+import { UserRole } from '@sabs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
@@ -274,7 +275,7 @@ export class RegulatoryReportingService {
     validation_timeout: 300000, // 5 minutes
     compliance_threshold: 85,
     audit_retention_days: 2555, // 7 years
-    supported_regulators: Object.values(RegulatorType),
+    supported_regulators: RegulatorType,
     report_formats: ['XML', 'JSON', 'CSV', 'PDF'],
   };
 

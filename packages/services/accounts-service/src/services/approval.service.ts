@@ -1,3 +1,4 @@
+import { UserRole } from '@sabs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
 import { Injectable, Logger, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
@@ -96,7 +97,7 @@ export class ApprovalService {
     // Get transaction details
     const transaction = await this.transactionRepository.findOne({
       where: { id: transactionId, companyId },
-      relations: [UserRole.CUSTOMER, 'account'],
+      relations: ["customer", 'account'],
     });
 
     if (!transaction) {
