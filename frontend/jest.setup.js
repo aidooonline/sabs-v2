@@ -242,6 +242,11 @@ const createMockFetch = () => {
     fetchMock.mockClear();
   });
 
+  // Add clearMocks method (alias for resetMocks)
+  fetchMock.clearMocks = jest.fn(() => {
+    fetchMock.resetMocks();
+  });
+
   // Store references for debugging
   fetchMock._mockEndpointResponses = mockEndpointResponses;
   fetchMock._mockEndpointDelays = mockEndpointDelays;
@@ -252,11 +257,82 @@ const createMockFetch = () => {
 
 global.fetch = createMockFetch();
 
+// ===== WEBSOCKET MOCK =====
+// Mock WebSocket for testing
+class MockWebSocket {
+  static CONNECTING = 0;
+  static OPEN = 1;
+  static CLOSING = 2;
+  static CLOSED = 3;
+
+  readyState = MockWebSocket.CONNECTING;
+  url;
+  onopen = null;
+  onclose = null;
+  onmessage = null;
+  onerror = null;
+
+  constructor(url) {
+    this.url = url;
+    // Simulate async connection without causing act() warnings
+    setTimeout(() => {
+      this.readyState = MockWebSocket.OPEN;
+      if (this.onopen) {
+        this.onopen(new Event('open'));
+      }
+    }, 10);
+  }
+
+  send(data) {
+    if (this.readyState !== MockWebSocket.OPEN) {
+      throw new Error('WebSocket is not open');
+    }
+    // Mock sending - in tests you can override this
+  }
+
+  close(code = 1000, reason = 'Normal closure') {
+    this.readyState = MockWebSocket.CLOSED;
+    if (this.onclose) {
+      const closeEvent = new CloseEvent('close', { code, reason });
+      this.onclose(closeEvent);
+    }
+  }
+
+  // Test helper methods
+  simulateMessage(data) {
+    if (this.onmessage) {
+      const messageEvent = new MessageEvent('message', {
+        data: JSON.stringify(data)
+      });
+      this.onmessage(messageEvent);
+    }
+  }
+
+  simulateError() {
+    if (this.onerror) {
+      this.onerror(new Event('error'));
+    }
+  }
+
+  simulateClose(code = 1000, reason = 'Normal closure') {
+    this.readyState = MockWebSocket.CLOSED;
+    if (this.onclose) {
+      const closeEvent = new CloseEvent('close', { code, reason });
+      this.onclose(closeEvent);
+    }
+  }
+}
+
+global.WebSocket = MockWebSocket;
+
 // Reset fetch mock before each test
 beforeEach(() => {
   global.fetch.mockClear();
   if (global.fetch.resetMocks) {
     global.fetch.resetMocks();
+  }
+  if (global.fetch.clearMocks) {
+    global.fetch.clearMocks.mockClear();
   }
   if (global.fetch.setEndpointResponse) {
     global.fetch.setEndpointResponse.mockClear();
