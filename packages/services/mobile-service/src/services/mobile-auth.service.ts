@@ -904,7 +904,10 @@ export class MobileAuthService {
       isActive: true,
       ipAddress: request.ipAddress,
       userAgent: request.userAgent,
-      location: request.location,
+      location: request.location ? {
+        ...request.location,
+        timestamp: new Date(),
+      } : undefined,
       securityLevel,
       authMethods: request.biometricData ? [AuthMethod.BIOMETRIC] : [AuthMethod.PASSWORD],
       lastActivityAt: new Date(),

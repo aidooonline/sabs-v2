@@ -167,7 +167,7 @@ export class MobileDashboardController {
   @ApiQuery({ name: 'includeAlerts', required: false, type: Boolean })
   @ApiQuery({ name: 'transactionLimit', required: false, type: Number })
   @ApiQuery({ name: 'period', required: false, enum: ['week', 'month', 'quarter', 'year'] })
-  @ApiResponse({ status: 200, description: 'Dashboard summary retrieved', type: DashboardSummary })
+  @ApiResponse({ status: 200, description: 'Dashboard summary retrieved' })
   async getDashboardSummary(
     @Headers('authorization') authorization: string,
     @Query() query: GetDashboardDto,
@@ -188,7 +188,7 @@ export class MobileDashboardController {
   @Get('accounts')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get customer accounts' })
-  @ApiResponse({ status: 200, description: 'Accounts retrieved', type: [CustomerAccount] })
+  @ApiResponse({ status: 200, description: 'Accounts retrieved' })
   async getAccounts(
     @Headers('authorization') authorization: string,
   ): Promise<CustomerAccount[]> {
@@ -214,7 +214,7 @@ export class MobileDashboardController {
   @Get('quick-actions')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get available quick actions' })
-  @ApiResponse({ status: 200, description: 'Quick actions retrieved', type: [QuickAction] })
+  @ApiResponse({ status: 200, description: 'Quick actions retrieved' })
   async getQuickActions(
     @Headers('authorization') authorization: string,
   ): Promise<QuickAction[]> {
