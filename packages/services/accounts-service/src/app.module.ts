@@ -32,7 +32,7 @@ import { AuditComplianceController } from './controllers/audit-compliance.contro
 
 // Shared modules
 import { DatabaseModule } from '@sabs/database';
-import { CommonModule } from '@sabs/common';
+
 
 @Module({
   imports: [

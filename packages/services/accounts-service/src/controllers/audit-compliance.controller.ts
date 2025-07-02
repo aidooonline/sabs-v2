@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import {
   Controller,
   Get,
@@ -278,7 +280,7 @@ export class AuditComplianceController {
   // ===== AUDIT LOGGING ENDPOINTS =====
 
   @Post('audit/log')
-  @Roles('agent', 'clerk', 'manager', 'admin', 'system')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.SYSTEM)
   @ApiOperation({ summary: 'Log an audit event' })
   @ApiResponse({ status: 201, description: 'Audit event logged successfully', type: String })
   @ApiResponse({ status: 400, description: 'Invalid request data' })
@@ -307,7 +309,7 @@ export class AuditComplianceController {
   }
 
   @Get('audit/search')
-  @Roles('manager', 'admin', 'auditor')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Search audit logs' })
   @ApiQuery({ name: 'eventTypes', required: false, type: [String] })
   @ApiQuery({ name: 'actions', required: false, type: [String] })
@@ -354,7 +356,7 @@ export class AuditComplianceController {
   }
 
   @Get('audit/:auditId')
-  @Roles('manager', 'admin', 'auditor')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Get audit log by ID' })
   @ApiParam({ name: 'auditId', description: 'Audit log ID' })
   @ApiResponse({ status: 200, description: 'Audit log retrieved', type: AuditLogResponseDto })
@@ -374,7 +376,7 @@ export class AuditComplianceController {
   // ===== COMPLIANCE CHECK ENDPOINTS =====
 
   @Post('compliance/check/:entityType/:entityId')
-  @Roles('manager', 'admin', 'system')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.SYSTEM)
   @ApiOperation({ summary: 'Run compliance checks for an entity' })
   @ApiParam({ name: 'entityType', description: 'Entity type (e.g., transaction, customer)' })
   @ApiParam({ name: 'entityId', description: 'Entity ID' })
@@ -411,7 +413,7 @@ export class AuditComplianceController {
   }
 
   @Get('compliance/search')
-  @Roles('manager', 'admin', 'auditor')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Search compliance checks' })
   @ApiQuery({ name: 'checkTypes', required: false, type: [String] })
   @ApiQuery({ name: 'statuses', required: false, type: [String] })
@@ -452,7 +454,7 @@ export class AuditComplianceController {
   }
 
   @Get('compliance/:checkId')
-  @Roles('manager', 'admin', 'auditor')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Get compliance check by ID' })
   @ApiParam({ name: 'checkId', description: 'Compliance check ID' })
   @ApiResponse({ status: 200, description: 'Compliance check retrieved', type: ComplianceCheckResponseDto })
@@ -472,7 +474,7 @@ export class AuditComplianceController {
   // ===== COMPLIANCE RULE MANAGEMENT ENDPOINTS =====
 
   @Post('rules')
-  @Roles('admin')
+  @Roles(UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create compliance rule' })
   @ApiResponse({ status: 201, description: 'Compliance rule created successfully', type: String })
   async createComplianceRule(
@@ -490,7 +492,7 @@ export class AuditComplianceController {
   }
 
   @Get('rules')
-  @Roles('manager', 'admin', 'auditor')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Get compliance rules' })
   @ApiQuery({ name: 'categories', required: false, type: [String] })
   @ApiQuery({ name: 'ruleTypes', required: false, type: [String] })
@@ -510,7 +512,7 @@ export class AuditComplianceController {
   }
 
   @Put('rules/:ruleId')
-  @Roles('admin')
+  @Roles(UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update compliance rule' })
   @ApiParam({ name: 'ruleId', description: 'Compliance rule ID' })
   @ApiResponse({ status: 200, description: 'Compliance rule updated successfully' })
@@ -536,7 +538,7 @@ export class AuditComplianceController {
   // ===== REPORTING ENDPOINTS =====
 
   @Get('reports/compliance')
-  @Roles('manager', 'admin', 'auditor')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Generate compliance report' })
   @ApiQuery({ name: 'startDate', required: true, type: String })
   @ApiQuery({ name: 'endDate', required: true, type: String })
@@ -563,7 +565,7 @@ export class AuditComplianceController {
   }
 
   @Get('dashboard/compliance')
-  @Roles('manager', 'admin', 'auditor')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Get compliance dashboard data' })
   @ApiResponse({ status: 200, description: 'Compliance dashboard data retrieved' })
   async getComplianceDashboard(
@@ -644,7 +646,7 @@ export class AuditComplianceController {
   }
 
   @Get('dashboard/audit')
-  @Roles('manager', 'admin', 'auditor')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Get audit dashboard data' })
   @ApiResponse({ status: 200, description: 'Audit dashboard data retrieved' })
   async getAuditDashboard(

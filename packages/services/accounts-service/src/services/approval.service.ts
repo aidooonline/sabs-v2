@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import { Injectable, Logger, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, MoreThan, LessThan, Between } from 'typeorm';
@@ -54,19 +56,19 @@ export class ApprovalService {
 
   // Approval rules configuration
   private readonly approvalRules: ApprovalRule[] = [
-    { condition: 'amount < 500', requiredRole: 'clerk', autoApprove: true, escalateIfFailed: false, weight: 1 },
-    { condition: 'amount >= 500 && amount < 2000', requiredRole: 'clerk', autoApprove: false, escalateIfFailed: false, weight: 2 },
-    { condition: 'amount >= 2000 && amount < 5000', requiredRole: 'manager', autoApprove: false, escalateIfFailed: true, weight: 3 },
-    { condition: 'amount >= 5000', requiredRole: 'admin', autoApprove: false, escalateIfFailed: true, weight: 4 },
-    { condition: 'riskScore >= 70', requiredRole: 'manager', autoApprove: false, escalateIfFailed: true, weight: 3 },
-    { condition: 'riskScore >= 90', requiredRole: 'admin', autoApprove: false, escalateIfFailed: true, weight: 4 },
+    { condition: 'amount < 500', requiredRole: UserRole.CLERK, autoApprove: true, escalateIfFailed: false, weight: 1 },
+    { condition: 'amount >= 500 && amount < 2000', requiredRole: UserRole.CLERK, autoApprove: false, escalateIfFailed: false, weight: 2 },
+    { condition: 'amount >= 2000 && amount < 5000', requiredRole: UserRole.COMPANY_ADMIN, autoApprove: false, escalateIfFailed: true, weight: 3 },
+    { condition: 'amount >= 5000', requiredRole: UserRole.SUPER_ADMIN, autoApprove: false, escalateIfFailed: true, weight: 4 },
+    { condition: 'riskScore >= 70', requiredRole: UserRole.COMPANY_ADMIN, autoApprove: false, escalateIfFailed: true, weight: 3 },
+    { condition: 'riskScore >= 90', requiredRole: UserRole.SUPER_ADMIN, autoApprove: false, escalateIfFailed: true, weight: 4 },
   ];
 
   // Queue configurations
   private readonly queueConfigurations: QueueConfiguration[] = [
-    { name: 'approval-clerk', maxCapacity: 50, slaMinutes: 30, autoAssign: true, roles: ['clerk'], priority: 1 },
-    { name: 'approval-manager', maxCapacity: 25, slaMinutes: 60, autoAssign: true, roles: ['manager'], priority: 2 },
-    { name: 'approval-admin', maxCapacity: 10, slaMinutes: 120, autoAssign: false, roles: ['admin'], priority: 3 },
+    { name: 'approval-clerk', maxCapacity: 50, slaMinutes: 30, autoAssign: true, roles: [UserRole.CLERK], priority: 1 },
+    { name: 'approval-manager', maxCapacity: 25, slaMinutes: 60, autoAssign: true, roles: [UserRole.COMPANY_ADMIN], priority: 2 },
+    { name: 'approval-admin', maxCapacity: 10, slaMinutes: 120, autoAssign: false, roles: [UserRole.SUPER_ADMIN], priority: 3 },
   ];
 
   constructor(
@@ -94,7 +96,7 @@ export class ApprovalService {
     // Get transaction details
     const transaction = await this.transactionRepository.findOne({
       where: { id: transactionId, companyId },
-      relations: ['customer', 'account'],
+      relations: [UserRole.CUSTOMER, 'account'],
     });
 
     if (!transaction) {
@@ -446,7 +448,7 @@ export class ApprovalService {
           workflowId,
           workflowNumber: 'Unknown',
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
         });
 
         failedCount++;
@@ -518,7 +520,7 @@ export class ApprovalService {
           workflowId,
           workflowNumber: 'Unknown',
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
         });
 
         failedCount++;
@@ -556,7 +558,7 @@ export class ApprovalService {
     const queryBuilder = this.workflowRepository
       .createQueryBuilder('workflow')
       .leftJoinAndSelect('workflow.transaction', 'transaction')
-      .leftJoinAndSelect('transaction.customer', 'customer')
+      .leftJoinAndSelect('transaction.customer', UserRole.CUSTOMER)
       .leftJoinAndSelect('transaction.account', 'account')
       .where('workflow.companyId = :companyId', { companyId });
 

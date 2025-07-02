@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import { Injectable, Logger, BadRequestException, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, Not, In, Like, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
@@ -121,7 +123,10 @@ export class TransactionService {
     transactionData.feeAmount = feeAmount;
     transactionData.totalAmount = createDto.amount + feeAmount;
     transactionData.riskScore = complianceResult.riskScore;
-    transactionData.complianceFlags = complianceResult.flags;
+    transactionData.complianceFlags = complianceResult.flags.map((flag: any) => ({
+      ...flag,
+      raisedAt: flag.raisedAt || new Date().toISOString()
+    }));
     transactionData.requiredApprovalLevel = complianceResult.approvalLevel;
     transactionData.customerPresent = createDto.customerPresent ?? true;
     transactionData.priority = createDto.priority;
@@ -198,7 +203,7 @@ export class TransactionService {
       case AuthenticationMethod.OTP:
         if (verificationDto.otpCode && verificationDto.otpVerified) {
           // Here you would integrate with OTP service
-          const otpValid = await this.validateOtp(transaction.customer.phoneNumber, verificationDto.otpCode);
+          const otpValid = await this.validateOtp(transaction.customer?.phoneNumber || (transaction.customer as any)?.phone, verificationDto.otpCode);
           if (otpValid) {
             transaction.setOtp(true);
           }
@@ -381,8 +386,8 @@ export class TransactionService {
       this.logger.log(`Transaction completed: ${transaction.transactionNumber}`);
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-      const errorStack = error instanceof Error ? error.stack : undefined;
+      const errorMessage = error instanceof Error ? getErrorMessage(error) : JSON.stringify(error);
+      const errorStack = error instanceof Error ? getErrorStack(error) : undefined;
       
       this.logger.error(`Transaction processing failed: ${errorMessage}`, errorStack);
       
@@ -440,7 +445,7 @@ export class TransactionService {
   ): Promise<BalanceInquiryResponseDto> {
     const account = await this.accountRepository.findOne({
       where: { id: accountId, companyId },
-      relations: ['customer'],
+      relations: [UserRole.CUSTOMER],
     });
 
     if (!account) {
@@ -472,7 +477,7 @@ export class TransactionService {
         remainingDaily: Math.max(0, account.dailyWithdrawalLimit - dailyUsage),
         remainingMonthly: Math.max(0, account.monthlyTransactionLimit - monthlyUsage),
       },
-      lastTransactionDate: account.lastTransactionAt?.toISOString(),
+      lastTransactionDate: account.lastTransactionDate?.toISOString(),
       asOfDate: new Date().toISOString(),
     };
   }
@@ -539,7 +544,7 @@ export class TransactionService {
   ): Promise<TransactionListResponseDto> {
     const queryBuilder = this.transactionRepository
       .createQueryBuilder('transaction')
-      .leftJoinAndSelect('transaction.customer', 'customer')
+      .leftJoinAndSelect('transaction.customer', UserRole.CUSTOMER)
       .leftJoinAndSelect('transaction.account', 'account')
       .where('transaction.companyId = :companyId', { companyId });
 
@@ -631,7 +636,7 @@ export class TransactionService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: transactionId, companyId },
-      relations: ['customer', 'account'],
+      relations: [UserRole.CUSTOMER, 'account'],
     });
 
     if (!transaction) {
@@ -750,7 +755,7 @@ export class TransactionService {
     let riskScore = 0;
 
     // Customer risk factors
-    if (customer.riskLevel === 'high') {
+    if ((transaction.customer as any).riskLevel === 'high') {
       riskScore += 30;
       flags.push({ flag: 'HIGH_RISK_CUSTOMER', severity: 'HIGH', description: 'Customer marked as high risk' });
     }
@@ -815,7 +820,7 @@ export class TransactionService {
   private async validateApprovalAuthority(approverId: string, requiredLevel: ApprovalLevel): Promise<void> {
     // Here you would integrate with the identity service to check user roles
     // For now, we'll assume the validation passes
-    // In a real implementation, you'd check if the approver has the required role level
+    // In a real implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: [] }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } }, you'd check if the approver has the required role level
   }
 
   private async performFinalComplianceCheck(transaction: Transaction): Promise<void> {
@@ -844,7 +849,7 @@ export class TransactionService {
     account.currentBalance -= amount;
     account.availableBalance -= amount;
     account.ledgerBalance -= amount;
-    account.lastTransactionAt = new Date();
+    account.lastTransactionDate = new Date();
 
     await this.accountRepository.save(account);
 
@@ -863,9 +868,9 @@ export class TransactionService {
 
   private async sendTransactionNotifications(transaction: Transaction): Promise<void> {
     // Send SMS notification
-    if (transaction.customer.phoneNumber) {
+    if (transaction.customer?.phoneNumber || (transaction.customer as any)?.phone) {
       this.eventEmitter.emit('notification.sms', {
-        phoneNumber: transaction.customer.phoneNumber,
+        phoneNumber: transaction.customer?.phoneNumber || (transaction.customer as any)?.phone,
         message: `Transaction ${transaction.transactionNumber} completed. Amount: ${transaction.currency} ${transaction.amount}. New balance: ${transaction.currency} ${transaction.accountBalanceAfter}`,
         transactionId: transaction.id,
       });
@@ -1025,7 +1030,7 @@ export class TransactionService {
       customer: {
         id: transaction.customer.id,
         fullName: transaction.customer.fullName,
-        phoneNumber: transaction.customer.phoneNumber,
+        phoneNumber: transaction.customer?.phoneNumber || (transaction.customer as any)?.phone,
         customerNumber: transaction.customer.customerNumber,
       },
       account: {

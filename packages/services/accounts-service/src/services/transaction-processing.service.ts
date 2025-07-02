@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import { Injectable, Logger, BadRequestException, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, QueryRunner } from 'typeorm';
@@ -210,7 +212,7 @@ export class TransactionProcessingService {
       await queryRunner.rollbackTransaction();
       
              const processingTimeMs = Date.now() - startTime;
-       this.logger.error(`Transaction processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`, error instanceof Error ? error.stack : undefined);
+       this.logger.error(`Transaction processing failed: ${error instanceof Error ? getErrorMessage(error) : 'Unknown error'}`, error instanceof Error ? getErrorStack(error) : undefined);
 
              // Update transaction with error details
        await this.handleProcessingError(transactionId, error, processingTimeMs);
@@ -222,11 +224,11 @@ export class TransactionProcessingService {
          finalBalance: 0,
          finalAvailableBalance: 0,
          processingTimeMs,
-         message: error instanceof Error ? error.message : 'Unknown error',
+         message: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
          errorCode: (error as any)?.code || 'PROCESSING_ERROR',
          errorDetails: { 
-           error: error instanceof Error ? error.message : 'Unknown error', 
-           stack: error instanceof Error ? error.stack : undefined 
+           error: error instanceof Error ? getErrorMessage(error) : 'Unknown error', 
+           stack: error instanceof Error ? getErrorStack(error) : undefined 
          },
        };
 
@@ -257,7 +259,7 @@ export class TransactionProcessingService {
           finalBalance: 0,
           finalAvailableBalance: 0,
           processingTimeMs: 0,
-          message: error instanceof Error ? error.message : JSON.stringify(error),
+          message: error instanceof Error ? getErrorMessage(error) : JSON.stringify(error),
           errorCode: 'BATCH_PROCESSING_ERROR',
         }))
       );
@@ -370,7 +372,7 @@ export class TransactionProcessingService {
 
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      this.logger.error(`Transaction reversal failed: ${error instanceof Error ? error.message : 'Unknown error'}`, error instanceof Error ? error.stack : undefined);
+      this.logger.error(`Transaction reversal failed: ${error instanceof Error ? getErrorMessage(error) : 'Unknown error'}`, error instanceof Error ? getErrorStack(error) : undefined);
 
       return {
         success: false,
@@ -379,9 +381,9 @@ export class TransactionProcessingService {
         finalBalance: 0,
         finalAvailableBalance: 0,
         processingTimeMs: 0,
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
         errorCode: 'REVERSAL_ERROR',
-        errorDetails: { error: error instanceof Error ? error.message : 'Unknown error' },
+        errorDetails: { error: error instanceof Error ? getErrorMessage(error) : 'Unknown error' },
       };
 
     } finally {
@@ -638,7 +640,7 @@ export class TransactionProcessingService {
       receiptNumber,
       transactionNumber: transaction.transactionNumber,
       customerName: transaction.customer.fullName,
-      customerPhone: transaction.customer.phoneNumber,
+      customerPhone: transaction.customer?.phoneNumber || (transaction.customer as any)?.phone,
       accountNumber: account.accountNumber,
       transactionType: transaction.type.toUpperCase(),
       amount: transaction.amount,
@@ -663,7 +665,7 @@ export class TransactionProcessingService {
     this.eventEmitter.emit('transaction.receipt_generated', {
       transactionId: transaction.id,
       receiptNumber,
-      customerPhone: transaction.customer.phoneNumber,
+      customerPhone: transaction.customer?.phoneNumber || (transaction.customer as any)?.phone,
     });
 
     return receipt;
@@ -682,7 +684,7 @@ export class TransactionProcessingService {
       receiptNumber,
       transactionNumber: reversalTransaction.transactionNumber,
       customerName: reversalTransaction.customer.fullName,
-      customerPhone: reversalTransaction.customer.phone,
+      customerPhone: reversalTransaction.customer?.phoneNumber || (transaction.customer as any)?.phone || (transaction.customer as any)?.phone,
       accountNumber: account.accountNumber,
       transactionType: 'REVERSAL',
       amount: reversalTransaction.amount,
@@ -763,7 +765,7 @@ export class TransactionProcessingService {
   ): Promise<Transaction> {
     const transaction = await queryRunner.manager.findOne(Transaction, {
       where: { id: transactionId, companyId },
-      relations: ['customer', 'account'],
+      relations: [UserRole.CUSTOMER, 'account'],
       lock: { mode: 'pessimistic_write' },
     });
 
@@ -797,7 +799,7 @@ export class TransactionProcessingService {
   ): Promise<Transaction> {
     const transaction = await queryRunner.manager.findOne(Transaction, {
       where: { id: transactionId, companyId },
-      relations: ['customer', 'account'],
+      relations: [UserRole.CUSTOMER, 'account'],
     });
 
     if (!transaction) {
@@ -918,7 +920,7 @@ export class TransactionProcessingService {
     this.eventEmitter.emit('transaction.receipt_ready', {
       transactionId: transaction.id,
       receiptNumber: receipt.receiptNumber,
-      customerPhone: transaction.customer.phone,
+      customerPhone: transaction.customer?.phoneNumber || (transaction.customer as any)?.phone || (transaction.customer as any)?.phone,
       customerEmail: transaction.customer.email,
     });
 
@@ -947,8 +949,8 @@ export class TransactionProcessingService {
       });
 
       if (transaction) {
-        const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-        const errorStack = error instanceof Error ? error.stack : undefined;
+        const errorMessage = error instanceof Error ? getErrorMessage(error) : JSON.stringify(error);
+        const errorStack = error instanceof Error ? getErrorStack(error) : undefined;
         
         transaction.fail(errorMessage, {
           processingTimeMs,
@@ -1015,7 +1017,7 @@ export class TransactionProcessingService {
     // Get from database
     const transaction = await this.transactionRepository.findOne({
       where: { receiptNumber },
-      relations: ['customer', 'account'],
+      relations: [UserRole.CUSTOMER, 'account'],
     });
 
     if (!transaction) {

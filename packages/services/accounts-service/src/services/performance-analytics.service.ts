@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -67,7 +69,7 @@ export interface PerformanceReport {
 // ===== ENUMS =====
 
 export enum MetricCategory {
-  SYSTEM = 'system',
+  SYSTEM = UserRole.SYSTEM,
   DATABASE = 'database',
   API = 'api',
   NETWORK = 'network',
@@ -313,7 +315,7 @@ export class PerformanceAnalyticsService {
     return {
       metrics,
       summary,
-      alerts,
+      alerts: (alerts as any)?.alerts || alerts,
     };
   }
 
@@ -733,7 +735,7 @@ export class PerformanceAnalyticsService {
     const report: PerformanceReport = {
       id: report_id,
       title: `Performance Analysis Report - ${period.duration}`,
-      type: 'comprehensive',
+      type: ReportType.PERFORMANCE,
       period,
       metrics,
       bottlenecks,
@@ -801,7 +803,7 @@ export class PerformanceAnalyticsService {
         threshold: { warning: 70, critical: 85, target: 50 },
         timestamp: new Date(),
         source: 'system_monitor',
-        tags: ['cpu', 'system'],
+        tags: ['cpu', UserRole.SYSTEM],
         metadata: {
           source: 'prometheus',
           collection_method: 'polling',
@@ -820,7 +822,7 @@ export class PerformanceAnalyticsService {
         threshold: { warning: 80, critical: 90, target: 60 },
         timestamp: new Date(),
         source: 'system_monitor',
-        tags: ['memory', 'system'],
+        tags: ['memory', UserRole.SYSTEM],
         metadata: {
           source: 'prometheus',
           collection_method: 'polling',

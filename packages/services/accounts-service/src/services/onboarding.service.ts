@@ -334,7 +334,7 @@ export class CustomerOnboardingService {
       throw new BadRequestException('Onboarding session has expired');
     }
 
-    // TODO: In a real implementation, you would upload the file to cloud storage
+    // TODO: In a real implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: [] }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } }, you would upload the file to cloud storage
     // For now, we'll store the content as metadata
     const documentUrl = await this.uploadDocumentToStorage(dto);
 

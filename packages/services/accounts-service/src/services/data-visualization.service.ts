@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -81,7 +83,7 @@ export enum VisualizationType {
 export enum VisualizationCategory {
   FINANCIAL = 'financial',
   OPERATIONAL = 'operational',
-  CUSTOMER = 'customer',
+  CUSTOMER = UserRole.CUSTOMER,
   MARKETING = 'marketing',
   SALES = 'sales',
   EXECUTIVE = 'executive',
@@ -102,14 +104,7 @@ export enum ChartType {
   POLAR = 'polar',
 }
 
-export enum ReportType {
-  DASHBOARD = 'dashboard',
-  ANALYTICAL = 'analytical',
-  OPERATIONAL = 'operational',
-  EXECUTIVE = 'executive',
-  REGULATORY = 'regulatory',
-  CUSTOM = 'custom',
-}
+
 
 export enum ReportStatus {
   DRAFT = 'draft',

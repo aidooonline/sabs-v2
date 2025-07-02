@@ -278,7 +278,7 @@ export class TransactionHistoryService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: transactionId, companyId },
-      relations: ['customer', 'account', 'approvalWorkflows'],
+      relations: [UserRole.CUSTOMER, 'account', 'approvalWorkflows'],
     });
 
     if (!transaction) {
@@ -526,7 +526,7 @@ export class TransactionHistoryService {
         companyId,
         createdAt: MoreThanOrEqual(startDate),
       },
-      relations: ['customer', 'account'],
+      relations: [UserRole.CUSTOMER, 'account'],
       order: { createdAt: 'DESC' },
     });
 
@@ -651,7 +651,7 @@ export class TransactionHistoryService {
   ): SelectQueryBuilder<Transaction> {
     let query = this.transactionRepository
       .createQueryBuilder('transaction')
-      .leftJoinAndSelect('transaction.customer', 'customer')
+      .leftJoinAndSelect('transaction.customer', UserRole.CUSTOMER)
       .leftJoinAndSelect('transaction.account', 'account')
       .leftJoinAndSelect('transaction.approvalWorkflows', 'approval')
       .where('transaction.companyId = :companyId', { companyId });

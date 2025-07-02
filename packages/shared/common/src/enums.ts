@@ -1,8 +1,65 @@
+/**
+ * User roles enumeration for role-based access control
+ */
 export enum UserRole {
   SUPER_ADMIN = 'super_admin',
   COMPANY_ADMIN = 'company_admin',
-  CLERK = 'clerk',
   FIELD_AGENT = 'field_agent',
+  CLERK = 'clerk',
+  CUSTOMER = 'customer',
+  AUDITOR = 'auditor',
+  SYSTEM = 'system'
+}
+
+/**
+ * User status enumeration
+ */
+export enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  SUSPENDED = 'suspended',
+  PENDING_VERIFICATION = 'pending_verification'
+}
+
+/**
+ * Transaction status enumeration
+ */
+export enum TransactionStatus {
+  PENDING = 'pending',
+  PROCESSING = 'processing',
+  COMPLETED = 'completed',
+  FAILED = 'failed',
+  CANCELLED = 'cancelled',
+  REVERSED = 'reversed'
+}
+
+/**
+ * Report type enumeration - comprehensive
+ */
+export enum ReportType {
+  FINANCIAL = 'financial',
+  OPERATIONAL = 'operational',
+  COMPLIANCE = 'compliance',
+  PERFORMANCE = 'performance',
+  AUDIT = 'audit',
+  EXECUTIVE = 'executive',
+  ANALYTICAL = 'analytical',
+  EXECUTIVE_SUMMARY = 'executive_summary',
+  BOARD_REPORT = 'board_report',
+  PRUDENTIAL = 'prudential',
+  ANTI_MONEY_LAUNDERING = 'anti_money_laundering',
+  CONSUMER_PROTECTION = 'consumer_protection'
+}
+
+/**
+ * Library capability enumeration
+ */
+export enum LibraryCapability {
+  RESPONSIVE = 'responsive',
+  ANIMATED = 'animated', 
+  INTERACTIVE = 'interactive',
+  REAL_TIME = 'real_time',
+  CUSTOMIZABLE = 'customizable'
 }
 
 export enum TransactionType {
@@ -12,17 +69,11 @@ export enum TransactionType {
   REVERSAL = 'reversal',
 }
 
-export enum TransactionStatus {
-  PENDING = 'pending',
-  COMPLETED = 'completed',
-  FAILED = 'failed',
-  REVERSED = 'reversed',
-}
-
 export enum CompanyStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
   SUSPENDED = 'suspended',
+  TRIAL = 'trial',
 }
 
 // ============================

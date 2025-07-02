@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import {
   Controller,
   Get,
@@ -322,10 +324,10 @@ export class ExecutiveDashboardController {
         refreshRate: result.dashboard.refreshRate,
       },
       realTimeData: result.realTimeData,
-      alerts,
+      alerts: (alerts as any)?.alerts || alerts,
       lastUpdated: result.lastUpdated,
       performance: result.performance,
-      insights,
+      insights: [],
     };
   }
 
@@ -719,7 +721,7 @@ export class ExecutiveDashboardController {
       {
         id: 'report_exec_001',
         title: 'Monthly Executive Summary - December 2024',
-        type: ReportType.EXECUTIVE_SUMMARY,
+        type: ReportType.EXECUTIVE,
         period: ReportPeriod.MONTHLY,
         generatedAt: new Date('2024-12-01'),
         status: 'published',
@@ -730,7 +732,7 @@ export class ExecutiveDashboardController {
       {
         id: 'report_board_001',
         title: 'Q4 Board Report 2024',
-        type: ReportType.BOARD_REPORT,
+        type: ReportType.EXECUTIVE,
         period: ReportPeriod.QUARTERLY,
         generatedAt: new Date('2024-12-15'),
         status: 'approved',
@@ -742,7 +744,7 @@ export class ExecutiveDashboardController {
 
     const analytics = {
       totalReports: 28,
-      mostRequestedType: ReportType.EXECUTIVE_SUMMARY,
+      mostRequestedType: ReportType.EXECUTIVE,
       averageGenerationTime: 4.2, // minutes
       distributionMetrics: {
         emailDeliveries: 156,

@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany, Index, BeforeInsert } from 'typeorm';
 import { Customer } from './customer.entity';
 import { Account } from './account.entity';
@@ -43,10 +45,10 @@ export enum TransactionPriority {
 
 export enum ApprovalLevel {
   NONE = 'none',
-  AGENT = 'agent',
-  CLERK = 'clerk',
-  MANAGER = 'manager',
-  ADMIN = 'admin',
+  AGENT = UserRole.FIELD_AGENT,
+  CLERK = UserRole.CLERK,
+  MANAGER = UserRole.COMPANY_ADMIN,
+  ADMIN = UserRole.SUPER_ADMIN,
 }
 
 export enum AuthenticationMethod {

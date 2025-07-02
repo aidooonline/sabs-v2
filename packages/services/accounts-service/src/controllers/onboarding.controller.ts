@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import { 
   Controller, 
   Post, 
@@ -82,7 +84,7 @@ export class OnboardingController {
       const agentId = user.sub;
       const agentName = user.fullName || `${user.firstName} ${user.lastName}`;
       const agentPhone = user.phoneNumber;
-      const ipAddress = req.ip;
+      const ipAddress = (req as any).ip;
 
       this.logger.log(`Agent ${agentId} starting onboarding for company ${companyId}`);
 
@@ -95,10 +97,10 @@ export class OnboardingController {
         ipAddress,
       );
     } catch (error) {
-      this.logger.error('Failed to start onboarding', error.stack);
+      this.logger.error('Failed to start onboarding', getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to start onboarding',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to start onboarding',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }
@@ -139,10 +141,10 @@ export class OnboardingController {
         dto,
       );
     } catch (error) {
-      this.logger.error(`Failed to update personal info for onboarding ${onboardingId}`, error.stack);
+      this.logger.error(`Failed to update personal info for onboarding ${onboardingId}`, getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to update personal information',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to update personal information',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }
@@ -179,10 +181,10 @@ export class OnboardingController {
         dto,
       );
     } catch (error) {
-      this.logger.error(`Failed to update contact info for onboarding ${onboardingId}`, error.stack);
+      this.logger.error(`Failed to update contact info for onboarding ${onboardingId}`, getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to update contact information',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to update contact information',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }
@@ -219,10 +221,10 @@ export class OnboardingController {
         dto,
       );
     } catch (error) {
-      this.logger.error(`Failed to update identification for onboarding ${onboardingId}`, error.stack);
+      this.logger.error(`Failed to update identification for onboarding ${onboardingId}`, getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to update identification information',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to update identification information',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }
@@ -255,10 +257,10 @@ export class OnboardingController {
         dto,
       );
     } catch (error) {
-      this.logger.error(`Failed to update account preferences for onboarding ${onboardingId}`, error.stack);
+      this.logger.error(`Failed to update account preferences for onboarding ${onboardingId}`, getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to update account preferences',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to update account preferences',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }
@@ -296,10 +298,10 @@ export class OnboardingController {
         dto,
       );
     } catch (error) {
-      this.logger.error(`Failed to upload document for onboarding ${onboardingId}`, error.stack);
+      this.logger.error(`Failed to upload document for onboarding ${onboardingId}`, getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to upload document',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to upload document',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }
@@ -338,10 +340,10 @@ export class OnboardingController {
         verifiedBy,
       );
     } catch (error) {
-      this.logger.error(`Failed to verify document for onboarding ${onboardingId}`, error.stack);
+      this.logger.error(`Failed to verify document for onboarding ${onboardingId}`, getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to verify document',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to verify document',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }
@@ -378,10 +380,10 @@ export class OnboardingController {
         dto,
       );
     } catch (error) {
-      this.logger.error(`Failed to submit onboarding ${onboardingId}`, error.stack);
+      this.logger.error(`Failed to submit onboarding ${onboardingId}`, getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to submit onboarding',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to submit onboarding',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }
@@ -424,10 +426,10 @@ export class OnboardingController {
         approvedBy,
       );
     } catch (error) {
-      this.logger.error(`Failed to approve onboarding ${onboardingId}`, error.stack);
+      this.logger.error(`Failed to approve onboarding ${onboardingId}`, getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to approve onboarding',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to approve onboarding',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }
@@ -470,10 +472,10 @@ export class OnboardingController {
         rejectedBy,
       );
     } catch (error) {
-      this.logger.error(`Failed to reject onboarding ${onboardingId}`, error.stack);
+      this.logger.error(`Failed to reject onboarding ${onboardingId}`, getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to reject onboarding',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to reject onboarding',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }
@@ -505,10 +507,10 @@ export class OnboardingController {
       
       return await this.onboardingService.getOnboarding(onboardingId, companyId);
     } catch (error) {
-      this.logger.error(`Failed to get onboarding ${onboardingId}`, error.stack);
+      this.logger.error(`Failed to get onboarding ${onboardingId}`, getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to retrieve onboarding',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to retrieve onboarding',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }
@@ -546,10 +548,10 @@ export class OnboardingController {
       
       return await this.onboardingService.listOnboardings(companyId, query);
     } catch (error) {
-      this.logger.error('Failed to list onboardings', error.stack);
+      this.logger.error('Failed to list onboardings', getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to retrieve onboardings',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to retrieve onboardings',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }
@@ -579,10 +581,10 @@ export class OnboardingController {
       
       return await this.onboardingService.getOnboardingStats(companyId, dateFrom, dateTo);
     } catch (error) {
-      this.logger.error('Failed to get onboarding statistics', error.stack);
+      this.logger.error('Failed to get onboarding statistics', getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to retrieve statistics',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to retrieve statistics',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }
@@ -619,10 +621,10 @@ export class OnboardingController {
         dto.reason,
       );
     } catch (error) {
-      this.logger.error(`Failed to abandon onboarding ${onboardingId}`, error.stack);
+      this.logger.error(`Failed to abandon onboarding ${onboardingId}`, getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to abandon onboarding',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to abandon onboarding',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }
@@ -662,10 +664,10 @@ export class OnboardingController {
       
       return { processedCount };
     } catch (error) {
-      this.logger.error('Failed to process expired onboardings', error.stack);
+      this.logger.error('Failed to process expired onboardings', getErrorStack(error));
       throw new HttpException(
-        error.message || 'Failed to process expired onboardings',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        getErrorMessage(error) || 'Failed to process expired onboardings',
+        getErrorStatus(error, HttpStatus.INTERNAL_SERVER_ERROR),
       );
     }
   }

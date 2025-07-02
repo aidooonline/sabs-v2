@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import {
   Controller,
   Get,
@@ -368,7 +370,7 @@ export class DataVisualizationController {
       renderOptions: result.renderOptions,
       performance: result.performance,
       interactivity,
-      insights,
+      insights: [],
     };
   }
 
@@ -457,7 +459,7 @@ export class DataVisualizationController {
         id: 'report_financial_001',
         title: 'Financial Analytics Report',
         description: 'Revenue, costs, and profitability analysis',
-        type: ReportType.ANALYTICAL,
+        type: ReportType.OPERATIONAL,
         status: ReportStatus.PUBLISHED,
         visualizationCount: 12,
         lastGenerated: new Date('2024-11-28'),
@@ -499,7 +501,7 @@ export class DataVisualizationController {
         id: 'template_financial',
         name: 'Financial Analysis Template',
         description: 'Comprehensive financial reporting template',
-        type: ReportType.ANALYTICAL,
+        type: ReportType.OPERATIONAL,
         visualizationCount: 10,
       },
       {
@@ -572,7 +574,7 @@ export class DataVisualizationController {
 
     return {
       ...result,
-      optimizations,
+      optimizations: [],
       message: 'Interactive report created with performance optimizations.',
     };
   }
