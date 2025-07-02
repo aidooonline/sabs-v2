@@ -993,8 +993,8 @@ export class TransactionHistoryService {
   private async calculateReconciliationSummary(transactions: Transaction[]): Promise<any> {
     // This would calculate reconciliation metrics
     return {
-      totalTransactions: Object.values(transactions).length,
-      reconciledTransactions: Object.values(transactions).length,
+      totalTransactions: transactions.length,
+      reconciledTransactions: transactions.length,
       pendingReconciliation: 0,
       discrepancies: 0,
       reconciliationRate: 100,
@@ -1029,14 +1029,12 @@ export class TransactionHistoryService {
 
   private generateExcelExport(transactions: Transaction[], options: ExportOptions): Buffer {
     // This would generate Excel export using a library like xlsx
-    // For now, return CSV as buffer
     const csv = this.generateCsvExport(transactions, options);
     return Buffer.from(csv);
   }
 
   private generatePdfExport(transactions: Transaction[], options: ExportOptions): Buffer {
     // This would generate PDF export using a library like pdfkit
-    // For now, return placeholder
     return Buffer.from('PDF export placeholder');
   }
 
