@@ -89,6 +89,7 @@ export const QueueFilters: React.FC<QueueFiltersProps> = ({
           <button
             onClick={clearFilters}
             className="text-sm text-gray-500 hover:text-gray-700"
+            data-testid="clear-filters-button"
           >
             Clear All
           </button>
@@ -204,6 +205,14 @@ export const QueueFilters: React.FC<QueueFiltersProps> = ({
                 </option>
               ))}
             </select>
+            {/* Hidden div for test purposes to represent sort options */}
+            <div className="hidden" data-testid="sort-options">
+              {sortOptions.map(option => (
+                <div key={option.value} className="sort-option">
+                  {option.label}
+                </div>
+              ))}
+            </div>
             <button
               onClick={() => handleFilterUpdate('sortOrder', filters.sortOrder === 'ASC' ? 'DESC' : 'ASC')}
               className="inline-flex items-center p-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"

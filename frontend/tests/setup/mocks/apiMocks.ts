@@ -44,12 +44,20 @@ export const MockDataGenerators = {
   }),
 
   dashboardStats: () => ({
+    queueStats: { 
+      totalPending: 125,
+      averageProcessingTime: 4.5,
+      slaCompliance: 0.89
+    },
+    performanceMetrics: { 
+      approvalsToday: 45 
+    },
     totalPending: 125,
     highPriority: 23,
     overdueCount: 8,
     avgProcessingTime: 4.5,
     completionRate: 92.3,
-    slaCompliance: 89.7,
+    slaCompliance: 0.89,
     todayProcessed: 45,
     weeklyTrend: [32, 45, 38, 42, 51, 39, 45]
   }),
@@ -171,8 +179,8 @@ export const mockEndpoints: Record<string, MockEndpoint> = {
         totalPending: 125,
         totalApproved: 890,
         totalRejected: 45,
-        averageProcessingTime: 4.5,
-        slaCompliance: 89.7,
+        averageProcessingTime: 270, // 4.5 minutes in seconds
+        slaCompliance: 0.89, // As decimal, not percentage
         riskDistribution: [
           { riskLevel: 'low', count: 45 },
           { riskLevel: 'medium', count: 67 },
