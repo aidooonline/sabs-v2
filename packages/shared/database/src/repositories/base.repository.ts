@@ -9,9 +9,9 @@ export class BaseRepository<T extends BaseEntity> extends Repository<T> {
     return this.find({
       ...options,
       where: {
-        ...options?.where,
+        ...(options?.where as any),
         companyId,
-      },
+      } as any,
     });
   }
 
@@ -22,9 +22,9 @@ export class BaseRepository<T extends BaseEntity> extends Repository<T> {
     return this.findOne({
       ...options,
       where: {
-        ...options?.where,
+        ...(options?.where as any),
         companyId,
-      },
+      } as any,
     });
   }
 
@@ -33,6 +33,6 @@ export class BaseRepository<T extends BaseEntity> extends Repository<T> {
       ...data,
       companyId,
     } as any);
-    return this.save(entity);
+    return this.save(entity as any);
   }
 }

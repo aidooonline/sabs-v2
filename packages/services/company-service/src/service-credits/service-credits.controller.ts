@@ -87,8 +87,8 @@ export class ServiceCreditsController {
   })
   @ApiParam({ name: 'companyId', type: 'string', format: 'uuid' })
   @ApiParam({ name: 'serviceType', enum: ['sms', 'ai'] })
-  @ApiQuery({ name: 'startDate', type: 'string', format: 'date' })
-  @ApiQuery({ name: 'endDate', type: 'string', format: 'date' })
+  @ApiQuery({ name: 'startDate', type: 'string' })
+  @ApiQuery({ name: 'endDate', type: 'string' })
   @ApiResponse({
     status: 200,
     description: 'Usage statistics retrieved successfully',

@@ -39,8 +39,7 @@ export class AuthController {
   @ApiOperation({ summary: 'User login' })
   @ApiResponse({ 
     status: 200, 
-    description: 'Login successful',
-    type: LoginResponse
+    description: 'Login successful'
   })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @ApiBody({ type: LoginDto })
@@ -60,8 +59,7 @@ export class AuthController {
   @ApiOperation({ summary: 'User registration' })
   @ApiResponse({ 
     status: 201, 
-    description: 'Registration successful',
-    type: LoginResponse
+    description: 'Registration successful'
   })
   @ApiResponse({ status: 400, description: 'Validation error' })
   @ApiResponse({ status: 409, description: 'User already exists' })
@@ -76,8 +74,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiResponse({ 
     status: 200, 
-    description: 'Token refreshed successfully',
-    type: LoginResponse
+    description: 'Token refreshed successfully'
   })
   @ApiResponse({ status: 401, description: 'Invalid refresh token' })
   @ApiBody({ type: RefreshTokenDto })
@@ -90,8 +87,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Get user profile' })
   @ApiResponse({ 
     status: 200, 
-    description: 'Profile retrieved successfully',
-    type: AuthUser
+    description: 'Profile retrieved successfully'
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getProfile(@CurrentUser() user: AuthUser): Promise<AuthUser> {

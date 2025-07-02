@@ -1,20 +1,52 @@
 import { v4 as uuidv4 } from 'uuid';
 
-export const generateId = (): string => {
+/**
+ * Generate a unique identifier
+ */
+export function generateId(): string {
   return uuidv4();
-};
+}
 
-export const formatCurrency = (amount: number, currency = 'GHS'): string => {
+/**
+ * Safely extract error message from unknown error type
+ */
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return JSON.stringify(error);
+}
+
+/**
+ * Safely extract error stack from unknown error type
+ */
+export function getErrorStack(error: unknown): string | undefined {
+  if (error instanceof Error) {
+    return error.stack;
+  }
+  return undefined;
+}
+
+/**
+ * Format currency for display
+ */
+export function formatCurrency(amount: number, currency: string = 'GHS'): string {
   return new Intl.NumberFormat('en-GH', {
     style: 'currency',
-    currency,
+    currency: currency,
   }).format(amount);
-};
+}
 
-export const isValidEmail = (email: string): boolean => {
+/**
+ * Validate email format
+ */
+export function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
-};
+}
 
 export const isValidPhone = (phone: string): boolean => {
   const phoneRegex = /^\+?[\d\s-()]+$/;
