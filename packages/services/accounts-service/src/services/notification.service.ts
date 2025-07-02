@@ -445,7 +445,11 @@ export class NotificationService {
             scheduledCount++;
           }
         } catch (error) {
+          if (error instanceof Error) {
           this.logger.error(`Failed to send notification to ${recipient.id}: ${error.message}`);
+        } else {
+          this.logger.error(`Failed to send notification to ${recipient.id}: ${JSON.stringify(error)}`);
+        }
           failedCount++;
         }
       });
@@ -852,10 +856,14 @@ export class NotificationService {
     } catch (error) {
       notification.status = NotificationStatus.FAILED;
       notification.failedAt = new Date();
-      notification.failureReason = error.message;
+              notification.failureReason = error instanceof Error ? error.message : JSON.stringify(error);
       this.notifications.set(notification.id, notification);
       
-      this.logger.error(`Failed to send notification ${notification.id}: ${error.message}`);
+              if (error instanceof Error) {
+          this.logger.error(`Failed to send notification ${notification.id}: ${error.message}`);
+        } else {
+          this.logger.error(`Failed to send notification ${notification.id}: ${JSON.stringify(error)}`);
+        }
     }
   }
 

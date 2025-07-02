@@ -381,16 +381,19 @@ export class TransactionService {
       this.logger.log(`Transaction completed: ${transaction.transactionNumber}`);
 
     } catch (error) {
-      this.logger.error(`Transaction processing failed: ${error.message}`, error.stack);
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      
+      this.logger.error(`Transaction processing failed: ${errorMessage}`, errorStack);
       
       // Mark as failed
-      transaction.fail(error.message, { error: error.toString() });
+      transaction.fail(errorMessage, { error: error.toString() });
       await this.transactionRepository.save(transaction);
 
       // Emit failure event
       this.eventEmitter.emit('transaction.failed', {
         transactionId: transaction.id,
-        error: error.message,
+        error: errorMessage,
         customerId: transaction.customerId,
       });
 
