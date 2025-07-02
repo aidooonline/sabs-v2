@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import {
   Controller,
   Get,
@@ -48,7 +50,7 @@ export class SendNotificationDto {
   type: NotificationType;
   channel: NotificationChannel | NotificationChannel[];
   recipientId: string;
-  recipientType: 'customer' | 'agent' | 'admin';
+  recipientType: string;
   templateId?: string;
   subject?: string;
   content?: string;
@@ -63,7 +65,7 @@ export class BulkNotificationDto {
   channel: NotificationChannel | NotificationChannel[];
   recipients: Array<{
     id: string;
-    type: 'customer' | 'agent' | 'admin';
+    type: string;
     data?: Record<string, any>;
   }>;
   templateId?: string;
@@ -242,7 +244,7 @@ export class NotificationController {
   // ===== CORE NOTIFICATION ENDPOINTS =====
 
   @Post('send')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Send a notification' })
   @ApiResponse({ status: 201, description: 'Notification sent successfully', type: String })
   @ApiResponse({ status: 400, description: 'Invalid request data' })
@@ -270,7 +272,7 @@ export class NotificationController {
   }
 
   @Post('send-bulk')
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Send bulk notifications' })
   @ApiResponse({ status: 201, description: 'Bulk notification sent successfully', type: BulkNotificationResponseDto })
   @ApiResponse({ status: 400, description: 'Invalid request data' })
@@ -290,7 +292,7 @@ export class NotificationController {
   }
 
   @Get(':notificationId/status')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get notification status' })
   @ApiParam({ name: 'notificationId', description: 'Notification ID' })
   @ApiResponse({ status: 200, description: 'Notification status retrieved', type: NotificationResponseDto })
@@ -308,7 +310,7 @@ export class NotificationController {
   }
 
   @Get('history/:recipientId')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get notification history for a recipient' })
   @ApiParam({ name: 'recipientId', description: 'Recipient ID' })
   @ApiQuery({ name: 'type', required: false, enum: NotificationType })
@@ -336,7 +338,7 @@ export class NotificationController {
   }
 
   @Post(':notificationId/mark-read')
-  @Roles('agent', 'clerk', 'manager', 'admin', 'customer')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Mark notification as read' })
   @ApiParam({ name: 'notificationId', description: 'Notification ID' })
   @ApiResponse({ status: 200, description: 'Notification marked as read' })
@@ -348,7 +350,7 @@ export class NotificationController {
   }
 
   @Post(':notificationId/cancel')
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Cancel scheduled notification' })
   @ApiParam({ name: 'notificationId', description: 'Notification ID' })
   @ApiResponse({ status: 200, description: 'Notification cancelled' })
@@ -360,7 +362,7 @@ export class NotificationController {
   }
 
   @Post(':notificationId/retry')
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Retry failed notification' })
   @ApiParam({ name: 'notificationId', description: 'Notification ID' })
   @ApiResponse({ status: 200, description: 'Notification retry initiated' })
@@ -372,7 +374,7 @@ export class NotificationController {
   }
 
   @Get(':notificationId/delivery-report')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get notification delivery report' })
   @ApiParam({ name: 'notificationId', description: 'Notification ID' })
   @ApiResponse({ status: 200, description: 'Delivery report retrieved', type: DeliveryReportResponseDto })
@@ -392,7 +394,7 @@ export class NotificationController {
   // ===== TEMPLATE MANAGEMENT ENDPOINTS =====
 
   @Post('templates')
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create notification template' })
   @ApiResponse({ status: 201, description: 'Template created successfully', type: String })
   async createTemplate(
@@ -410,7 +412,7 @@ export class NotificationController {
   }
 
   @Get('templates')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get notification templates' })
   @ApiQuery({ name: 'type', required: false, enum: NotificationType })
   @ApiQuery({ name: 'channel', required: false, enum: NotificationChannel })
@@ -432,7 +434,7 @@ export class NotificationController {
   }
 
   @Get('templates/:templateId')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get notification template by ID' })
   @ApiParam({ name: 'templateId', description: 'Template ID' })
   @ApiResponse({ status: 200, description: 'Template retrieved', type: TemplateResponseDto })
@@ -450,7 +452,7 @@ export class NotificationController {
   }
 
   @Put('templates/:templateId')
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update notification template' })
   @ApiParam({ name: 'templateId', description: 'Template ID' })
   @ApiResponse({ status: 200, description: 'Template updated successfully' })
@@ -476,7 +478,7 @@ export class NotificationController {
   // ===== PREFERENCE MANAGEMENT ENDPOINTS =====
 
   @Get('preferences/:customerId')
-  @Roles('agent', 'clerk', 'manager', 'admin', 'customer')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get notification preferences for customer' })
   @ApiParam({ name: 'customerId', description: 'Customer ID' })
   @ApiResponse({ status: 200, description: 'Preferences retrieved' })
@@ -487,7 +489,7 @@ export class NotificationController {
   }
 
   @Put('preferences/:customerId')
-  @Roles('agent', 'clerk', 'manager', 'admin', 'customer')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Update notification preferences for customer' })
   @ApiParam({ name: 'customerId', description: 'Customer ID' })
   @ApiResponse({ status: 200, description: 'Preferences updated successfully' })
@@ -506,7 +508,7 @@ export class NotificationController {
   // ===== ANALYTICS AND REPORTING ENDPOINTS =====
 
   @Get('analytics')
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get notification analytics' })
   @ApiQuery({ name: 'startDate', required: true, type: String })
   @ApiQuery({ name: 'endDate', required: true, type: String })
@@ -533,7 +535,7 @@ export class NotificationController {
   }
 
   @Get('dashboard')
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get notification dashboard data' })
   @ApiResponse({ status: 200, description: 'Dashboard data retrieved' })
   async getNotificationDashboard(

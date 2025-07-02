@@ -1,9 +1,6 @@
 import {
   Entity,
   Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
 import { BaseEntity } from '@sabs/database';
@@ -48,9 +45,6 @@ export interface CommissionRates {
 
 @Entity('companies')
 export class Company extends BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
@@ -98,12 +92,6 @@ export class Company extends BaseEntity {
   // Commission Settings
   @Column({ type: 'jsonb', default: { deposit: 0.02, withdrawal: 0.03 } })
   commissionRates: CommissionRates;
-
-  @CreateDateColumn({ type: 'timestamp with time zone' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ type: 'timestamp with time zone' })
-  updatedAt: Date;
 
   // Computed properties
   get isActive(): boolean {

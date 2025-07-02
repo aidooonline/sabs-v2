@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import {
   Controller,
   Get,
@@ -80,7 +82,7 @@ export class ApprovalController {
   @ApiResponse({ status: 201, description: 'Workflow created successfully', type: ApprovalWorkflowResponseDto })
   @ApiResponse({ status: 400, description: 'Invalid request' })
   @ApiResponse({ status: 404, description: 'Transaction not found' })
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async createApprovalWorkflow(
     @Param('transactionId', ParseUUIDPipe) transactionId: string,
     @CurrentUser() user: JwtPayload,
@@ -102,7 +104,7 @@ export class ApprovalController {
   @ApiParam({ name: 'workflowId', description: 'Workflow ID' })
   @ApiResponse({ status: 200, description: 'Workflow details retrieved', type: ApprovalWorkflowResponseDto })
   @ApiResponse({ status: 404, description: 'Workflow not found' })
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
     @CurrentUser() user: JwtPayload,
@@ -117,7 +119,7 @@ export class ApprovalController {
     description: 'Retrieve paginated list of approval workflows with filtering and sorting options'
   })
   @ApiResponse({ status: 200, description: 'Workflows retrieved successfully', type: ApprovalWorkflowListResponseDto })
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getWorkflows(
     @Query() query: ApprovalWorkflowQueryDto,
     @CurrentUser() user: JwtPayload,
@@ -125,7 +127,7 @@ export class ApprovalController {
     this.logger.log(`Fetching workflows for company ${user.companyId} with filters: ${JSON.stringify(query)}`);
 
     // If user is not admin/manager, only show workflows assigned to them or their role
-    if (!user.roles.includes('admin') && !user.roles.includes('manager')) {
+    if (!user.roles.includes(UserRole.SUPER_ADMIN) && !user.roles.includes(UserRole.COMPANY_ADMIN)) {
       query.assignedTo = user.sub;
     }
 
@@ -144,7 +146,7 @@ export class ApprovalController {
   @ApiResponse({ status: 200, description: 'Workflow assigned successfully', type: ApprovalWorkflowResponseDto })
   @ApiResponse({ status: 400, description: 'Invalid assignment request' })
   @ApiResponse({ status: 403, description: 'Insufficient permissions' })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async assignWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
     @Body() assignDto: AssignWorkflowDto,
@@ -169,7 +171,7 @@ export class ApprovalController {
   @ApiBody({ type: ReassignWorkflowDto })
   @ApiResponse({ status: 200, description: 'Workflow reassigned successfully', type: ApprovalWorkflowResponseDto })
   @ApiResponse({ status: 400, description: 'Invalid reassignment request' })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async reassignWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
     @Body() reassignDto: ReassignWorkflowDto,
@@ -194,7 +196,7 @@ export class ApprovalController {
   @ApiBody({ type: StartReviewDto })
   @ApiResponse({ status: 200, description: 'Review started successfully', type: ApprovalWorkflowResponseDto })
   @ApiResponse({ status: 400, description: 'Review cannot be started' })
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async startReview(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
     @Body() startDto: StartReviewDto,
@@ -222,7 +224,7 @@ export class ApprovalController {
   @ApiResponse({ status: 200, description: 'Workflow approved successfully', type: ApprovalWorkflowResponseDto })
   @ApiResponse({ status: 400, description: 'Cannot approve workflow' })
   @ApiResponse({ status: 403, description: 'Insufficient approval authority' })
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async approveWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
     @Body() approvalDto: ApprovalDecisionDto,
@@ -232,8 +234,8 @@ export class ApprovalController {
     this.logger.log(`Approving workflow ${workflowId} by ${user.sub}`);
 
     // Add audit information
-    const clientIp = req.ip || req.connection.remoteAddress || 'unknown';
-    // In a real implementation, you would add this to the audit trail
+    const clientIp = (req as any).ip || req.connection.remoteAddress || 'unknown';
+    // In a real implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: [] }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } }, you would add this to the audit trail
 
     return await this.approvalService.approveWorkflow(
       user.companyId,
@@ -253,7 +255,7 @@ export class ApprovalController {
   @ApiResponse({ status: 200, description: 'Workflow rejected successfully', type: ApprovalWorkflowResponseDto })
   @ApiResponse({ status: 400, description: 'Cannot reject workflow' })
   @ApiResponse({ status: 403, description: 'Insufficient rejection authority' })
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async rejectWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
     @Body() rejectionDto: RejectionDecisionDto,
@@ -263,8 +265,8 @@ export class ApprovalController {
     this.logger.log(`Rejecting workflow ${workflowId} by ${user.sub}`);
 
     // Add audit information
-    const clientIp = req.ip || req.connection.remoteAddress || 'unknown';
-    // In a real implementation, you would add this to the audit trail
+    const clientIp = (req as any).ip || req.connection.remoteAddress || 'unknown';
+    // In a real implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: [] }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } }, you would add this to the audit trail
 
     return await this.approvalService.rejectWorkflow(
       user.companyId,
@@ -283,7 +285,7 @@ export class ApprovalController {
   @ApiBody({ type: EscalationDto })
   @ApiResponse({ status: 200, description: 'Workflow escalated successfully', type: ApprovalWorkflowResponseDto })
   @ApiResponse({ status: 400, description: 'Cannot escalate workflow' })
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async escalateWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
     @Body() escalationDto: EscalationDto,
@@ -309,7 +311,7 @@ export class ApprovalController {
   @ApiBody({ type: BulkApprovalDto })
   @ApiResponse({ status: 200, description: 'Bulk approval completed', type: BulkActionResultDto })
   @ApiResponse({ status: 400, description: 'Invalid bulk approval request' })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async bulkApproveWorkflows(
     @Body() bulkDto: BulkApprovalDto,
     @CurrentUser() user: JwtPayload,
@@ -331,7 +333,7 @@ export class ApprovalController {
   @ApiBody({ type: BulkRejectionDto })
   @ApiResponse({ status: 200, description: 'Bulk rejection completed', type: BulkActionResultDto })
   @ApiResponse({ status: 400, description: 'Invalid bulk rejection request' })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async bulkRejectWorkflows(
     @Body() bulkDto: BulkRejectionDto,
     @CurrentUser() user: JwtPayload,
@@ -356,7 +358,7 @@ export class ApprovalController {
   @ApiBody({ type: AddCommentDto })
   @ApiResponse({ status: 201, description: 'Comment added successfully' })
   @ApiResponse({ status: 404, description: 'Workflow not found' })
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async addComment(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
     @Body() commentDto: AddCommentDto,
@@ -383,7 +385,7 @@ export class ApprovalController {
   @ApiBody({ type: UpdatePriorityDto })
   @ApiResponse({ status: 200, description: 'Priority updated successfully', type: ApprovalWorkflowResponseDto })
   @ApiResponse({ status: 404, description: 'Workflow not found' })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async updatePriority(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
     @Body() priorityDto: UpdatePriorityDto,
@@ -408,7 +410,7 @@ export class ApprovalController {
   @ApiBody({ type: ExtendSLADto })
   @ApiResponse({ status: 200, description: 'SLA extended successfully', type: ApprovalWorkflowResponseDto })
   @ApiResponse({ status: 404, description: 'Workflow not found' })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async extendSLA(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
     @Body() slaDto: ExtendSLADto,
@@ -432,7 +434,7 @@ export class ApprovalController {
     description: 'Retrieve comprehensive approval workflow statistics and analytics'
   })
   @ApiResponse({ status: 200, description: 'Dashboard statistics retrieved', type: ApprovalDashboardStatsDto })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getDashboardStats(
     @CurrentUser() user: JwtPayload,
   ): Promise<ApprovalDashboardStatsDto> {
@@ -447,7 +449,7 @@ export class ApprovalController {
     description: 'Retrieve workflows assigned to current user or their role queue'
   })
   @ApiResponse({ status: 200, description: 'Personal queue retrieved', type: ApprovalWorkflowListResponseDto })
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getMyQueue(
     @Query() query: ApprovalWorkflowQueryDto,
     @CurrentUser() user: JwtPayload,
@@ -468,7 +470,7 @@ export class ApprovalController {
     description: 'Retrieve all workflows that have exceeded their SLA deadline'
   })
   @ApiResponse({ status: 200, description: 'Overdue workflows retrieved', type: ApprovalWorkflowListResponseDto })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getOverdueWorkflows(
     @Query() query: ApprovalWorkflowQueryDto,
     @CurrentUser() user: JwtPayload,
@@ -489,7 +491,7 @@ export class ApprovalController {
     description: 'Retrieve all workflows that have been escalated'
   })
   @ApiResponse({ status: 200, description: 'Escalated workflows retrieved', type: ApprovalWorkflowListResponseDto })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getEscalatedWorkflows(
     @Query() query: ApprovalWorkflowQueryDto,
     @CurrentUser() user: JwtPayload,
@@ -510,7 +512,7 @@ export class ApprovalController {
     description: 'Retrieve all high priority workflows requiring immediate attention'
   })
   @ApiResponse({ status: 200, description: 'High priority workflows retrieved', type: ApprovalWorkflowListResponseDto })
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getHighPriorityWorkflows(
     @Query() query: ApprovalWorkflowQueryDto,
     @CurrentUser() user: JwtPayload,
@@ -523,7 +525,7 @@ export class ApprovalController {
     query.sortOrder = 'DESC';
 
     // If user is not admin/manager, only show workflows assigned to them
-    if (!user.roles.includes('admin') && !user.roles.includes('manager')) {
+    if (!user.roles.includes(UserRole.SUPER_ADMIN) && !user.roles.includes(UserRole.COMPANY_ADMIN)) {
       query.assignedTo = user.sub;
     }
 
@@ -541,7 +543,7 @@ export class ApprovalController {
   @ApiResponse({ status: 204, description: 'Workflow cancelled successfully' })
   @ApiResponse({ status: 404, description: 'Workflow not found' })
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Roles('admin')
+  @Roles(UserRole.SUPER_ADMIN)
   async cancelWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
     @CurrentUser() user: JwtPayload,
@@ -561,7 +563,7 @@ export class ApprovalController {
   @ApiParam({ name: 'workflowId', description: 'Workflow ID' })
   @ApiResponse({ status: 200, description: 'Audit trail retrieved' })
   @ApiResponse({ status: 404, description: 'Workflow not found' })
-  @Roles('admin')
+  @Roles(UserRole.SUPER_ADMIN)
   async getWorkflowAuditTrail(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
     @CurrentUser() user: JwtPayload,

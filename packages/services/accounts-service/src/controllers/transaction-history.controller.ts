@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import {
   Controller,
   Get,
@@ -135,7 +137,7 @@ export class TransactionHistoryController {
   @ApiQuery({ name: 'sortBy', required: false, description: 'Sort field (default: createdAt)' })
   @ApiQuery({ name: 'sortOrder', required: false, enum: ['ASC', 'DESC'], description: 'Sort order (default: DESC)' })
   @ApiResponse({ status: 200, description: 'Transaction search results with pagination and summary' })
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async searchTransactions(
     @Query() searchParams: TransactionSearchDto,
     @CurrentUser() user: JwtPayload,
@@ -153,7 +155,7 @@ export class TransactionHistoryController {
   @ApiParam({ name: 'transactionId', description: 'Transaction ID' })
   @ApiResponse({ status: 200, description: 'Transaction details retrieved' })
   @ApiResponse({ status: 404, description: 'Transaction not found' })
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionById(
     @Param('transactionId', ParseUUIDPipe) transactionId: string,
     @CurrentUser() user: JwtPayload,
@@ -170,7 +172,7 @@ export class TransactionHistoryController {
   })
   @ApiParam({ name: 'accountId', description: 'Account ID' })
   @ApiResponse({ status: 200, description: 'Account transaction history retrieved' })
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getAccountTransactions(
     @Param('accountId', ParseUUIDPipe) accountId: string,
     @Query() searchParams: Partial<TransactionSearchDto>,
@@ -188,7 +190,7 @@ export class TransactionHistoryController {
   })
   @ApiParam({ name: 'customerId', description: 'Customer ID' })
   @ApiResponse({ status: 200, description: 'Customer transaction history retrieved' })
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getCustomerTransactions(
     @Param('customerId', ParseUUIDPipe) customerId: string,
     @Query() searchParams: Partial<TransactionSearchDto>,
@@ -210,7 +212,7 @@ export class TransactionHistoryController {
   @ApiQuery({ name: 'endDate', required: false })
   @ApiQuery({ name: 'groupBy', required: false, enum: ['day', 'week', 'month'] })
   @ApiResponse({ status: 200, description: 'Transaction analytics retrieved' })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionAnalytics(
     @Query() filters: Partial<TransactionSearchDto>,
     @CurrentUser() user: JwtPayload,
@@ -228,7 +230,7 @@ export class TransactionHistoryController {
   @ApiQuery({ name: 'startDate', required: false, description: 'Report start date' })
   @ApiQuery({ name: 'endDate', required: false, description: 'Report end date' })
   @ApiResponse({ status: 200, description: 'Reconciliation report generated' })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getReconciliationReport(
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
@@ -246,7 +248,7 @@ export class TransactionHistoryController {
   })
   @ApiQuery({ name: 'timeRange', required: false, enum: ['daily', 'weekly', 'monthly'] })
   @ApiResponse({ status: 200, description: 'Transaction insights generated' })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionInsights(
     @CurrentUser() user: JwtPayload,
     @Query('timeRange') timeRange: 'daily' | 'weekly' | 'monthly' = 'weekly',
@@ -280,7 +282,7 @@ export class TransactionHistoryController {
   })
   @ApiBody({ type: PatternAnalysisDto })
   @ApiResponse({ status: 200, description: 'Patterns detected and recommendations generated' })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async detectTransactionPatterns(
     @Body() analysisDto: PatternAnalysisDto,
     @CurrentUser() user: JwtPayload,
@@ -334,7 +336,7 @@ export class TransactionHistoryController {
     }
   })
   @ApiResponse({ status: 200, description: 'Export file generated and downloaded' })
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async exportTransactions(
     @Body() exportRequest: {
       filters?: TransactionSearchDto;
@@ -379,7 +381,7 @@ export class TransactionHistoryController {
     description: 'Get available export templates and field configurations'
   })
   @ApiResponse({ status: 200, description: 'Export templates retrieved' })
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getExportTemplates(
     @CurrentUser() user: JwtPayload,
   ): Promise<{
@@ -487,7 +489,7 @@ export class TransactionHistoryController {
   })
   @ApiQuery({ name: 'period', required: false, enum: ['today', 'week', 'month'], description: 'Dashboard period' })
   @ApiResponse({ status: 200, description: 'Dashboard data retrieved' })
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getDashboardData(
     @CurrentUser() user: JwtPayload,
     @Query('period') period: 'today' | 'week' | 'month' = 'today',
@@ -574,7 +576,7 @@ export class TransactionHistoryController {
   @ApiQuery({ name: 'groupBy', required: false, enum: ['day', 'week', 'month'] })
   @ApiQuery({ name: 'compare', required: false, description: 'Compare with previous period' })
   @ApiResponse({ status: 200, description: 'Transaction summary retrieved' })
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionSummary(
     @CurrentUser() user: JwtPayload,
     @Query('groupBy') groupBy: 'day' | 'week' | 'month' = 'day',

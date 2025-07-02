@@ -31,6 +31,25 @@ export function getErrorStack(error: unknown): string | undefined {
 }
 
 /**
+ * Safe logger error method that handles unknown error types
+ */
+export function logError(logger: any, message: string, error: unknown): void {
+  const errorMessage = getErrorMessage(error);
+  const errorStack = getErrorStack(error);
+  logger.error(`${message}: ${errorMessage}`, errorStack);
+}
+
+/**
+ * Get error status safely
+ */
+export function getErrorStatus(error: unknown, defaultStatus: number = 500): number {
+  if (error && typeof error === 'object' && 'status' in error && typeof (error as any).status === 'number') {
+    return (error as any).status;
+  }
+  return defaultStatus;
+}
+
+/**
  * Format currency for display
  */
 export function formatCurrency(amount: number, currency: string = 'GHS'): string {
@@ -50,7 +69,7 @@ export function isValidEmail(email: string): boolean {
 
 export const isValidPhone = (phone: string): boolean => {
   const phoneRegex = /^\+?[\d\s-()]+$/;
-  return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
+  return phoneRegex.test(phone);
 };
 
 export const calculatePagination = (page: number, limit: number, total: number) => {

@@ -1,11 +1,13 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, Request, Logger, HttpStatus, HttpException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
-import { getErrorMessage, getErrorStack } from '@sabs/common';
+
 
 // Mock imports - these should be replaced with actual implementations
-interface JwtAuthGuard {}
-interface RolesGuard {}
-interface TenantGuard {}
+class JwtAuthGuard {}
+class RolesGuard {}
+class TenantGuard {}
 const Roles = (...roles: string[]) => (target: any) => target;
 
 import { TransactionService, AgentInfo } from '../services/transaction.service';
@@ -51,7 +53,7 @@ export class TransactionController {
   // ===== WITHDRAWAL REQUEST OPERATIONS =====
 
   @Post('withdrawal-requests')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Create withdrawal request',
     description: 'Create a new withdrawal request for a customer. Requires customer verification and approval workflow.'
@@ -80,8 +82,8 @@ export class TransactionController {
         id: req.user.id,
         name: req.user.name,
         phone: req.user.phone,
-        ipAddress: req.ip,
-        location: req.body.location,
+        ipAddress: (req as any).ip,
+        location: (req.body as any)?.location,
         deviceInfo: {
           userAgent: req.headers['user-agent'],
           timestamp: new Date().toISOString(),
@@ -94,13 +96,13 @@ export class TransactionController {
         createDto,
       );
     } catch (error) {
-      this.logger.error(`Failed to create withdrawal request: ${error instanceof Error ? error.message : JSON.stringify(error)}`, error instanceof Error ? error.stack : undefined);
+      this.logger.error(`Failed to create withdrawal request: ${error instanceof Error ? getErrorMessage(error) : JSON.stringify(error)}`, error instanceof Error ? getErrorStack(error) : undefined);
       throw error;
     }
   }
 
   @Put(':transactionId/verify-customer')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Verify customer for transaction',
     description: 'Perform customer verification using PIN, OTP, biometric, or agent visual confirmation.'
@@ -134,13 +136,13 @@ export class TransactionController {
         verificationDto,
       );
     } catch (error) {
-      this.logger.error(`Failed to verify customer: ${error.message}`, error.stack);
+      this.logger.error(`Failed to verify customer: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
 
   @Put(':transactionId/approve')
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Approve transaction',
     description: 'Approve a pending withdrawal request. Requires appropriate authorization level.'
@@ -174,13 +176,13 @@ export class TransactionController {
         approveDto,
       );
     } catch (error) {
-      this.logger.error(`Failed to approve transaction: ${error.message}`, error.stack);
+      this.logger.error(`Failed to approve transaction: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
 
   @Put(':transactionId/reject')
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Reject transaction',
     description: 'Reject a pending withdrawal request with reason.'
@@ -210,13 +212,13 @@ export class TransactionController {
         rejectDto,
       );
     } catch (error) {
-      this.logger.error(`Failed to reject transaction: ${error.message}`, error.stack);
+      this.logger.error(`Failed to reject transaction: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
 
   @Put(':transactionId/process')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Process transaction',
     description: 'Execute the approved withdrawal transaction and update account balances.'
@@ -246,13 +248,13 @@ export class TransactionController {
         processDto,
       );
     } catch (error) {
-      this.logger.error(`Failed to process transaction: ${error.message}`, error.stack);
+      this.logger.error(`Failed to process transaction: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
 
   @Put(':transactionId/cancel')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Cancel transaction',
     description: 'Cancel a pending or approved transaction.'
@@ -278,13 +280,13 @@ export class TransactionController {
         cancelDto,
       );
     } catch (error) {
-      this.logger.error(`Failed to cancel transaction: ${error.message}`, error.stack);
+      this.logger.error(`Failed to cancel transaction: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
 
   @Put(':transactionId/reverse')
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Reverse transaction',
     description: 'Reverse a completed transaction. Requires manager or admin authorization.'
@@ -315,7 +317,7 @@ export class TransactionController {
       // For now, throw not implemented
       throw new HttpException('Transaction reversal not yet implemented in Story 3.2', HttpStatus.NOT_IMPLEMENTED);
     } catch (error) {
-      this.logger.error(`Failed to reverse transaction: ${error.message}`, error.stack);
+      this.logger.error(`Failed to reverse transaction: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
@@ -323,7 +325,7 @@ export class TransactionController {
   // ===== TRANSACTION INQUIRY OPERATIONS =====
 
   @Get()
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Get transactions',
     description: 'Retrieve transactions with filtering, pagination, and sorting options.'
@@ -352,13 +354,13 @@ export class TransactionController {
     try {
       return await this.transactionService.getTransactions(req.user.companyId, query);
     } catch (error) {
-      this.logger.error(`Failed to retrieve transactions: ${error.message}`, error.stack);
+      this.logger.error(`Failed to retrieve transactions: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
 
   @Get(':transactionId')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Get transaction by ID',
     description: 'Retrieve detailed information about a specific transaction.'
@@ -383,13 +385,13 @@ export class TransactionController {
       const transaction = await this.transactionService.getTransactionById(req.user.companyId, transactionId);
       return this.transactionService['formatTransactionResponse'](transaction);
     } catch (error) {
-      this.logger.error(`Failed to retrieve transaction: ${error.message}`, error.stack);
+      this.logger.error(`Failed to retrieve transaction: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
 
   @Get('stats/overview')
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Get transaction statistics',
     description: 'Retrieve comprehensive transaction statistics and analytics.'
@@ -411,7 +413,7 @@ export class TransactionController {
     try {
       return await this.transactionService.getTransactionStats(req.user.companyId, dateFrom, dateTo);
     } catch (error) {
-      this.logger.error(`Failed to retrieve transaction statistics: ${error.message}`, error.stack);
+      this.logger.error(`Failed to retrieve transaction statistics: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
@@ -419,7 +421,7 @@ export class TransactionController {
   // ===== BALANCE INQUIRY OPERATIONS =====
 
   @Get('accounts/:accountId/balance')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Get account balance',
     description: 'Retrieve current account balance and transaction limits.'
@@ -443,7 +445,7 @@ export class TransactionController {
     try {
       return await this.transactionService.getAccountBalance(req.user.companyId, accountId);
     } catch (error) {
-      this.logger.error(`Failed to retrieve account balance: ${error.message}`, error.stack);
+      this.logger.error(`Failed to retrieve account balance: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
@@ -451,7 +453,7 @@ export class TransactionController {
   // ===== HOLD MANAGEMENT OPERATIONS =====
 
   @Put(':transactionId/hold')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Place transaction hold',
     description: 'Place a hold on transaction amount for pending approvals.'
@@ -485,13 +487,13 @@ export class TransactionController {
         expiresAt: expiresAt.toISOString(),
       };
     } catch (error) {
-      this.logger.error(`Failed to place hold: ${error.message}`, error.stack);
+      this.logger.error(`Failed to place hold: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
 
   @Delete(':transactionId/hold')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Release transaction hold',
     description: 'Release the hold placed on a transaction.'
@@ -515,7 +517,7 @@ export class TransactionController {
         transactionId,
       };
     } catch (error) {
-      this.logger.error(`Failed to release hold: ${error.message}`, error.stack);
+      this.logger.error(`Failed to release hold: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
@@ -523,7 +525,7 @@ export class TransactionController {
   // ===== BULK OPERATIONS =====
 
   @Post('bulk-actions')
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Perform bulk transaction actions',
     description: 'Perform actions on multiple transactions simultaneously.'
@@ -552,7 +554,7 @@ export class TransactionController {
       // For now, throw not implemented
       throw new HttpException('Bulk operations not yet implemented in Story 3.2', HttpStatus.NOT_IMPLEMENTED);
     } catch (error) {
-      this.logger.error(`Failed to perform bulk action: ${error.message}`, error.stack);
+      this.logger.error(`Failed to perform bulk action: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
@@ -560,7 +562,7 @@ export class TransactionController {
   // ===== RECEIPT OPERATIONS =====
 
   @Get(':transactionId/receipt')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Get transaction receipt',
     description: 'Generate and retrieve transaction receipt for printing.'
@@ -588,13 +590,13 @@ export class TransactionController {
       // For now, throw not implemented
       throw new HttpException('Receipt generation not yet implemented in Story 3.2', HttpStatus.NOT_IMPLEMENTED);
     } catch (error) {
-      this.logger.error(`Failed to generate receipt: ${error.message}`, error.stack);
+      this.logger.error(`Failed to generate receipt: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
 
   @Put(':transactionId/receipt/print')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Mark receipt as printed',
     description: 'Mark transaction receipt as printed and update timestamp.'
@@ -621,7 +623,7 @@ export class TransactionController {
         printedAt,
       };
     } catch (error) {
-      this.logger.error(`Failed to mark receipt as printed: ${error.message}`, error.stack);
+      this.logger.error(`Failed to mark receipt as printed: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
@@ -629,7 +631,7 @@ export class TransactionController {
   // ===== ADMINISTRATIVE OPERATIONS =====
 
   @Get('pending-approvals')
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Get pending approvals',
     description: 'Retrieve transactions that require approval based on user authorization level.'
@@ -659,13 +661,13 @@ export class TransactionController {
 
       return await this.transactionService.getTransactions(req.user.companyId, transactionQuery);
     } catch (error) {
-      this.logger.error(`Failed to retrieve pending approvals: ${error.message}`, error.stack);
+      this.logger.error(`Failed to retrieve pending approvals: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
 
   @Get('high-risk')
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Get high-risk transactions',
     description: 'Retrieve transactions flagged as high-risk for review.'
@@ -694,13 +696,13 @@ export class TransactionController {
 
       return await this.transactionService.getTransactions(req.user.companyId, transactionQuery);
     } catch (error) {
-      this.logger.error(`Failed to retrieve high-risk transactions: ${error.message}`, error.stack);
+      this.logger.error(`Failed to retrieve high-risk transactions: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }
 
   @Get('agent/:agentId/transactions')
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ 
     summary: 'Get agent transactions',
     description: 'Retrieve transactions initiated by a specific agent.'
@@ -724,7 +726,7 @@ export class TransactionController {
 
     try {
       // Ensure agents can only view their own transactions unless manager/admin
-      if (req.user.role === 'agent' && req.user.id !== agentId) {
+      if (req.user.role === UserRole.FIELD_AGENT && req.user.id !== agentId) {
         throw new HttpException('Agents can only view their own transactions', HttpStatus.FORBIDDEN);
       }
 
@@ -740,7 +742,7 @@ export class TransactionController {
 
       return await this.transactionService.getTransactions(req.user.companyId, transactionQuery);
     } catch (error) {
-      this.logger.error(`Failed to retrieve agent transactions: ${error.message}`, error.stack);
+      this.logger.error(`Failed to retrieve agent transactions: ${getErrorMessage(error)}`, getErrorStack(error));
       throw error;
     }
   }

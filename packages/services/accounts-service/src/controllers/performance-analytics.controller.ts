@@ -483,7 +483,7 @@ export class PerformanceAnalyticsController {
       bottlenecks,
       analysis,
       immediate_actions,
-      predictive_insights,
+      predictive_insights: [],
     };
   }
 

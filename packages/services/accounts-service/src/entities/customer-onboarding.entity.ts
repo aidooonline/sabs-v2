@@ -362,7 +362,7 @@ export class CustomerOnboarding {
       case OnboardingStep.DOCUMENT_UPLOAD:
         return this.documentCompletionRate >= 100;
       case OnboardingStep.VERIFICATION:
-        return this.verificationRequired ? this.verifiedAt : true;
+        return this.verificationRequired ? !!this.verifiedAt : true;
       default:
         return true;
     }

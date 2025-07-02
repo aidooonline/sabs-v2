@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index, BeforeInsert } from 'typeorm';
 import { Transaction } from './transaction.entity';
 import { nanoid } from 'nanoid';
@@ -414,13 +416,13 @@ export class ApprovalWorkflow {
   get nextReviewerRole(): string {
     switch (this.currentStage) {
       case ApprovalStage.INITIAL_REVIEW:
-        return 'clerk';
+        return UserRole.CLERK;
       case ApprovalStage.MANAGER_REVIEW:
-        return 'manager';
+        return UserRole.COMPANY_ADMIN;
       case ApprovalStage.ADMIN_REVIEW:
-        return 'admin';
+        return UserRole.SUPER_ADMIN;
       default:
-        return 'clerk';
+        return UserRole.CLERK;
     }
   }
 

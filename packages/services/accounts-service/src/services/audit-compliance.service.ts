@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -253,7 +255,7 @@ export class AuditComplianceService {
         { field: 'transaction.dailyTotal', operator: 'lessThan', value: 50000, description: 'Daily limit GHS 50,000' }
       ],
       actions: [
-        { type: 'require_approval', description: 'Require approval for exceeding limit', parameters: { approvalLevel: 'manager' } }
+        { type: 'require_approval', description: 'Require approval for exceeding limit', parameters: { approvalLevel: UserRole.COMPANY_ADMIN } }
       ],
     },
     aml_screening: {
@@ -330,7 +332,7 @@ export class AuditComplianceService {
   async handleCustomerCreated(event: any): Promise<void> {
     await this.logAuditEvent({
       eventType: AuditEventType.USER_ACTION,
-      entityType: 'customer',
+      entityType: UserRole.CUSTOMER,
       entityId: event.customerId,
       userId: event.createdBy,
       userRole: event.creatorRole,
@@ -341,7 +343,7 @@ export class AuditComplianceService {
     });
 
     // Run KYC compliance check
-    await this.runComplianceChecks('customer', event.customerId);
+    await this.runComplianceChecks(UserRole.CUSTOMER, event.customerId);
   }
 
   @OnEvent('user.login')
@@ -577,8 +579,8 @@ export class AuditComplianceService {
       eventType: AuditEventType.COMPLIANCE_EVENT,
       entityType,
       entityId,
-      userId: 'system',
-      userRole: 'system',
+      userId: UserRole.SYSTEM,
+      userRole: UserRole.SYSTEM,
       action: AuditAction.PROCESS,
       description: `Compliance check: ${rule.name}`,
       metadata: {
@@ -675,8 +677,8 @@ export class AuditComplianceService {
       eventType: AuditEventType.ADMIN_ACTION,
       entityType: 'compliance_rule',
       entityId: ruleId,
-      userId: 'admin',
-      userRole: 'admin',
+      userId: UserRole.SUPER_ADMIN,
+      userRole: UserRole.SUPER_ADMIN,
       action: AuditAction.CREATE,
       description: 'Compliance rule created',
       newData: rule,
@@ -707,8 +709,8 @@ export class AuditComplianceService {
       eventType: AuditEventType.ADMIN_ACTION,
       entityType: 'compliance_rule',
       entityId: ruleId,
-      userId: 'admin',
-      userRole: 'admin',
+      userId: UserRole.SUPER_ADMIN,
+      userRole: UserRole.SUPER_ADMIN,
       action: AuditAction.UPDATE,
       description: 'Compliance rule updated',
       previousData,
@@ -876,11 +878,11 @@ export class AuditComplianceService {
   private async getEntity(entityType: string, entityId: string): Promise<any> {
     switch (entityType) {
       case 'transaction':
-        return this.transactionRepository.findOne({ where: { id: entityId }, relations: ['customer', 'account'] });
-      case 'customer':
+        return this.transactionRepository.findOne({ where: { id: entityId }, relations: [UserRole.CUSTOMER, 'account'] });
+      case UserRole.CUSTOMER:
         return this.customerRepository.findOne({ where: { id: entityId } });
       case 'account':
-        return this.accountRepository.findOne({ where: { id: entityId }, relations: ['customer'] });
+        return this.accountRepository.findOne({ where: { id: entityId }, relations: [UserRole.CUSTOMER] });
       default:
         return null;
     }

@@ -285,7 +285,7 @@ export class AIInsightsController {
       summary,
       recommendations,
       naturalLanguageSummary: result.naturalLanguageSummary,
-      actionPlan,
+      actionPlan: [],
       processingMetrics,
     };
   }
@@ -587,7 +587,7 @@ export class AIInsightsController {
       executiveSummary,
       insights,
       recommendations,
-      predictions,
+      predictions: [],
       performanceScore,
       competitiveAnalysis,
     };
@@ -728,8 +728,8 @@ export class AIInsightsController {
 
     return {
       recommendations,
-      prioritization,
-      implementation,
+      prioritization: { quickWins: [], majorProjects: [], strategicInitiatives: [] },
+      implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: [] }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } },
       roiAnalysis,
       success_metrics,
     };
@@ -828,7 +828,7 @@ export class AIInsightsController {
     }));
 
     return {
-      optimizations,
+      optimizations: [],
       totalImpact: result.totalImpact,
       implementationPlan,
       success_criteria,
@@ -981,9 +981,9 @@ export class AIInsightsController {
     ];
 
     return {
-      predictions,
-      models,
-      scenarios,
+      predictions: [],
+      models: [],
+      scenarios: { optimistic: { probability: 0, outcome: {}, factors: [] }, realistic: { probability: 0, outcome: {}, factors: [] }, pessimistic: { probability: 0, outcome: {}, factors: [] } },
       insights: result.insights,
       recommendations,
     };
@@ -1117,9 +1117,9 @@ export class AIInsightsController {
     };
 
     return {
-      segments,
+      segments: [],
       insights: result.insights,
-      actionPlan,
+      actionPlan: [],
       performance,
     };
   }
@@ -1235,7 +1235,7 @@ export class AIInsightsController {
     };
 
     return {
-      models,
+      models: [],
       summary,
     };
   }

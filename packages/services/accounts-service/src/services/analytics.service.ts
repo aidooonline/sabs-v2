@@ -207,7 +207,7 @@ export enum DashboardType {
   EXECUTIVE = 'executive',
   OPERATIONAL = 'operational',
   ANALYTICAL = 'analytical',
-  CUSTOMER = 'customer',
+  CUSTOMER = UserRole.CUSTOMER,
   RISK = 'risk',
   COMPLIANCE = 'compliance',
 }
@@ -215,7 +215,7 @@ export enum DashboardType {
 export enum DashboardCategory {
   BUSINESS = 'business',
   TECHNICAL = 'technical',
-  CUSTOMER = 'customer',
+  CUSTOMER = UserRole.CUSTOMER,
   FINANCIAL = 'financial',
   OPERATIONAL = 'operational',
   RISK = 'risk',
@@ -237,7 +237,7 @@ export enum WidgetType {
 export enum MetricCategory {
   BUSINESS = 'business',
   TECHNICAL = 'technical',
-  CUSTOMER = 'customer',
+  CUSTOMER = UserRole.CUSTOMER,
   FINANCIAL = 'financial',
   OPERATIONAL = 'operational',
   RISK = 'risk',
@@ -825,7 +825,7 @@ export class AnalyticsService {
     return {
       insights,
       kpis,
-      alerts,
+      alerts: (alerts as any)?.alerts || alerts,
     };
   }
 
@@ -908,7 +908,7 @@ export class AnalyticsService {
         unit: 'customers',
         formula: 'COUNT(customers)',
         dimensions: ['region', 'age_group', 'customer_type'],
-        tags: ['customer', 'kpi'],
+        tags: [UserRole.CUSTOMER, 'kpi'],
         isRealTime: true,
         lastCalculated: new Date(),
         value: 125000,

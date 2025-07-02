@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -113,7 +115,7 @@ export enum ExecutiveLevel {
 export enum KPICategory {
   FINANCIAL = 'financial',
   OPERATIONAL = 'operational',
-  CUSTOMER = 'customer',
+  CUSTOMER = UserRole.CUSTOMER,
   RISK = 'risk',
   STRATEGIC = 'strategic',
   COMPLIANCE = 'compliance',
@@ -139,7 +141,7 @@ export enum AlertCategory {
   RISK = 'risk',
   COMPLIANCE = 'compliance',
   STRATEGIC = 'strategic',
-  SYSTEM = 'system',
+  SYSTEM = UserRole.SYSTEM,
 }
 
 export enum AlertSeverity {
@@ -164,14 +166,7 @@ export enum AlertStatus {
   ESCALATED = 'escalated',
 }
 
-export enum ReportType {
-  EXECUTIVE_SUMMARY = 'executive_summary',
-  BOARD_REPORT = 'board_report',
-  FINANCIAL_STATEMENT = 'financial_statement',
-  RISK_REPORT = 'risk_report',
-  COMPLIANCE_REPORT = 'compliance_report',
-  STRATEGIC_REVIEW = 'strategic_review',
-}
+
 
 export enum ReportPeriod {
   DAILY = 'daily',
@@ -566,7 +561,7 @@ export class ExecutiveDashboardService {
     return {
       dashboard,
       realTimeData,
-      alerts,
+      alerts: (alerts as any)?.alerts || alerts,
       lastUpdated: new Date(),
       performance,
     };
@@ -873,7 +868,7 @@ export class ExecutiveDashboardService {
     const permissions: DashboardPermissions = {
       viewers: [],
       editors: [],
-      admins: ['admin'],
+      admins: [UserRole.SUPER_ADMIN],
       publicAccess: false,
     };
 
@@ -1099,8 +1094,8 @@ export class ExecutiveDashboardService {
     };
 
     const typeMap = {
-      [ReportType.EXECUTIVE_SUMMARY]: 'Executive Summary',
-      [ReportType.BOARD_REPORT]: 'Board Report',
+      [ReportType.EXECUTIVE]: 'Executive Summary',
+      [ReportType.EXECUTIVE]: 'Board Report',
       [ReportType.FINANCIAL_STATEMENT]: 'Financial Statement',
       [ReportType.RISK_REPORT]: 'Risk Report',
       [ReportType.COMPLIANCE_REPORT]: 'Compliance Report',
@@ -1113,8 +1108,8 @@ export class ExecutiveDashboardService {
   private async generateExecutiveSummary(request: GenerateReportRequest): Promise<string> {
     // Generate AI-powered executive summary based on report type
     const summaryTemplates = {
-      [ReportType.EXECUTIVE_SUMMARY]: 'Q4 performance exceeded expectations with 15% revenue growth. Key strategic initiatives on track with strong customer acquisition and operational efficiency improvements.',
-      [ReportType.BOARD_REPORT]: 'Strategic objectives achieved with ROI above targets. Risk management framework strengthened and regulatory compliance maintained at 99.5%.',
+      [ReportType.EXECUTIVE]: 'Q4 performance exceeded expectations with 15% revenue growth. Key strategic initiatives on track with strong customer acquisition and operational efficiency improvements.',
+      [ReportType.EXECUTIVE]: 'Strategic objectives achieved with ROI above targets. Risk management framework strengthened and regulatory compliance maintained at 99.5%.',
       [ReportType.FINANCIAL_STATEMENT]: 'Strong financial performance with improved margins and cash flow. Capital allocation optimized for growth investments and shareholder returns.',
     };
 

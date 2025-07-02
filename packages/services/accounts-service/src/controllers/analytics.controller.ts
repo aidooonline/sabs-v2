@@ -557,7 +557,7 @@ export class AnalyticsController {
         unit: 'customers',
         formula: 'COUNT(customers)',
         dimensions: ['region', 'age_group', 'customer_type'],
-        tags: ['customer', 'kpi'],
+        tags: [UserRole.CUSTOMER, 'kpi'],
         isRealTime: true,
         lastCalculated: new Date(),
         value: 125000,
@@ -648,7 +648,7 @@ export class AnalyticsController {
     return {
       insights: filteredInsights,
       kpis: result.kpis,
-      alerts: result.alerts,
+      alerts: result.alerts: (alerts as any)?.alerts || alerts,
     };
   }
 

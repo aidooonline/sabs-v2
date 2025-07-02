@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import {
   Controller,
   Get,
@@ -77,7 +79,7 @@ export class TransactionProcessingController {
   @ApiResponse({ status: 200, description: 'Transaction processed successfully' })
   @ApiResponse({ status: 400, description: 'Transaction cannot be processed' })
   @ApiResponse({ status: 404, description: 'Transaction not found' })
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async processTransaction(
     @Param('transactionId', ParseUUIDPipe) transactionId: string,
     @Body() processDto: ProcessTransactionDto,
@@ -101,7 +103,7 @@ export class TransactionProcessingController {
   @ApiBody({ type: ProcessMultipleTransactionsDto })
   @ApiResponse({ status: 200, description: 'Batch processing completed' })
   @ApiResponse({ status: 400, description: 'Invalid batch processing request' })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async processMultipleTransactions(
     @Body() batchDto: ProcessMultipleTransactionsDto,
     @CurrentUser() user: JwtPayload,
@@ -135,7 +137,7 @@ export class TransactionProcessingController {
   @ApiResponse({ status: 200, description: 'Transaction reversed successfully' })
   @ApiResponse({ status: 400, description: 'Transaction cannot be reversed' })
   @ApiResponse({ status: 404, description: 'Transaction not found' })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async reverseTransaction(
     @Param('transactionId', ParseUUIDPipe) transactionId: string,
     @Body() reverseDto: ReverseTransactionDto,
@@ -165,7 +167,7 @@ export class TransactionProcessingController {
   @ApiParam({ name: 'receiptNumber', description: 'Receipt number' })
   @ApiResponse({ status: 200, description: 'Receipt retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Receipt not found' })
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getReceipt(
     @Param('receiptNumber') receiptNumber: string,
     @CurrentUser() user: JwtPayload,
@@ -189,7 +191,7 @@ export class TransactionProcessingController {
   @ApiParam({ name: 'receiptNumber', description: 'Receipt number' })
   @ApiResponse({ status: 200, description: 'Printable receipt generated' })
   @ApiResponse({ status: 404, description: 'Receipt not found' })
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async printReceipt(
     @Param('receiptNumber') receiptNumber: string,
     @CurrentUser() user: JwtPayload,
@@ -236,7 +238,7 @@ export class TransactionProcessingController {
     description: 'Retrieve transaction processing statistics and analytics'
   })
   @ApiResponse({ status: 200, description: 'Processing statistics retrieved', type: ProcessingStatsResponseDto })
-  @Roles('manager', 'admin')
+  @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getProcessingStats(
     @CurrentUser() user: JwtPayload,
   ): Promise<ProcessingStatsResponseDto> {
@@ -251,7 +253,7 @@ export class TransactionProcessingController {
     description: 'Get summary of transaction processing for today'
   })
   @ApiResponse({ status: 200, description: 'Daily processing summary retrieved' })
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getDailyProcessingSummary(
     @CurrentUser() user: JwtPayload,
     @Query('date') date?: string,
@@ -314,7 +316,7 @@ export class TransactionProcessingController {
     description: 'Get detailed status of transaction processing service'
   })
   @ApiResponse({ status: 200, description: 'Service status retrieved' })
-  @Roles('admin')
+  @Roles(UserRole.SUPER_ADMIN)
   async getServiceStatus(
     @CurrentUser() user: JwtPayload,
   ): Promise<{
@@ -359,7 +361,7 @@ export class TransactionProcessingController {
   @ApiParam({ name: 'transactionId', description: 'Transaction ID to retry' })
   @ApiResponse({ status: 200, description: 'Transaction retry initiated' })
   @ApiResponse({ status: 400, description: 'Transaction cannot be retried' })
-  @Roles('clerk', 'manager', 'admin')
+  @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async retryTransaction(
     @Param('transactionId', ParseUUIDPipe) transactionId: string,
     @CurrentUser() user: JwtPayload,
@@ -382,7 +384,7 @@ export class TransactionProcessingController {
   @ApiParam({ name: 'transactionId', description: 'Transaction ID' })
   @ApiResponse({ status: 200, description: 'Transaction status retrieved' })
   @ApiResponse({ status: 404, description: 'Transaction not found' })
-  @Roles('agent', 'clerk', 'manager', 'admin')
+  @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionStatus(
     @Param('transactionId', ParseUUIDPipe) transactionId: string,
     @CurrentUser() user: JwtPayload,

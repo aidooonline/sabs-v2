@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -18,7 +20,7 @@ export interface NotificationRecord {
   type: NotificationType;
   channel: NotificationChannel;
   recipientId: string;
-  recipientType: 'customer' | 'agent' | 'admin';
+  recipientType: string;
   subject: string;
   content: string;
   templateId?: string;
@@ -133,7 +135,7 @@ export interface SendNotificationRequest {
   type: NotificationType;
   channel: NotificationChannel | NotificationChannel[];
   recipientId: string;
-  recipientType: 'customer' | 'agent' | 'admin';
+  recipientType: string;
   templateId?: string;
   subject?: string;
   content?: string;
@@ -161,7 +163,7 @@ export interface BulkNotificationRequest {
   channel: NotificationChannel | NotificationChannel[];
   recipients: Array<{
     id: string;
-    type: 'customer' | 'agent' | 'admin';
+    type: string;
     data?: Record<string, any>;
   }>;
   templateId?: string;
@@ -290,7 +292,7 @@ export class NotificationService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: event.transactionId },
-      relations: ['customer', 'account'],
+      relations: [UserRole.CUSTOMER, 'account'],
     });
 
     if (!transaction) {
@@ -308,7 +310,7 @@ export class NotificationService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: event.transactionId },
-      relations: ['customer', 'account'],
+      relations: [UserRole.CUSTOMER, 'account'],
     });
 
     if (!transaction) {
@@ -326,7 +328,7 @@ export class NotificationService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: event.transactionId },
-      relations: ['customer', 'account'],
+      relations: [UserRole.CUSTOMER, 'account'],
     });
 
     if (transaction) {
@@ -340,7 +342,7 @@ export class NotificationService {
 
     const transaction = await this.transactionRepository.findOne({
       where: { id: event.transactionId },
-      relations: ['customer', 'account'],
+      relations: [UserRole.CUSTOMER, 'account'],
     });
 
     if (transaction) {
@@ -354,7 +356,7 @@ export class NotificationService {
 
     const account = await this.accountRepository.findOne({
       where: { id: event.accountId },
-      relations: ['customer'],
+      relations: [UserRole.CUSTOMER],
     });
 
     if (account) {
@@ -368,7 +370,7 @@ export class NotificationService {
 
     const account = await this.accountRepository.findOne({
       where: { id: event.accountId },
-      relations: ['customer'],
+      relations: [UserRole.CUSTOMER],
     });
 
     if (account) {
@@ -446,7 +448,7 @@ export class NotificationService {
           }
         } catch (error) {
           if (error instanceof Error) {
-          this.logger.error(`Failed to send notification to ${recipient.id}: ${error.message}`);
+          this.logger.error(`Failed to send notification to ${recipient.id}: ${getErrorMessage(error)}`);
         } else {
           this.logger.error(`Failed to send notification to ${recipient.id}: ${JSON.stringify(error)}`);
         }
@@ -720,7 +722,7 @@ export class NotificationService {
       type,
       channel: [NotificationChannel.SMS, NotificationChannel.EMAIL],
       recipientId: transaction.customerId,
-      recipientType: 'customer',
+      recipientType: UserRole.CUSTOMER,
       data,
       priority: NotificationPriority.NORMAL,
     });
@@ -737,7 +739,7 @@ export class NotificationService {
       type: NotificationType.WELCOME,
       channel: NotificationChannel.SMS,
       recipientId: account.customerId,
-      recipientType: 'customer',
+      recipientType: UserRole.CUSTOMER,
       data,
       priority: NotificationPriority.NORMAL,
     });
@@ -755,7 +757,7 @@ export class NotificationService {
       type: NotificationType.BALANCE_LOW,
       channel: NotificationChannel.SMS,
       recipientId: account.customerId,
-      recipientType: 'customer',
+      recipientType: UserRole.CUSTOMER,
       data,
       priority: NotificationPriority.HIGH,
     });
@@ -856,11 +858,11 @@ export class NotificationService {
     } catch (error) {
       notification.status = NotificationStatus.FAILED;
       notification.failedAt = new Date();
-              notification.failureReason = error instanceof Error ? error.message : JSON.stringify(error);
+              notification.failureReason = error instanceof Error ? getErrorMessage(error) : JSON.stringify(error);
       this.notifications.set(notification.id, notification);
       
               if (error instanceof Error) {
-          this.logger.error(`Failed to send notification ${notification.id}: ${error.message}`);
+          this.logger.error(`Failed to send notification ${notification.id}: ${getErrorMessage(error)}`);
         } else {
           this.logger.error(`Failed to send notification ${notification.id}: ${JSON.stringify(error)}`);
         }

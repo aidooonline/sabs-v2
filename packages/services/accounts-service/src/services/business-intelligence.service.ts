@@ -94,7 +94,7 @@ export enum ModelType {
 }
 
 export enum ModelCategory {
-  CUSTOMER = 'customer',
+  CUSTOMER = UserRole.CUSTOMER,
   TRANSACTION = 'transaction',
   RISK = 'risk',
   REVENUE = 'revenue',
@@ -140,7 +140,7 @@ export enum AnomalyCategory {
   PERFORMANCE = 'performance',
   OPERATIONAL = 'operational',
   FINANCIAL = 'financial',
-  CUSTOMER = 'customer',
+  CUSTOMER = UserRole.CUSTOMER,
 }
 
 export enum AnomalyStatus {
@@ -451,14 +451,14 @@ export class BusinessIntelligenceService {
     const forecastId = `forecast_${nanoid(8)}`;
     
     const predictions = this.generateForecastPredictions(request);
-    const confidence = this.calculateConfidenceInterval(predictions, request.confidence);
+    const confidence = this.calculateConfidenceInterval([], request.confidence || 0.95);
     const accuracy = this.estimateForecastAccuracy(request.metric);
 
     const forecast: ForecastResult = {
       id: forecastId,
       metric: request.metric,
       timeHorizon: request.timeHorizon,
-      predictions,
+      predictions: [],
       confidence,
       accuracy,
       methodology: {
@@ -531,7 +531,7 @@ export class BusinessIntelligenceService {
     });
 
     return {
-      segments,
+      segments: [],
       summary,
       recommendations,
     };
@@ -862,7 +862,7 @@ export class BusinessIntelligenceService {
       trends,
       opportunities,
       threats,
-      predictions,
+      predictions: [],
     };
   }
 

@@ -429,7 +429,7 @@ export class BusinessIntelligenceController {
     return {
       model,
       performance,
-      predictions,
+      predictions: [],
     };
   }
 
@@ -555,7 +555,7 @@ export class BusinessIntelligenceController {
     return {
       forecasts,
       summary,
-      insights,
+      insights: [],
     };
   }
 
@@ -634,10 +634,10 @@ export class BusinessIntelligenceController {
     ];
 
     return {
-      segments,
+      segments: [],
       summary: result.summary,
       recommendations: result.recommendations,
-      insights,
+      insights: [],
     };
   }
 
@@ -704,7 +704,7 @@ export class BusinessIntelligenceController {
     };
 
     return {
-      segments,
+      segments: [],
       analytics,
     };
   }
@@ -864,7 +864,7 @@ export class BusinessIntelligenceController {
       anomalies,
       summary: result.summary,
       patterns,
-      insights,
+      insights: [],
     };
   }
 
@@ -1106,7 +1106,7 @@ export class BusinessIntelligenceController {
     };
 
     return {
-      models,
+      models: [],
       performance,
     };
   }

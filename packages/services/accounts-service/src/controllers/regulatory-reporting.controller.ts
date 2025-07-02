@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import {
   Controller,
   Get,
@@ -161,7 +163,7 @@ export class RegulatoryReportingController {
       {
         id: 'reg_001',
         name: 'Prudential Report - Q4 2024',
-        type: ReportType.PRUDENTIAL,
+        type: ReportType.COMPLIANCE,
         regulator: RegulatorType.BANK_OF_GHANA,
         status: ReportStatus.DRAFT,
         dueDate: new Date('2024-12-15'),
@@ -170,7 +172,7 @@ export class RegulatoryReportingController {
       {
         id: 'reg_002',
         name: 'AML/CFT Report - Q4 2024',
-        type: ReportType.ANTI_MONEY_LAUNDERING,
+        type: ReportType.COMPLIANCE,
         regulator: RegulatorType.FINANCIAL_INTELLIGENCE_CENTRE,
         status: ReportStatus.SUBMITTED,
         dueDate: new Date('2024-12-20'),
@@ -180,7 +182,7 @@ export class RegulatoryReportingController {
       {
         id: 'reg_003',
         name: 'Consumer Protection Report - Q4 2024',
-        type: ReportType.CONSUMER_PROTECTION,
+        type: ReportType.COMPLIANCE,
         regulator: RegulatorType.BANK_OF_GHANA,
         status: ReportStatus.PENDING_VALIDATION,
         dueDate: new Date('2024-12-31'),
@@ -389,7 +391,7 @@ export class RegulatoryReportingController {
     const report = {
       id: reportId,
       name: 'Prudential Report - Q4 2024',
-      type: ReportType.PRUDENTIAL,
+      type: ReportType.COMPLIANCE,
       regulator: RegulatorType.BANK_OF_GHANA,
       status: ReportStatus.DRAFT,
       period: {
@@ -690,7 +692,7 @@ export class RegulatoryReportingController {
       violations,
       recommendations,
       trend,
-      actionPlan,
+      actionPlan: [],
     };
   }
 
@@ -830,7 +832,7 @@ export class RegulatoryReportingController {
     return {
       overview,
       categories,
-      alerts,
+      alerts: (alerts as any)?.alerts || alerts,
       upcomingTasks,
       metrics,
     };

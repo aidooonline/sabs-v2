@@ -1,3 +1,5 @@
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -66,16 +68,7 @@ export interface AuditTrail {
 
 // ===== ENUMS =====
 
-export enum ReportType {
-  PRUDENTIAL = 'prudential',
-  ANTI_MONEY_LAUNDERING = 'anti_money_laundering',
-  CONSUMER_PROTECTION = 'consumer_protection',
-  CREDIT_REPORTING = 'credit_reporting',
-  OPERATIONAL_RISK = 'operational_risk',
-  FINANCIAL_INCLUSION = 'financial_inclusion',
-  CYBERSECURITY = 'cybersecurity',
-  DATA_PROTECTION = 'data_protection',
-}
+
 
 export enum RegulatorType {
   BANK_OF_GHANA = 'bank_of_ghana',
@@ -394,7 +387,7 @@ export class RegulatoryReportingService {
     report.auditTrail.push({
       timestamp: submittedDate,
       action: 'submitted',
-      user: 'system',
+      user: UserRole.SYSTEM,
       details: `Report submitted to ${report.regulator}`,
     });
 
@@ -450,21 +443,21 @@ export class RegulatoryReportingService {
   }> {
     const upcoming = [
       {
-        reportType: ReportType.PRUDENTIAL,
+        reportType: ReportType.COMPLIANCE,
         regulator: RegulatorType.BANK_OF_GHANA,
         dueDate: new Date('2024-12-15'),
         status: 'pending',
         priority: 'high',
       },
       {
-        reportType: ReportType.ANTI_MONEY_LAUNDERING,
+        reportType: ReportType.COMPLIANCE,
         regulator: RegulatorType.FINANCIAL_INTELLIGENCE_CENTRE,
         dueDate: new Date('2024-12-20'),
         status: 'draft',
         priority: 'critical',
       },
       {
-        reportType: ReportType.CONSUMER_PROTECTION,
+        reportType: ReportType.COMPLIANCE,
         regulator: RegulatorType.BANK_OF_GHANA,
         dueDate: new Date('2024-12-31'),
         status: 'not_started',
@@ -486,12 +479,12 @@ export class RegulatoryReportingService {
         month: 'December 2024',
         reports: [
           {
-            type: ReportType.PRUDENTIAL,
+            type: ReportType.COMPLIANCE,
             frequency: ReportingFrequency.MONTHLY,
             dueDate: new Date('2024-12-15'),
           },
           {
-            type: ReportType.ANTI_MONEY_LAUNDERING,
+            type: ReportType.COMPLIANCE,
             frequency: ReportingFrequency.QUARTERLY,
             dueDate: new Date('2024-12-20'),
           },
@@ -622,7 +615,7 @@ export class RegulatoryReportingService {
     return {
       activeRules: activeRules.length,
       violations,
-      alerts,
+      alerts: (alerts as any)?.alerts || alerts,
       recommendations,
     };
   }
@@ -733,9 +726,9 @@ export class RegulatoryReportingService {
 
   private generateReportName(type: ReportType, period: ReportingPeriod): string {
     const typeNames = {
-      [ReportType.PRUDENTIAL]: 'Prudential Report',
-      [ReportType.ANTI_MONEY_LAUNDERING]: 'AML/CFT Report',
-      [ReportType.CONSUMER_PROTECTION]: 'Consumer Protection Report',
+      [ReportType.COMPLIANCE]: 'Prudential Report',
+      [ReportType.COMPLIANCE]: 'AML/CFT Report',
+      [ReportType.COMPLIANCE]: 'Consumer Protection Report',
       [ReportType.CREDIT_REPORTING]: 'Credit Reporting Return',
       [ReportType.OPERATIONAL_RISK]: 'Operational Risk Report',
       [ReportType.FINANCIAL_INCLUSION]: 'Financial Inclusion Report',
@@ -748,9 +741,9 @@ export class RegulatoryReportingService {
 
   private determineFrequency(type: ReportType): ReportingFrequency {
     const frequencies = {
-      [ReportType.PRUDENTIAL]: ReportingFrequency.MONTHLY,
-      [ReportType.ANTI_MONEY_LAUNDERING]: ReportingFrequency.QUARTERLY,
-      [ReportType.CONSUMER_PROTECTION]: ReportingFrequency.QUARTERLY,
+      [ReportType.COMPLIANCE]: ReportingFrequency.MONTHLY,
+      [ReportType.COMPLIANCE]: ReportingFrequency.QUARTERLY,
+      [ReportType.COMPLIANCE]: ReportingFrequency.QUARTERLY,
       [ReportType.CREDIT_REPORTING]: ReportingFrequency.MONTHLY,
       [ReportType.OPERATIONAL_RISK]: ReportingFrequency.QUARTERLY,
       [ReportType.FINANCIAL_INCLUSION]: ReportingFrequency.ANNUALLY,
@@ -763,9 +756,9 @@ export class RegulatoryReportingService {
 
   private calculateDueDate(type: ReportType, period: ReportingPeriod): Date {
     const daysAfterPeriod = {
-      [ReportType.PRUDENTIAL]: 15,
-      [ReportType.ANTI_MONEY_LAUNDERING]: 30,
-      [ReportType.CONSUMER_PROTECTION]: 45,
+      [ReportType.COMPLIANCE]: 15,
+      [ReportType.COMPLIANCE]: 30,
+      [ReportType.COMPLIANCE]: 45,
       [ReportType.CREDIT_REPORTING]: 10,
       [ReportType.OPERATIONAL_RISK]: 60,
       [ReportType.FINANCIAL_INCLUSION]: 90,
@@ -880,9 +873,9 @@ export class RegulatoryReportingService {
 
   private getSubmissionWindow(type: ReportType): number {
     const windows = {
-      [ReportType.PRUDENTIAL]: 5,
-      [ReportType.ANTI_MONEY_LAUNDERING]: 3,
-      [ReportType.CONSUMER_PROTECTION]: 7,
+      [ReportType.COMPLIANCE]: 5,
+      [ReportType.COMPLIANCE]: 3,
+      [ReportType.COMPLIANCE]: 7,
       [ReportType.CREDIT_REPORTING]: 2,
       [ReportType.OPERATIONAL_RISK]: 10,
       [ReportType.FINANCIAL_INCLUSION]: 14,
