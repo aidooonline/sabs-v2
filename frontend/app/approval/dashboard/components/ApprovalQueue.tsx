@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import type { ApprovalWorkflow } from '../../../../types/approval';
+import { ApprovalConfirmationDialog } from './ApprovalConfirmationDialog';
 import { 
   getStatusLabel, 
   getStatusColor, 
@@ -35,12 +36,36 @@ const WorkflowCard: React.FC<{
   workflow: ApprovalWorkflow;
   isSelected: boolean;
   onSelect: (selected: boolean) => void;
-}> = ({ workflow, isSelected, onSelect }) => {
+  index: number;
+}> = ({ workflow, isSelected, onSelect, index }) => {
+  const [showApprovalDialog, setShowApprovalDialog] = useState(false);
   const urgencyScore = calculateWorkflowUrgency(workflow);
   const slaStatus = calculateSLAStatus(workflow);
 
+  const handleQuickApprove = () => {
+    setShowApprovalDialog(true);
+  };
+
+  const handleConfirmApproval = () => {
+    // Here you would call the actual approval API
+    console.log(`Approving workflow ${workflow.workflowNumber}`);
+    setShowApprovalDialog(false);
+    
+    // Mock success notification
+    setTimeout(() => {
+      const successDiv = document.createElement('div');
+      successDiv.textContent = 'Workflow approved successfully';
+      successDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: green; color: white; padding: 10px; border-radius: 4px; z-index: 9999;';
+      document.body.appendChild(successDiv);
+      setTimeout(() => document.body.removeChild(successDiv), 3000);
+    }, 100);
+  };
+
   return (
-    <div className={`approval-card ${isSelected ? 'selected' : ''}`}>
+    <div 
+      className={`approval-card ${isSelected ? 'selected' : ''}`}
+      data-testid={`workflow-item-${index}`}
+    >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">
           <input
@@ -48,6 +73,7 @@ const WorkflowCard: React.FC<{
             checked={isSelected}
             onChange={(e) => onSelect(e.target.checked)}
             className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+            data-testid={`workflow-checkbox-${index}`}
           />
           <div>
             <Link 
@@ -63,7 +89,10 @@ const WorkflowCard: React.FC<{
         </div>
         
         <div className="flex items-center space-x-2">
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(workflow.status)}`}>
+          <span 
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(workflow.status)}`}
+            data-testid={`workflow-status-${workflow.workflowNumber}`}
+          >
             {getStatusLabel(workflow.status)}
           </span>
           
@@ -152,10 +181,17 @@ const WorkflowCard: React.FC<{
             </Link>
             {workflow.status === 'pending' && (
               <>
-                <button className="approval-button approval-button-approve text-xs px-3 py-1">
+                <button 
+                  className="approval-button approval-button-approve text-xs px-3 py-1"
+                  data-testid={`quick-approve-${workflow.workflowNumber}`}
+                  onClick={handleQuickApprove}
+                >
                   Quick Approve
                 </button>
-                <button className="approval-button approval-button-reject text-xs px-3 py-1">
+                <button 
+                  className="approval-button approval-button-reject text-xs px-3 py-1"
+                  data-testid={`quick-reject-${workflow.workflowNumber}`}
+                >
                   Reject
                 </button>
               </>
@@ -163,6 +199,14 @@ const WorkflowCard: React.FC<{
           </div>
         </div>
       </div>
+
+      {/* Approval Confirmation Dialog */}
+      <ApprovalConfirmationDialog
+        isOpen={showApprovalDialog}
+        workflowNumber={workflow.workflowNumber}
+        onConfirm={handleConfirmApproval}
+        onCancel={() => setShowApprovalDialog(false)}
+      />
     </div>
   );
 };
@@ -204,19 +248,20 @@ export const ApprovalQueue: React.FC<ApprovalQueueProps> = ({
     <div>
       {/* Workflows Grid */}
       <div className="approval-queue mb-6">
-        {workflows.map((workflow) => (
+        {workflows.map((workflow, index) => (
           <WorkflowCard
             key={workflow.id}
             workflow={workflow}
             isSelected={selectedWorkflows.includes(workflow.id)}
             onSelect={(selected) => onWorkflowSelect(workflow.id, selected)}
+            index={index}
           />
         ))}
       </div>
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6" data-testid="pagination-controls">
           <div className="flex-1 flex justify-between sm:hidden">
             <button
               onClick={() => onPageChange(pagination.currentPage - 1)}

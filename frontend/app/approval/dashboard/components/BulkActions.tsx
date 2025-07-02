@@ -108,7 +108,7 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
 
   return (
     <>
-      <div className="bg-white border border-primary-200 rounded-lg p-4 shadow-sm">
+      <div className="bg-white border border-primary-200 rounded-lg p-4 shadow-sm" data-testid="bulk-actions-bar">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="flex items-center">
@@ -166,6 +166,7 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
                 onClick={() => handleBulkAction('escalate')}
                 disabled={isLoading}
                 className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-warning-600 hover:bg-warning-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-warning-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                data-testid="bulk-assign-button"
               >
                 {isEscalating ? (
                   <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
@@ -199,7 +200,10 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
       {/* Authorization Modal */}
       {showAuthModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div 
+            className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white"
+            data-testid="bulk-assignment-dialog"
+          >
             <div className="mt-3">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium text-gray-900">
