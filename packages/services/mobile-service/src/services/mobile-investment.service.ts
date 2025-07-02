@@ -250,7 +250,9 @@ export class MobileInvestmentService {
   }> {
     this.logger.log(`Creating portfolio for customer ${customerId}: ${request.name}`);
 
-    const customerPortfolios = this.portfolios.get(customerId) || [];
+    const customerPortfolios = Array.from(this.portfolios.values()).filter(
+      p => p.customerId === customerId
+    );
     if (customerPortfolios.length >= this.investmentConfig.maxPortfolios) {
       throw new BadRequestException(`Maximum ${this.investmentConfig.maxPortfolios} portfolios allowed`);
     }

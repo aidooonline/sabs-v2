@@ -305,7 +305,7 @@ export class MobileDashboardService {
   }> {
     this.logger.log(`Getting account details for ${accountId}`);
 
-    const account = accounts.find(acc => 
+    const account = Array.from(this.accounts.values()).find(acc => 
       acc.id === accountId && acc.customerId === customerId
     );
 
@@ -920,13 +920,4 @@ export class MobileDashboardService {
   }
 }
 
-// Export interfaces for use in other modules
-export {
-  CustomerAccount,
-  DashboardSummary,
-  TransactionSummary,
-  BalanceAlert,
-  FinancialInsight,
-  SpendingCategory,
-  QuickAction,
-};
+// Note: All interfaces are already exported with 'export interface' declarations above
