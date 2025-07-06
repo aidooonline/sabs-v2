@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { rest } from 'msw';
-import { setupServer } from 'msw/node';
+import { server } from '../setup/mocks/server';
 
 // Import real Redux slices and APIs
 import authSlice from '../../store/slices/authSlice';
@@ -109,24 +109,6 @@ const mockQueueMetrics = {
   ]
 };
 
-// MSW server setup with MSW v1 syntax
-const server = setupServer(
-  // Workflows endpoint
-  rest.get('/api/approval-workflow/workflows', (req, res, ctx) => {
-    return res(ctx.json(mockWorkflowsData));
-  }),
-  
-  // Dashboard stats endpoint
-  rest.get('/api/approval-workflow/dashboard/stats', (req, res, ctx) => {
-    return res(ctx.json(mockDashboardStats));
-  }),
-  
-  // Queue metrics endpoint
-  rest.get('/api/approval-workflow/dashboard/queue-metrics', (req, res, ctx) => {
-    return res(ctx.json(mockQueueMetrics));
-  })
-);
-
 // Helper function to create test store
 const createTestStore = () => {
   return configureStore({
@@ -157,11 +139,22 @@ const renderWithStore = (component: React.ReactElement) => {
 };
 
 describe('ApprovalDashboard Integration Tests', () => {
-  beforeAll(() => server.listen());
-  afterEach(() => {
-    server.resetHandlers();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    
+    // Use the global server and add test-specific handlers
+    server.use(
+      rest.get('/api/approval-workflow/workflows', (req, res, ctx) => {
+        return res(ctx.json(mockWorkflowsData));
+      }),
+      rest.get('/api/approval-workflow/dashboard/stats', (req, res, ctx) => {
+        return res(ctx.json(mockDashboardStats));
+      }),
+      rest.get('/api/approval-workflow/dashboard/queue-metrics', (req, res, ctx) => {
+        return res(ctx.json(mockQueueMetrics));
+      })
+    );
   });
-  afterAll(() => server.close());
 
   describe('Dashboard Loading and Basic Functionality', () => {
     it('should load and display dashboard with data', async () => {
@@ -222,7 +215,7 @@ describe('ApprovalDashboard Integration Tests', () => {
 
   describe('Error Handling', () => {
     it('should handle API errors gracefully', async () => {
-      // Override server to return error
+      // Override global server to return error
       server.use(
         rest.get('/api/approval-workflow/workflows', (req, res, ctx) => {
           return res(ctx.status(500), ctx.json({ message: 'Server Error' }));
@@ -238,7 +231,7 @@ describe('ApprovalDashboard Integration Tests', () => {
     });
 
     it('should handle empty workflow list', async () => {
-      // Override server to return empty data
+      // Override global server to return empty data
       server.use(
         rest.get('/api/approval-workflow/workflows', (req, res, ctx) => {
           return res(ctx.json({

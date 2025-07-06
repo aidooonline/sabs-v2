@@ -204,124 +204,31 @@ if (typeof global.Headers === 'undefined') {
   };
 }
 
-// Enhanced Mock fetch for RTK Query with proper endpoint handling and clone support
-const createMockFetch = () => {
-  // Create mock response storage
-  const mockEndpointResponses = new Map();
-  const mockEndpointDelays = new Map();
-  const mockEndpointErrors = new Map();
-
-  // Helper function to create Response-like object with clone method
-  const createMockResponse = (body, options = {}) => {
-    const responseData = JSON.stringify(body);
-    const response = new Response(responseData, {
-      status: options.status || 200,
-      statusText: options.statusText || (options.status === 200 ? 'OK' : 'Error'),
-      headers: new Headers({ 'Content-Type': 'application/json', ...options.headers })
-    });
-    
-    // Ensure clone method works properly for RTK Query
-    const originalClone = response.clone;
-    response.clone = function() {
-      try {
-        return originalClone.call(this);
-      } catch (e) {
-        // Fallback implementation if native clone fails
-        return new Response(responseData, {
+// Only set up custom fetch mock if MSW is not being used
+// MSW provides its own fetch mocking that's more comprehensive
+if (typeof global.fetch === 'undefined') {
+  // Basic fetch implementation for tests that don't use MSW
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      json: () => Promise.resolve({}),
+      text: () => Promise.resolve(''),
+      clone() {
+        return {
+          ok: this.ok,
           status: this.status,
           statusText: this.statusText,
-          headers: this.headers
-        });
-      }
-    };
-    
-    return response;
-  };
-
-  const fetchMock = jest.fn((url, options) => {
-    // Check for endpoint-specific configurations
-    const endpoint = url;
-    
-    // Check for error simulation first
-    for (const [errorEndpoint, errorConfig] of mockEndpointErrors) {
-      if (url.includes(errorEndpoint)) {
-        if (errorConfig.status === 0) {
-          return Promise.reject(new Error(errorConfig.message || 'Network Error'));
-        }
-        
-        const errorResponse = createMockResponse(
-          { message: errorConfig.message }, 
-          { status: errorConfig.status, statusText: 'Error' }
-        );
-        
-        return Promise.resolve(errorResponse);
-      }
-    }
-    
-    // Check for delay simulation
-    for (const [delayEndpoint, delayMs] of mockEndpointDelays) {
-      if (url.includes(delayEndpoint)) {
-        return new Promise(resolve => {
-          setTimeout(() => {
-            const response = createMockResponse({});
-            resolve(response);
-          }, delayMs);
-        });
-      }
-    }
-    
-    // Check for custom response
-    for (const [responseEndpoint, responseConfig] of mockEndpointResponses) {
-      if (url.includes(responseEndpoint)) {
-        const response = createMockResponse(
-          responseConfig.data || {}, 
-          { status: responseConfig.status || 200 }
-        );
-        
-        return Promise.resolve(response);
-      }
-    }
-    
-    // Default response with proper clone support
-    const defaultResponse = createMockResponse({});
-    return Promise.resolve(defaultResponse);
-  });
-
-  // Add test utility methods that actually work
-  fetchMock.setEndpointResponse = jest.fn((endpoint, response) => {
-    mockEndpointResponses.set(endpoint, response);
-  });
-
-  fetchMock.simulateError = jest.fn((endpoint, status, message) => {
-    mockEndpointErrors.set(endpoint, { status, message });
-  });
-
-  fetchMock.simulateSlowNetwork = jest.fn((endpoint, delay) => {
-    mockEndpointDelays.set(endpoint, delay);
-  });
-
-  // Add reset method
-  fetchMock.resetMocks = jest.fn(() => {
-    mockEndpointResponses.clear();
-    mockEndpointDelays.clear();
-    mockEndpointErrors.clear();
-    fetchMock.mockClear();
-  });
-
-  // Add clearMocks method (alias for resetMocks)
-  fetchMock.clearMocks = jest.fn(() => {
-    fetchMock.resetMocks();
-  });
-
-  // Store references for debugging
-  fetchMock._mockEndpointResponses = mockEndpointResponses;
-  fetchMock._mockEndpointDelays = mockEndpointDelays;
-  fetchMock._mockEndpointErrors = mockEndpointErrors;
-
-  return fetchMock;
-};
-
-global.fetch = createMockFetch();
+          json: () => Promise.resolve({}),
+          text: () => Promise.resolve(''),
+          headers: new Headers(),
+        };
+      },
+      headers: new Headers(),
+    })
+  );
+}
 
 // ===== WEBSOCKET MOCK =====
 // Mock WebSocket for testing
@@ -391,27 +298,7 @@ class MockWebSocket {
 
 global.WebSocket = MockWebSocket;
 
-// Reset fetch mock before each test - only if it's our mock (not MSW)
-beforeEach(() => {
-  if (global.fetch && typeof global.fetch.mockClear === 'function') {
-    global.fetch.mockClear();
-  }
-  if (global.fetch && typeof global.fetch.resetMocks === 'function') {
-    global.fetch.resetMocks();
-  }
-  if (global.fetch && global.fetch.clearMocks && typeof global.fetch.clearMocks.mockClear === 'function') {
-    global.fetch.clearMocks.mockClear();
-  }
-  if (global.fetch && global.fetch.setEndpointResponse && typeof global.fetch.setEndpointResponse.mockClear === 'function') {
-    global.fetch.setEndpointResponse.mockClear();
-  }
-  if (global.fetch && global.fetch.simulateError && typeof global.fetch.simulateError.mockClear === 'function') {
-    global.fetch.simulateError.mockClear();
-  }
-  if (global.fetch && global.fetch.simulateSlowNetwork && typeof global.fetch.simulateSlowNetwork.mockClear === 'function') {
-    global.fetch.simulateSlowNetwork.mockClear();
-  }
-});
+// Note: MSW will handle fetch mocking when used, so no need for custom fetch reset
 
 // Mock localStorage
 const localStorageMock = {
