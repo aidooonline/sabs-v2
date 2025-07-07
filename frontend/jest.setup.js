@@ -263,6 +263,26 @@ if (typeof global.fetch === 'undefined') {
   require('whatwg-fetch');
 }
 
+// Import and start MSW server for all tests
+const { server } = require('./tests/setup/mocks/server');
+
+// Start MSW server before all tests
+beforeAll(() => {
+  server.listen({ 
+    onUnhandledRequest: 'bypass' 
+  });
+});
+
+// Reset handlers after each test
+afterEach(() => {
+  server.resetHandlers();
+});
+
+// Close server after all tests
+afterAll(() => {
+  server.close();
+});
+
 // Additional RTK Query + MSW compatibility fixes
 // Ensure all response methods are properly implemented
 if (typeof global.Response !== 'undefined') {

@@ -529,18 +529,11 @@ export const handlers = [
 // Create and export the server with enhanced logging
 export const server = setupServer(...handlers);
 
-// Add request logging for debugging
-server.events.on('request:start', (req) => {
-  console.log('MSW intercepted:', req.method, req.url.toString());
-});
-
-server.events.on('request:match', (req) => {
-  console.log('MSW matched:', req.method, req.url.toString());
-});
-
-server.events.on('request:unhandled', (req) => {
-  console.log('MSW unhandled:', req.method, req.url.toString());
-});
+// MSW server logging (disabled for cleaner test output)
+// Uncomment below for debugging MSW request handling:
+// server.events.on('request:start', (req) => console.log('MSW intercepted:', req.method, req.url.toString()));
+// server.events.on('request:match', (req) => console.log('MSW matched:', req.method, req.url.toString()));
+// server.events.on('request:unhandled', (req) => console.log('MSW unhandled:', req.method, req.url.toString()));
 
 // Export mock tracking for test assertions
 export const mockApiEndpoints = {

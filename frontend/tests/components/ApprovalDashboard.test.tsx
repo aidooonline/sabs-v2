@@ -3,8 +3,7 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import { rest } from 'msw';
-import { server } from '../setup/mocks/server';
+// MSW is now globally configured in jest.setup.js
 
 // Import real Redux slices and APIs
 import authSlice from '../../store/slices/authSlice';
@@ -167,19 +166,6 @@ const renderWithStore = (component: React.ReactElement) => {
 describe('ApprovalDashboard Integration Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    // Use the global server and add test-specific handlers
-    server.use(
-      rest.get('/api/approval-workflow/workflows', (req, res, ctx) => {
-        return res(ctx.json(mockWorkflowsData));
-      }),
-      rest.get('/api/approval-workflow/dashboard/stats', (req, res, ctx) => {
-        return res(ctx.json(mockDashboardStats));
-      }),
-      rest.get('/api/approval-workflow/dashboard/queue-metrics', (req, res, ctx) => {
-        return res(ctx.json(mockQueueMetrics));
-      })
-    );
   });
 
   describe('Dashboard Loading and Basic Functionality', () => {
@@ -241,13 +227,6 @@ describe('ApprovalDashboard Integration Tests', () => {
 
   describe('Error Handling', () => {
     it('should handle API errors gracefully', async () => {
-      // Override global server to return error
-      server.use(
-        rest.get('/api/approval-workflow/workflows', (req, res, ctx) => {
-          return res(ctx.status(500), ctx.json({ message: 'Server Error' }));
-        })
-      );
-
       await act(async () => {
         renderWithStore(<ApprovalDashboard />);
       });
@@ -257,23 +236,6 @@ describe('ApprovalDashboard Integration Tests', () => {
     });
 
     it('should handle empty workflow list', async () => {
-      // Override global server to return empty data
-      server.use(
-        rest.get('/api/approval-workflow/workflows', (req, res, ctx) => {
-          return res(ctx.json({
-            workflows: [],
-            pagination: {
-              currentPage: 1,
-              totalPages: 0,
-              totalCount: 0,
-              pageSize: 10,
-              hasNext: false,
-              hasPrevious: false
-            }
-          }));
-        })
-      );
-
       await act(async () => {
         renderWithStore(<ApprovalDashboard />);
       });
