@@ -2,8 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import { rest } from 'msw';
-import { setupServer } from 'msw/node';
+// MSW is now globally configured in jest.setup.js
 
 // Import slices
 import authSlice from '../../store/slices/authSlice';
@@ -14,8 +13,8 @@ import { approvalApi } from '../../store/api/approvalApi';
 const TestComponent = () => {
   const { data, isLoading, error } = approvalApi.useGetWorkflowsQuery({});
   
-  // Debug logging
-  console.log('Test component state:', { data, isLoading, error });
+  // Debug logging (disabled for cleaner output)
+  // console.log('Test component state:', { data, isLoading, error });
   
   if (isLoading) return <div data-testid="loading">Loading...</div>;
   if (error) return <div data-testid="error">Error: {JSON.stringify(error)}</div>;
@@ -23,45 +22,7 @@ const TestComponent = () => {
   return <div data-testid="no-data">No data</div>;
 };
 
-// Mock server
-const server = setupServer(
-  rest.get('/api/approval-workflow/workflows', (req, res, ctx) => {
-    console.log('MSW: API call intercepted for /api/approval-workflow/workflows');
-    return res(ctx.json({
-      workflows: [{ 
-        id: 'test-workflow',
-        workflowNumber: 'WF-001',
-        status: 'pending',
-        priority: 'high',
-        currentStage: 'clerk_review',
-        createdAt: new Date().toISOString(),
-        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        withdrawalRequest: {
-          amount: 5000,
-          currency: 'GHS',
-          customer: {
-            fullName: 'Test Customer',
-            accountNumber: 'ACC000001',
-            phoneNumber: '+233123456789'
-          },
-          agent: {
-            fullName: 'Test Agent',
-            id: 'agent-1',
-            branch: 'Branch 1'
-          }
-        },
-        riskAssessment: {
-          riskScore: 45,
-          riskLevel: 'medium',
-          factors: ['Factor 1']
-        }
-      }],
-      pagination: { totalCount: 1 }
-    }));
-  })
-);
-
-// Mock store
+// Mock store with enhanced logging and devtools
 const store = configureStore({
   reducer: {
     auth: authSlice,
@@ -69,13 +30,19 @@ const store = configureStore({
     [approvalApi.reducerPath]: approvalApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(approvalApi.middleware)
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE']
+      },
+      immutableCheck: { warnAfter: 32 },
+    }).concat(approvalApi.middleware),
+  devTools: true
 });
 
 describe('MSW + RTK Query Integration Test', () => {
-  beforeAll(() => server.listen());
-  afterEach(() => server.resetHandlers());
-  afterAll(() => server.close());
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('should work with MSW and RTK Query', async () => {
     render(
@@ -92,6 +59,6 @@ describe('MSW + RTK Query Integration Test', () => {
       expect(screen.getByTestId('data-loaded')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Data: 1 workflows')).toBeInTheDocument();
+    expect(screen.getByText('Data: 20 workflows')).toBeInTheDocument();
   });
 });

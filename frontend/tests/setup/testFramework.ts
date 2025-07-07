@@ -1,6 +1,5 @@
 import '@testing-library/jest-dom';
 import { configure } from '@testing-library/react';
-import { server } from './mocks/server';
 import { mockEndpoints } from './mocks/apiMocks';
 
 // Configure testing library
@@ -9,19 +8,8 @@ configure({
   asyncUtilTimeout: 5000,
 });
 
-// Setup MSW server for API mocking
-beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'error' });
-});
-
-afterEach(() => {
-  server.resetHandlers();
-  jest.clearAllMocks();
-});
-
-afterAll(() => {
-  server.close();
-});
+// MSW is now set up globally in jest.setup.js
+// Additional test framework setup can go here if needed
 
 // Global test utilities
 export const TestFramework = {

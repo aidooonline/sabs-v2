@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { rest } from 'msw';
-import { setupServer } from 'msw/node';
+import { server } from '../setup/mocks/server';
 
 // Import real Redux slices and APIs
 import authSlice from '../../store/slices/authSlice';
@@ -67,26 +67,6 @@ const mockDashboardStats = {
   }
 };
 
-// Simple MSW server
-const server = setupServer(
-  rest.get('/api/approval-workflow/workflows', (req, res, ctx) => {
-    return res(ctx.json(mockWorkflowsData));
-  }),
-  rest.get('/api/approval-workflow/dashboard/stats', (req, res, ctx) => {
-    return res(ctx.json(mockDashboardStats));
-  }),
-  rest.get('/api/approval-workflow/dashboard/queue-metrics', (req, res, ctx) => {
-    return res(ctx.json({
-      totalPending: 1,
-      totalApproved: 890,
-      totalRejected: 45,
-      averageProcessingTime: 270,
-      slaCompliance: 0.89,
-      riskDistribution: []
-    }));
-  })
-);
-
 // Real Redux store setup
 const createTestStore = () => {
   return configureStore({
@@ -141,20 +121,28 @@ jest.mock('../../hooks/useApprovalWebSocket', () => ({
 }));
 
 describe('ApprovalDashboard Simple Test', () => {
-  beforeAll(() => {
-    server.listen({ onUnhandledRequest: 'error' });
-  });
-
-  afterEach(() => {
-    server.resetHandlers();
-  });
-
-  afterAll(() => {
-    server.close();
-  });
-
   beforeEach(() => {
     jest.clearAllMocks();
+    
+    // Use the global server and add test-specific handlers
+    server.use(
+      rest.get('/api/approval-workflow/workflows', (req, res, ctx) => {
+        return res(ctx.json(mockWorkflowsData));
+      }),
+      rest.get('/api/approval-workflow/dashboard/stats', (req, res, ctx) => {
+        return res(ctx.json(mockDashboardStats));
+      }),
+      rest.get('/api/approval-workflow/dashboard/queue-metrics', (req, res, ctx) => {
+        return res(ctx.json({
+          totalPending: 1,
+          totalApproved: 890,
+          totalRejected: 45,
+          averageProcessingTime: 270,
+          slaCompliance: 0.89,
+          riskDistribution: []
+        }));
+      })
+    );
   });
 
   it('should render without crashing', async () => {

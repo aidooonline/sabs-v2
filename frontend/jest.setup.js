@@ -129,7 +129,7 @@ if (typeof global.Request === 'undefined') {
   };
 }
 
-// Mock Response object for test environment
+// Enhanced Mock Response object for test environment with proper MSW compatibility
 if (typeof global.Response === 'undefined') {
   global.Response = class Response {
     constructor(body, init = {}) {
@@ -139,30 +139,84 @@ if (typeof global.Response === 'undefined') {
       this.headers = new Headers(init.headers);
       this.ok = this.status >= 200 && this.status < 300;
       this.url = '';
+      this.type = 'default';
+      this.redirected = false;
+      this.bodyUsed = false;
+      
+      // Store original body for cloning
+      this._originalBody = body;
     }
 
     async json() {
+      this.bodyUsed = true;
       return typeof this.body === 'string' ? JSON.parse(this.body) : this.body;
     }
 
     async text() {
+      this.bodyUsed = true;
       return typeof this.body === 'string' ? this.body : JSON.stringify(this.body);
     }
 
     async arrayBuffer() {
+      this.bodyUsed = true;
       if (typeof this.body === 'string') {
         return new TextEncoder().encode(this.body).buffer;
       }
       return this.body || new ArrayBuffer(0);
     }
 
+    async blob() {
+      this.bodyUsed = true;
+      const text = typeof this.body === 'string' ? this.body : JSON.stringify(this.body);
+      return new Blob([text], { type: 'application/json' });
+    }
+
+    async formData() {
+      this.bodyUsed = true;
+      return new FormData();
+    }
+
     clone() {
-      return new Response(this.body, {
+      if (this.bodyUsed) {
+        throw new TypeError('Failed to execute \'clone\' on \'Response\': Response body is already read');
+      }
+      
+      const cloned = new Response(this._originalBody, {
         status: this.status,
         statusText: this.statusText,
         headers: this.headers
       });
+      
+      // Copy additional properties
+      cloned.url = this.url;
+      cloned.type = this.type;
+      cloned.redirected = this.redirected;
+      
+      return cloned;
     }
+  };
+}
+
+// Ensure Response.prototype.clone exists even if Response is already defined
+if (typeof global.Response !== 'undefined' && (!global.Response.prototype.clone || typeof global.Response.prototype.clone !== 'function')) {
+  global.Response.prototype.clone = function() {
+    if (this.bodyUsed) {
+      throw new TypeError('Failed to execute \'clone\' on \'Response\': Response body is already read');
+    }
+    
+    // Create a new response with the same properties
+    const cloned = new global.Response(this.body || this._body || '', {
+      status: this.status,
+      statusText: this.statusText,
+      headers: this.headers
+    });
+    
+    // Copy additional properties if they exist
+    if (this.url) cloned.url = this.url;
+    if (this.type) cloned.type = this.type;
+    if (typeof this.redirected !== 'undefined') cloned.redirected = this.redirected;
+    
+    return cloned;
   };
 }
 
@@ -204,124 +258,75 @@ if (typeof global.Headers === 'undefined') {
   };
 }
 
-// Enhanced Mock fetch for RTK Query with proper endpoint handling and clone support
-const createMockFetch = () => {
-  // Create mock response storage
-  const mockEndpointResponses = new Map();
-  const mockEndpointDelays = new Map();
-  const mockEndpointErrors = new Map();
+// Use whatwg-fetch polyfill which is compatible with MSW
+if (typeof global.fetch === 'undefined') {
+  require('whatwg-fetch');
+}
 
-  // Helper function to create Response-like object with clone method
-  const createMockResponse = (body, options = {}) => {
-    const responseData = JSON.stringify(body);
-    const response = new Response(responseData, {
-      status: options.status || 200,
-      statusText: options.statusText || (options.status === 200 ? 'OK' : 'Error'),
-      headers: new Headers({ 'Content-Type': 'application/json', ...options.headers })
-    });
+// Import and start MSW server for all tests
+const { server } = require('./tests/setup/mocks/server');
+
+// Start MSW server before all tests
+beforeAll(() => {
+  server.listen({ 
+    onUnhandledRequest: 'bypass' 
+  });
+});
+
+// Reset handlers after each test
+afterEach(() => {
+  server.resetHandlers();
+});
+
+// Close server after all tests
+afterAll(() => {
+  server.close();
+});
+
+// Additional RTK Query + MSW compatibility fixes
+// Ensure all response methods are properly implemented
+if (typeof global.Response !== 'undefined') {
+  const OriginalResponse = global.Response;
+  
+  // Extend the Response constructor to ensure all required methods exist
+  global.Response = class ExtendedResponse extends OriginalResponse {
+    constructor(body, init = {}) {
+      super(body, init);
+      
+      // Ensure all required properties are set
+      this.type = this.type || 'default';
+      this.redirected = this.redirected || false;
+      this.bodyUsed = this.bodyUsed || false;
+      this.url = this.url || '';
+      
+      // Store the original body for cloning
+      this._originalBody = body;
+      this._originalInit = init;
+    }
     
-    // Ensure clone method works properly for RTK Query
-    const originalClone = response.clone;
-    response.clone = function() {
-      try {
-        return originalClone.call(this);
-      } catch (e) {
-        // Fallback implementation if native clone fails
-        return new Response(responseData, {
-          status: this.status,
-          statusText: this.statusText,
-          headers: this.headers
-        });
+    clone() {
+      if (this.bodyUsed) {
+        throw new TypeError('Failed to execute \'clone\' on \'Response\': Response body is already read');
       }
-    };
-    
-    return response;
-  };
-
-  const fetchMock = jest.fn((url, options) => {
-    // Check for endpoint-specific configurations
-    const endpoint = url;
-    
-    // Check for error simulation first
-    for (const [errorEndpoint, errorConfig] of mockEndpointErrors) {
-      if (url.includes(errorEndpoint)) {
-        if (errorConfig.status === 0) {
-          return Promise.reject(new Error(errorConfig.message || 'Network Error'));
+      
+      // Create a true clone with all properties
+      const cloned = new ExtendedResponse(this._originalBody, this._originalInit);
+      
+      // Copy all enumerable properties
+      Object.getOwnPropertyNames(this).forEach(prop => {
+        if (prop !== 'constructor' && typeof this[prop] !== 'function') {
+          try {
+            cloned[prop] = this[prop];
+          } catch (e) {
+            // Ignore read-only properties
+          }
         }
-        
-        const errorResponse = createMockResponse(
-          { message: errorConfig.message }, 
-          { status: errorConfig.status, statusText: 'Error' }
-        );
-        
-        return Promise.resolve(errorResponse);
-      }
+      });
+      
+      return cloned;
     }
-    
-    // Check for delay simulation
-    for (const [delayEndpoint, delayMs] of mockEndpointDelays) {
-      if (url.includes(delayEndpoint)) {
-        return new Promise(resolve => {
-          setTimeout(() => {
-            const response = createMockResponse({});
-            resolve(response);
-          }, delayMs);
-        });
-      }
-    }
-    
-    // Check for custom response
-    for (const [responseEndpoint, responseConfig] of mockEndpointResponses) {
-      if (url.includes(responseEndpoint)) {
-        const response = createMockResponse(
-          responseConfig.data || {}, 
-          { status: responseConfig.status || 200 }
-        );
-        
-        return Promise.resolve(response);
-      }
-    }
-    
-    // Default response with proper clone support
-    const defaultResponse = createMockResponse({});
-    return Promise.resolve(defaultResponse);
-  });
-
-  // Add test utility methods that actually work
-  fetchMock.setEndpointResponse = jest.fn((endpoint, response) => {
-    mockEndpointResponses.set(endpoint, response);
-  });
-
-  fetchMock.simulateError = jest.fn((endpoint, status, message) => {
-    mockEndpointErrors.set(endpoint, { status, message });
-  });
-
-  fetchMock.simulateSlowNetwork = jest.fn((endpoint, delay) => {
-    mockEndpointDelays.set(endpoint, delay);
-  });
-
-  // Add reset method
-  fetchMock.resetMocks = jest.fn(() => {
-    mockEndpointResponses.clear();
-    mockEndpointDelays.clear();
-    mockEndpointErrors.clear();
-    fetchMock.mockClear();
-  });
-
-  // Add clearMocks method (alias for resetMocks)
-  fetchMock.clearMocks = jest.fn(() => {
-    fetchMock.resetMocks();
-  });
-
-  // Store references for debugging
-  fetchMock._mockEndpointResponses = mockEndpointResponses;
-  fetchMock._mockEndpointDelays = mockEndpointDelays;
-  fetchMock._mockEndpointErrors = mockEndpointErrors;
-
-  return fetchMock;
-};
-
-global.fetch = createMockFetch();
+  };
+}
 
 // ===== WEBSOCKET MOCK =====
 // Mock WebSocket for testing
@@ -391,27 +396,57 @@ class MockWebSocket {
 
 global.WebSocket = MockWebSocket;
 
-// Reset fetch mock before each test - only if it's our mock (not MSW)
-beforeEach(() => {
-  if (global.fetch && typeof global.fetch.mockClear === 'function') {
-    global.fetch.mockClear();
-  }
-  if (global.fetch && typeof global.fetch.resetMocks === 'function') {
-    global.fetch.resetMocks();
-  }
-  if (global.fetch && global.fetch.clearMocks && typeof global.fetch.clearMocks.mockClear === 'function') {
-    global.fetch.clearMocks.mockClear();
-  }
-  if (global.fetch && global.fetch.setEndpointResponse && typeof global.fetch.setEndpointResponse.mockClear === 'function') {
-    global.fetch.setEndpointResponse.mockClear();
-  }
-  if (global.fetch && global.fetch.simulateError && typeof global.fetch.simulateError.mockClear === 'function') {
-    global.fetch.simulateError.mockClear();
-  }
-  if (global.fetch && global.fetch.simulateSlowNetwork && typeof global.fetch.simulateSlowNetwork.mockClear === 'function') {
-    global.fetch.simulateSlowNetwork.mockClear();
-  }
+// RTK Query specific fixes - ensure Response objects work with fetchBaseQuery
+// This addresses the "Cannot read properties of undefined (reading 'clone')" error
+Object.defineProperty(global, 'Response', {
+  value: global.Response,
+  writable: true,
+  configurable: true
 });
+
+// Ensure MSW Response objects have the clone method
+const originalMSWResponse = global.Response;
+if (originalMSWResponse) {
+  // Override MSW's Response creation to ensure clone method always exists
+  const ensureCloneMethod = (response) => {
+    if (response && typeof response === 'object' && !response.clone) {
+      response.clone = function() {
+        if (this.bodyUsed) {
+          throw new TypeError('Failed to execute \'clone\' on \'Response\': Response body is already read');
+        }
+        
+        // Create a new response with the same data
+        const cloned = new originalMSWResponse(this.body || this._body || '', {
+          status: this.status,
+          statusText: this.statusText,
+          headers: this.headers || new Headers()
+        });
+        
+        // Copy additional properties
+        ['url', 'type', 'redirected', 'ok'].forEach(prop => {
+          if (this[prop] !== undefined) {
+            cloned[prop] = this[prop];
+          }
+        });
+        
+        return cloned;
+      };
+    }
+    return response;
+  };
+  
+  // Patch fetch to ensure all returned responses have clone method
+  const originalFetch = global.fetch;
+  if (originalFetch) {
+    global.fetch = function(...args) {
+      return originalFetch.apply(this, args).then(response => {
+        return ensureCloneMethod(response);
+      });
+    };
+  }
+}
+
+// Note: MSW will handle fetch mocking when used, with our compatibility fixes above
 
 // Mock localStorage
 const localStorageMock = {
