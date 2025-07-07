@@ -101,7 +101,7 @@ export class TransactionService {
     const complianceResult = await this.performComplianceCheck(customer, account, createDto.amount);
 
     // 5. Create transaction entity
-    const transactionData = await this.transactionRepository.create({
+    const transactionData = this.transactionRepository.create({
       companyId,
       customerId: createDto.customerId,
       accountId: createDto.accountId,
@@ -113,10 +113,10 @@ export class TransactionService {
       agentPhone: agentInfo.phone,
       channel: createDto.channel,
       reference: createDto.reference,
-      balanceBefore: account.currentBalance,
+      accountBalanceBefore: account.currentBalance,
       availableBalanceBefore: account.availableBalance,
-      location: createDto.location || agentInfo.location,
-      ipAddress: agentInfo.ipAddress,
+      agentLocation: createDto.location || agentInfo.location,
+      agentIp: agentInfo.ipAddress,
     });
 
     // Set fee and compliance data
@@ -142,8 +142,7 @@ export class TransactionService {
     }
 
     // Create and save transaction
-    const transaction = this.transactionRepository.create(transactionData);
-    await this.transactionRepository.save(transaction);
+    const savedTransaction = await this.transactionRepository.save(transactionData);
 
     // 6. Place hold on account if required
     if (createDto.amount <= account.availableBalance) {
@@ -153,7 +152,7 @@ export class TransactionService {
     // 7. Cache transaction for quick access
     await this.cacheManager.set(
       `transaction:${savedTransaction.id}`,
-      transaction,
+      savedTransaction,
       300000, // 5 minutes
     );
 
@@ -242,7 +241,7 @@ export class TransactionService {
 
     // Emit verification event
     this.eventEmitter.emit('transaction.customer_verified', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       customerId: transaction.customerId,
       method: verificationDto.method,
       verified: transaction.customerVerified,
@@ -284,18 +283,18 @@ export class TransactionService {
 
     // Schedule for processing if auto-processing is enabled
     if (transaction.amount < 2000 && transaction.customerVerified) {
-      await this.scheduleTransactionProcessing(savedTransaction.id);
+      await this.scheduleTransactionProcessing(transaction.id);
     }
 
     // Emit approval event
     this.eventEmitter.emit('transaction.approved', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       approverId,
       amount: transaction.amount,
       customerId: transaction.customerId,
     });
 
-    this.logger.log(`Transaction approved: ${savedTransaction.transactionNumber}`);
+    this.logger.log(`Transaction approved: ${transaction.transactionNumber}`);
 
     return this.formatTransactionResponse(transaction);
   }
@@ -320,19 +319,19 @@ export class TransactionService {
 
     // Release hold
     if (transaction.holdPlaced) {
-      await this.releaseTransactionHold(savedTransaction.id);
+      await this.releaseTransactionHold(transaction.id);
     }
 
     // Emit rejection event
     this.eventEmitter.emit('transaction.rejected', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       rejecterId,
       reason: rejectDto.reason,
       customerId: transaction.customerId,
       allowResubmission: rejectDto.allowResubmission,
     });
 
-    this.logger.log(`Transaction rejected: ${savedTransaction.transactionNumber}`);
+    this.logger.log(`Transaction rejected: ${transaction.transactionNumber}`);
 
     return this.formatTransactionResponse(transaction);
   }
