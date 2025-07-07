@@ -23,7 +23,7 @@ const TestComponent = () => {
   return <div data-testid="no-data">No data</div>;
 };
 
-// Mock store
+// Mock store with enhanced logging and devtools
 const store = configureStore({
   reducer: {
     auth: authSlice,
@@ -31,7 +31,13 @@ const store = configureStore({
     [approvalApi.reducerPath]: approvalApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(approvalApi.middleware)
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE']
+      },
+      immutableCheck: { warnAfter: 32 },
+    }).concat(approvalApi.middleware),
+  devTools: true
 });
 
 describe('MSW + RTK Query Integration Test', () => {
