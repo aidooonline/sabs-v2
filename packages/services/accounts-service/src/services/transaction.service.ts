@@ -375,14 +375,14 @@ export class TransactionService {
 
       // Emit completion event
       this.eventEmitter.emit('transaction.completed', {
-        transactionId: savedTransaction.id,
-        transactionNumber: savedTransaction.transactionNumber,
+        transactionId: transaction.id,
+        transactionNumber: transaction.transactionNumber,
         customerId: transaction.customerId,
         amount: transaction.amount,
         newBalance,
       });
 
-      this.logger.log(`Transaction completed: ${savedTransaction.transactionNumber}`);
+      this.logger.log(`Transaction completed: ${transaction.transactionNumber}`);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? getErrorMessage(error) : JSON.stringify(error);
@@ -396,7 +396,7 @@ export class TransactionService {
 
       // Emit failure event
       this.eventEmitter.emit('transaction.failed', {
-        transactionId: savedTransaction.id,
+        transactionId: transaction.id,
         error: errorMessage,
         customerId: transaction.customerId,
       });
@@ -422,12 +422,12 @@ export class TransactionService {
 
     // Release hold
     if (transaction.holdPlaced) {
-      await this.releaseTransactionHold(savedTransaction.id);
+      await this.releaseTransactionHold(transaction.id);
     }
 
     // Emit cancellation event
     this.eventEmitter.emit('transaction.cancelled', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       cancelledBy,
       reason: cancelDto.reason,
       customerId: transaction.customerId,
@@ -590,7 +590,7 @@ export class TransactionService {
 
     if (query.search) {
       queryBuilder.andWhere(
-        '(savedTransaction.transactionNumber ILIKE :search OR transaction.reference ILIKE :search OR transaction.description ILIKE :search)',
+        '(transaction.transactionNumber ILIKE :search OR transaction.reference ILIKE :search OR transaction.description ILIKE :search)',
         { search: `%${query.search}%` },
       );
     }
@@ -754,7 +754,7 @@ export class TransactionService {
     let riskScore = 0;
 
     // Customer risk factors
-    if ((transaction.customer as any).riskLevel === 'high') {
+    if ((customer as any).riskLevel === 'high') {
       riskScore += 30;
       flags.push({ flag: 'HIGH_RISK_CUSTOMER', severity: 'HIGH', description: 'Customer marked as high risk' });
     }
@@ -809,7 +809,7 @@ export class TransactionService {
       await this.transactionRepository.save(transaction);
 
       this.eventEmitter.emit('transaction.auto_approved', {
-        transactionId: savedTransaction.id,
+        transactionId: transaction.id,
         riskScore: transaction.riskScore,
         amount: transaction.amount,
       });
@@ -870,8 +870,8 @@ export class TransactionService {
     if (transaction.customer?.phoneNumber ) {
       this.eventEmitter.emit('notification.sms', {
         phoneNumber: transaction.customer?.phoneNumber ,
-        message: `Transaction ${savedTransaction.transactionNumber} completed. Amount: ${transaction.currency} ${transaction.amount}. New balance: ${transaction.currency} ${transaction.accountBalanceAfter}`,
-        transactionId: savedTransaction.id,
+        message: `Transaction ${transaction.transactionNumber} completed. Amount: ${transaction.currency} ${transaction.amount}. New balance: ${transaction.currency} ${transaction.accountBalanceAfter}`,
+        transactionId: transaction.id,
       });
     }
 
@@ -880,7 +880,7 @@ export class TransactionService {
       this.eventEmitter.emit('notification.email', {
         email: transaction.customer.email,
         subject: 'Transaction Completed',
-        transactionId: savedTransaction.id,
+        transactionId: transaction.id,
       });
     }
   }
@@ -1001,8 +1001,8 @@ export class TransactionService {
 
   private formatTransactionResponse(transaction: Transaction): TransactionResponseDto {
     return {
-      id: savedTransaction.id,
-      transactionNumber: savedTransaction.transactionNumber,
+      id: transaction.id,
+      transactionNumber: transaction.transactionNumber,
       companyId: transaction.companyId,
       customerId: transaction.customerId,
       accountId: transaction.accountId,

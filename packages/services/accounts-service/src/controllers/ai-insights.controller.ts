@@ -12,6 +12,7 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
+import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -19,7 +20,7 @@ import {
   ApiParam,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-
+import {
   AIInsightsService,
   AIInsight,
   Recommendation,
@@ -280,11 +281,11 @@ export class AIInsightsController {
     };
 
     return {
-      insights: [],
+      insights,
       summary,
       recommendations,
       naturalLanguageSummary: result.naturalLanguageSummary,
-      actionPlan: {    },
+      actionPlan,
       processingMetrics,
     };
   }
@@ -513,25 +514,25 @@ export class AIInsightsController {
     };
 
     const insights = {
-      total: result.Object.values(report.insights).length,
+      total: Object.values(result.report.insights).length,
       categories: Object.keys(InsightCategory).reduce((acc, cat) => {
         acc[cat] = result.report.insights.filter(i => i.category === cat).length;
         return acc;
       }, {} as Record<string, number>),
       highPriority: result.report.insights.filter(i => i.priority === InsightPriority.HIGH || i.priority === InsightPriority.CRITICAL).length,
-      averageConfidence: result.Object.values(report.insights).reduce((sum, i) => sum + i.confidence, 0) / result.Object.values(report.insights).length,
+      averageConfidence: Object.values(result.report.insights).reduce((sum, i) => sum + i.confidence, 0) / Object.values(result.report.insights).length,
     };
 
     const recommendations = {
-      total: result.Object.values(report.recommendations).length,
+      total: Object.values(result.report.recommendations).length,
       byPriority: Object.keys(RecommendationPriority).reduce((acc, priority) => {
         acc[priority] = result.report.recommendations.filter(r => r.priority === priority).length;
         return acc;
       }, {} as Record<string, number>),
       estimatedImpact: {
-        revenue: result.Object.values(report.recommendations).reduce((sum, r) => sum + r.impact.revenueImpact, 0),
-        costSavings: Math.abs(result.Object.values(report.recommendations).reduce((sum, r) => sum + r.impact.costImpact, 0)),
-        riskReduction: result.Object.values(report.recommendations).reduce((sum, r) => sum + r.impact.riskReduction, 0) / result.Object.values(report.recommendations).length,
+        revenue: Object.values(result.report.recommendations).reduce((sum, r) => sum + r.impact.revenueImpact, 0),
+        costSavings: Math.abs(Object.values(result.report.recommendations).reduce((sum, r) => sum + r.impact.costImpact, 0)),
+        riskReduction: Object.values(result.report.recommendations).reduce((sum, r) => sum + r.impact.riskReduction, 0) / Object.values(result.report.recommendations).length,
       },
     };
 
@@ -584,7 +585,12 @@ export class AIInsightsController {
       title: result.report.title,
       period: reportPeriod,
       executiveSummary,
-      insights: [],
+      insights: {
+        total: 0,
+        categories: {},
+        highPriority: 0,
+        averageConfidence: 0,
+      },
       recommendations,
       predictions: [],
       performanceScore,
@@ -674,9 +680,9 @@ export class AIInsightsController {
     }));
 
     const prioritization = {
-      quickWins: result.prioritization.quickWins.map(this.mapRecommendation),
-      majorProjects: result.prioritization.majorProjects.map(this.mapRecommendation),
-      strategicInitiatives: result.prioritization.strategicInitiatives.map(this.mapRecommendation),
+      quickWins: result.prioritization.quickWins.map(rec => this.mapRecommendation(rec)),
+      majorProjects: result.prioritization.majorProjects.map(rec => this.mapRecommendation(rec)),
+      strategicInitiatives: result.prioritization.strategicInitiatives.map(rec => this.mapRecommendation(rec)),
     };
 
     const implementation = {
@@ -685,7 +691,7 @@ export class AIInsightsController {
       phases: result.implementation.roadmap.phases.map(phase => ({
         name: phase.name,
         duration: phase.duration,
-        budget: Math.floor(result.implementation.resourcePlan.budget / result.implementation.Object.values(roadmap.phases).length),
+        budget: Math.floor(result.implementation.resourcePlan.budget / Object.values(result.implementation.roadmap.phases).length),
         deliverables: phase.deliverables,
       })),
       risks: result.implementation.riskAssessment.risks.map((risk, index) => ({
@@ -728,7 +734,7 @@ export class AIInsightsController {
     return {
       recommendations,
       prioritization: { quickWins: [], majorProjects: [], strategicInitiatives: [] },
-      implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: "Q1-Q4 2024" }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } },
+      implementation,
       roiAnalysis,
       success_metrics,
     };
@@ -935,7 +941,7 @@ export class AIInsightsController {
         overall_accuracy: result.models.performance.accuracy,
         precision: result.models.performance.precision,
         recall: result.models.performance.recall,
-        f1Score: result.models.performance.f1_score,
+        f1Score: result.models.performance.f1Score,
       },
       confidence: result.models.confidence,
     };
