@@ -2,8 +2,10 @@ import {
   Entity,
   Column,
   OneToMany,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { BaseEntity } from '@sabs/database';
 
 export enum CompanyStatus {
   ACTIVE = 'active',
@@ -44,7 +46,16 @@ export interface CommissionRates {
 }
 
 @Entity('companies')
-export class Company extends BaseEntity {
+export class Company {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt!: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt!: Date;
+
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
