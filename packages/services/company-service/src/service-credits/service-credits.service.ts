@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
+import { Repository, Between, LessThan } from 'typeorm';
 import { Company } from '../companies/entities/company.entity';
 import { ServiceUsage } from './entities/service-usage.entity';
 
@@ -290,8 +290,8 @@ export class ServiceCreditsService {
   }>> {
     const companies = await this.companyRepository.find({
       where: [
-        { smsCredits: 100 }, // Less than 100 SMS credits
-        { aiCredits: 50 },   // Less than 50 AI credits
+        { smsCredits: LessThan(100) }, // Less than 100 SMS credits
+        { aiCredits: LessThan(50) },   // Less than 50 AI credits
       ],
     });
 
