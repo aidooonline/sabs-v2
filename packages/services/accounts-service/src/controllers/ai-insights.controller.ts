@@ -711,7 +711,7 @@ export class AIInsightsController {
       phases: result.implementation.roadmap.phases.map(phase => ({
         name: phase.name,
         duration: phase.duration,
-        budget: Math.floor(result.implementation.resourcePlan.budget / result.implementation.Object.values(roadmap.phases).length),
+        budget: Math.floor(result.implementation.resourcePlan.budget / Object.values(result.implementation.roadmap.phases).length),
         deliverables: phase.deliverables,
       })),
       risks: result.implementation.riskAssessment.risks.map((risk, index) => ({
@@ -754,7 +754,7 @@ export class AIInsightsController {
     return {
       recommendations,
       prioritization: { quickWins: [], majorProjects: [], strategicInitiatives: [] },
-      implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: "Q1-Q4 2024" }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } },
+      implementation: { totalBudget: 0, timeline: "Q1-Q4 2024", phases: [], risks: [] },
       roiAnalysis,
       success_metrics,
     };
@@ -961,7 +961,7 @@ export class AIInsightsController {
         overall_accuracy: result.models.performance.accuracy,
         precision: result.models.performance.precision,
         recall: result.models.performance.recall,
-        f1Score: result.models.performance.f1_score,
+        f1Score: result.models.performance.f1Score,
       },
       confidence: result.models.confidence,
     };
@@ -1006,14 +1006,10 @@ export class AIInsightsController {
     ];
 
     return {
-      predictions: [],
-      models: {
-        
-        performance: { accuracy: 0, precision: 0, recall: 0, f1Score: 0 },
-      confidence: 0
-    },
-      scenarios: { optimistic: { probability: 0, outcome: {}, factors: [] }, realistic: { probability: 0, outcome: {}, factors: [] }, pessimistic: { probability: 0, outcome: {}, factors: [] } },
-      insights: result.insights: [],
+      predictions,
+      models,
+      scenarios,
+      insights: result.insights,
       recommendations,
     };
   }
@@ -1147,8 +1143,8 @@ export class AIInsightsController {
 
     return {
       segments: [],
-      insights: result.insights: [],
-      actionPlan: {    },
+      insights: result.insights,
+      actionPlan,
       performance,
     };
   }
@@ -1264,11 +1260,7 @@ export class AIInsightsController {
     };
 
     return {
-      models: {
-        
-        performance: { accuracy: 0, precision: 0, recall: 0, f1Score: 0 },
-      confidence: 0
-    },
+      models,
       summary,
     };
   }
@@ -1324,9 +1316,7 @@ export class AIInsightsController {
     // Extract user ID from JWT token
     const token = authorization.substring(7);
     // Mock implementation - replace with actual JWT decode
-
-  }
-
+    return 'mock-user-id';
   }
 
   private mapRecommendation(rec: any): RecommendationDto {
