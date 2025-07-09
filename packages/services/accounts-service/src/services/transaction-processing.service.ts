@@ -5,7 +5,7 @@ import { Repository, DataSource, QueryRunner } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
 import { Transaction, TransactionStatus, TransactionType } from '../entities/transaction.entity';
 import { Account } from '../entities/account.entity';

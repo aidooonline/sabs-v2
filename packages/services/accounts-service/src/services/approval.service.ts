@@ -5,7 +5,7 @@ import { Repository, In, MoreThan, LessThan, Between } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 import { ApprovalWorkflow, WorkflowStatus, ApprovalStage, EscalationReason, ApprovalPriority } from '../entities/approval-workflow.entity';
 import { Transaction, TransactionStatus } from '../entities/transaction.entity';
 import {

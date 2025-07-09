@@ -5,7 +5,7 @@ import { Repository, Between, Not, In, Like, MoreThanOrEqual, LessThanOrEqual } 
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 import { Transaction, TransactionType, TransactionStatus, TransactionChannel, AuthenticationMethod, ApprovalLevel } from '../entities/transaction.entity';
 import { Customer } from '../entities/customer.entity';
 import { Account } from '../entities/account.entity';

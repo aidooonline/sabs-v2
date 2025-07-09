@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
 import { Transaction } from '../entities/transaction.entity';
 import { Customer } from '../entities/customer.entity';
