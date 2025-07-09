@@ -701,13 +701,13 @@ export class NotificationService {
     transaction: Transaction, 
     type: NotificationType
   ): Promise<void> {
-    if (!transactionEntity.customer) {
+    if (!transaction.customer) {
       this.logger.error(`Customer not found for transaction: ${transaction.id}`);
       return;
     }
 
     const data = {
-      customerName: transactionEntity.customer.fullName,
+      customerName: transaction.customer.fullName,
       transactionType: transaction.type.toUpperCase(),
       transactionNumber: transaction.transactionNumber,
       amount: transaction.amount.toFixed(2),

@@ -7,7 +7,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import type { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
-import { Transaction, TransactionStatus, TransactionType } from '../entities/transaction.entity';
+import { Transaction, TransactionStatus, TransactionType, TransactionPriority } from '../entities/transaction.entity';
 import { Account } from '../entities/account.entity';
 import { Customer } from '../entities/customer.entity';
 import { ApprovalWorkflow, WorkflowStatus } from '../entities/approval-workflow.entity';
@@ -861,10 +861,40 @@ export class TransactionProcessingService {
     reversedBy: string,
     reason: string,
   ): Promise<Transaction> {
-    const reversalData = this.createReversalTransaction(originalTransaction, reversedBy, reason);
+    const reversalData = this.createReversalTransactionData(originalTransaction, reversedBy, reason);
     const reversalTransaction = queryRunner.manager.create(Transaction, reversalData);
     
     return await queryRunner.manager.save(Transaction, reversalTransaction);
+  }
+
+  private createReversalTransactionData(
+    originalTransaction: Transaction,
+    reversedBy: string,
+    reason: string,
+  ): Partial<Transaction> {
+    return {
+      companyId: originalTransaction.companyId,
+      customerId: originalTransaction.customerId,
+      accountId: originalTransaction.accountId,
+      type: originalTransaction.type,
+      amount: originalTransaction.amount,
+      currency: originalTransaction.currency,
+      description: `Reversal of ${originalTransaction.transactionNumber}`,
+      agentId: reversedBy,
+      agentName: 'System Reversal',
+      agentPhone: '',
+      channel: originalTransaction.channel,
+      reference: `REV-${originalTransaction.transactionNumber}`,
+      accountBalanceBefore: originalTransaction.accountBalanceAfter,
+      availableBalanceBefore: originalTransaction.availableBalanceAfter,
+      originalTransactionId: originalTransaction.id,
+      reversalReason: reason,
+      status: TransactionStatus.PENDING,
+      priority: TransactionPriority.HIGH,
+      riskScore: 10,
+      feeAmount: 0,
+      totalAmount: originalTransaction.amount,
+    };
   }
 
   private async releaseTransactionHolds(

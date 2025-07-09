@@ -181,8 +181,8 @@ export class TransactionHistoryController {
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getAccountTransactions(
     @Param('accountId', ParseUUIDPipe) accountId: string,
-    @Query() searchParams: Partial<TransactionSearchDto>,
     @CurrentUser() user: JwtPayload,
+    @Query() searchParams: Partial<TransactionSearchDto>,
   ): Promise<TransactionHistoryResponse> {
     this.logger.log(`Getting transactions for account ${accountId}`);
 
@@ -199,8 +199,8 @@ export class TransactionHistoryController {
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getCustomerTransactions(
     @Param('customerId', ParseUUIDPipe) customerId: string,
-    @Query() searchParams: Partial<TransactionSearchDto>,
     @CurrentUser() user: JwtPayload,
+    @Query() searchParams: Partial<TransactionSearchDto>,
   ): Promise<TransactionHistoryResponse> {
     this.logger.log(`Getting transactions for customer ${customerId}`);
 
@@ -220,8 +220,8 @@ export class TransactionHistoryController {
   @ApiResponse({ status: 200, description: 'Transaction analytics retrieved' })
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionAnalytics(
-    @Query() filters: Partial<TransactionSearchDto>,
     @CurrentUser() user: JwtPayload,
+    @Query() filters: Partial<TransactionSearchDto>,
   ): Promise<TransactionAnalytics> {
     this.logger.log(`Getting analytics for company ${user.companyId}`);
 
@@ -238,9 +238,9 @@ export class TransactionHistoryController {
   @ApiResponse({ status: 200, description: 'Reconciliation report generated' })
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getReconciliationReport(
+    @CurrentUser() user: JwtPayload,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-    @CurrentUser() user: JwtPayload,
   ): Promise<ReconciliationReport> {
     this.logger.log(`Generating reconciliation report for company ${user.companyId}`);
 
@@ -497,8 +497,8 @@ export class TransactionHistoryController {
   @ApiResponse({ status: 200, description: 'Dashboard data retrieved' })
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getDashboardData(
-    @CurrentUser() user: JwtPayload,
     @Query('period') period: 'today' | 'week' | 'month' = 'today',
+    @CurrentUser() user: JwtPayload,
   ): Promise<{
     summary: {
       totalTransactions: number;
@@ -584,9 +584,9 @@ export class TransactionHistoryController {
   @ApiResponse({ status: 200, description: 'Transaction summary retrieved' })
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionSummary(
-    @CurrentUser() user: JwtPayload,
     @Query('groupBy') groupBy: 'day' | 'week' | 'month' = 'day',
     @Query('compare') compare: boolean = false,
+    @CurrentUser() user: JwtPayload,
   ): Promise<{
     current: {
       count: number;

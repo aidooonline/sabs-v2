@@ -745,7 +745,7 @@ export class TransactionService {
     let riskScore = 0;
 
     // Customer risk factors
-    if ((transaction.customer as any).riskLevel === 'high') {
+    if ((customer as any).riskLevel === 'high') {
       riskScore += 30;
       flags.push({ flag: 'HIGH_RISK_CUSTOMER', severity: 'HIGH', description: 'Customer marked as high risk' });
     }
@@ -800,7 +800,7 @@ export class TransactionService {
       await this.transactionRepository.save(transaction);
 
       this.eventEmitter.emit('transaction.auto_approved', {
-        transactionId: savedTransaction.id,
+        transactionId: transaction.id,
         riskScore: transaction.riskScore,
         amount: transaction.amount,
       });
