@@ -972,15 +972,15 @@ export class AuditComplianceService {
   private getImpactDescription(severity: ComplianceSeverity): string {
     switch (severity) {
       case ComplianceSeverity.CRITICAL:
-
+        return 'Critical impact requiring immediate action';
       case ComplianceSeverity.HIGH:
-
+        return 'High impact requiring urgent attention';
       case ComplianceSeverity.MEDIUM:
-
+        return 'Medium impact requiring timely resolution';
       case ComplianceSeverity.LOW:
-
+        return 'Low impact for informational purposes';
       default:
-
+        return 'Impact level unknown';
     }
   }
 

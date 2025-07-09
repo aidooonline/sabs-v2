@@ -256,8 +256,8 @@ export class TransactionHistoryController {
   @ApiResponse({ status: 200, description: 'Transaction insights generated' })
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionInsights(
-    @CurrentUser() user: JwtPayload,
     @Query('timeRange') timeRange: 'daily' | 'weekly' | 'monthly' = 'weekly',
+    @CurrentUser() user: JwtPayload,
   ): Promise<{
     insights: Array<{
       type: 'trend' | 'anomaly' | 'opportunity' | 'risk';

@@ -109,7 +109,7 @@ export class ApprovalService {
     const initialStage = this.determineInitialStage(transaction);
 
     // Create workflow data
-    const workflowData = ApprovalWorkflow.createForTransaction({
+    const workflowData = ApprovalWorkflow.createForTransaction({}, {
       companyId,
       transactionId,
       priority,
@@ -953,7 +953,7 @@ export class ApprovalService {
         amount: workflow.transaction.amount,
         currency: workflow.transaction.currency,
         customerId: workflow.transaction.customerId,
-        customerName: workflow.transactionEntity.customer?.fullName || 'Unknown',
+        customerName: workflow.transaction?.customer?.fullName || 'Unknown',
         agentId: workflow.transaction.agentId,
         agentName: workflow.transaction.agentName,
         riskScore: workflow.transaction.riskScore,
