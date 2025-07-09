@@ -891,7 +891,7 @@ export class TransactionHistoryService {
     }
   }
 
-  private getDateRange(filters, { startDate?: string; endDate?: string }): any {
+  private getDateRange(filters: TransactionSearchFilters): any {
     if (!filters.startDate && !filters.endDate) {
       return {};
     }

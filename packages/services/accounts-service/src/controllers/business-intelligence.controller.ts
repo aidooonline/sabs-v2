@@ -415,7 +415,9 @@ export class BusinessIntelligenceController {
     return {
       model,
       performance,
-      predictions: [],
+      predictions: {
+        recent: [],
+      },
     };
   }
 
@@ -453,7 +455,6 @@ export class BusinessIntelligenceController {
         upperBound: p.upperBound,
         lowerBound: p.lowerBound,
       })),
-      accuracy: result.accuracy,
       methodology: result.methodology,
       generatedAt: result.generatedAt,
     };

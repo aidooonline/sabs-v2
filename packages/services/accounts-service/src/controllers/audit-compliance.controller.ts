@@ -800,15 +800,15 @@ export class AuditComplianceController {
     complianceSeverities: ComplianceSeverity[];
   }> {
     return {
-      auditEventTypes: AuditEventType,
+      auditEventTypes: Object.values(AuditEventType),
       auditActions: Object.values(AuditAction),
-      complianceCheckTypes: ComplianceCheckType,
-      complianceStatuses: ComplianceStatus,
-      complianceResults: ComplianceResult,
+      complianceCheckTypes: Object.values(ComplianceCheckType),
+      complianceStatuses: Object.values(ComplianceStatus),
+      complianceResults: Object.values(ComplianceResult),
       riskLevels: Object.values(RiskLevel),
       complianceCategories: Object.values(ComplianceCategory),
-      complianceRuleTypes: ComplianceRuleType,
-      complianceSeverities: ComplianceSeverity,
+      complianceRuleTypes: Object.values(ComplianceRuleType),
+      complianceSeverities: Object.values(ComplianceSeverity),
     };
   }
 
