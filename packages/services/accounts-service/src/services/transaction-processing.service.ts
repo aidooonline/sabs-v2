@@ -195,12 +195,12 @@ export class TransactionProcessingService {
       const processingTimeMs = Date.now() - startTime;
       await this.emitProcessingEvents(transaction, balanceUpdate, receipt, processingTimeMs);
 
-      this.logger.log(`Transaction ${savedTransaction.transactionNumber} processed successfully in ${processingTimeMs}ms`);
+      this.logger.log(`Transaction ${transaction.transactionNumber} processed successfully in ${processingTimeMs}ms`);
 
       return {
         success: true,
-        transactionId: savedTransaction.id,
-        transactionNumber: savedTransaction.transactionNumber,
+        transactionId: transaction.id,
+        transactionNumber: transaction.transactionNumber,
         finalBalance: balanceUpdate.newBalance,
         finalAvailableBalance: balanceUpdate.newAvailableBalance,
         receiptNumber: receipt.receiptNumber,
@@ -638,7 +638,7 @@ export class TransactionProcessingService {
 
     const receipt: Receipt = {
       receiptNumber,
-      transactionNumber: savedTransaction.transactionNumber,
+      transactionNumber: transaction.transactionNumber,
       customerName: transaction.customer.fullName,
       customerPhone: transaction.customer?.phoneNumber ,
       accountNumber: account.accountNumber,
@@ -651,7 +651,7 @@ export class TransactionProcessingService {
       agentPhone: transaction.agentPhone,
       location: transaction.agentLocation || 'Unknown',
       timestamp: transaction.completedAt.toISOString(),
-      reference: transaction.reference || savedTransaction.transactionNumber,
+      reference: transaction.reference || transaction.transactionNumber,
     };
 
     // Cache receipt for quick access
@@ -663,7 +663,7 @@ export class TransactionProcessingService {
 
     // Emit receipt generated event
     this.eventEmitter.emit('transaction.receipt_generated', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       receiptNumber,
       customerPhone: transaction.customer?.phoneNumber ,
     });

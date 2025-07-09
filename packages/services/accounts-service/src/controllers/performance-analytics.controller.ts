@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import {
 import { nanoid } from 'nanoid';
+import {
   Controller,
   Get,
   Post,
@@ -13,6 +13,7 @@ import { nanoid } from 'nanoid';
   BadRequestException,
   Logger,
 } from '@nestjs/common';
+import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -20,7 +21,7 @@ import { nanoid } from 'nanoid';
   ApiParam,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-
+import {
   PerformanceAnalyticsService,
   PerformanceMetric,
   SystemBottleneck,
@@ -927,7 +928,7 @@ export class PerformanceAnalyticsController {
         'Database query performance degradation',
         'Memory utilization trending upward',
       ],
-      recommendations_count: result.Object.values(report.recommendations).length,
+      recommendations_count: Object.values(result.report.recommendations).length,
     };
 
     const performance_trends = result.report.trends.map(trend => ({
@@ -1046,21 +1047,19 @@ export class PerformanceAnalyticsController {
     // Extract user ID from JWT token
     const token = authorization.substring(7);
     // Mock implementation - replace with actual JWT decode
-
-  }
-
+    return 'mock-user-id';
   }
 
   private getMetricStatus(metric: PerformanceMetric): string {
     if (metric.value > metric.threshold.critical) return 'critical';
     if (metric.value > metric.threshold.warning) return 'warning';
-
+    return 'normal';
   }
 
   private getSeverityFromImpact(impact: string): string {
     if (impact.includes('dramatically') || impact.includes('critical')) return 'critical';
     if (impact.includes('increased') || impact.includes('degraded')) return 'warning';
-
+    return 'normal';
   }
 
   private getCorrelationDescription(metric: string, correlation: number): string {

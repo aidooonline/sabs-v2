@@ -1,8 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-import {
 import { nanoid } from 'nanoid';
-
+import {
   Controller,
   Get,
   Post,
@@ -15,6 +14,7 @@ import { nanoid } from 'nanoid';
   BadRequestException,
   Logger,
 } from '@nestjs/common';
+import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -22,7 +22,7 @@ import { nanoid } from 'nanoid';
   ApiParam,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-
+import {
   RegulatoryReportingService,
   RegulatoryReport,
   ComplianceRule,
@@ -312,8 +312,8 @@ export class RegulatoryReportingController {
       dueDate: result.report.dueDate,
       validation: {
         valid: result.validation.valid,
-        errors: result.Object.values(validation.errors).length,
-        warnings: result.Object.values(validation.warnings).length,
+        errors: Object.values(result.validation.errors).length,
+        warnings: Object.values(result.validation.warnings).length,
         completeness: result.validation.completeness,
       },
       timeline: {
@@ -324,7 +324,7 @@ export class RegulatoryReportingController {
       compliance: {
         score: result.complianceImpact.score,
         riskLevel: result.complianceImpact.riskLevel,
-        violations: result.Object.values(complianceImpact.violations).length,
+        violations: Object.values(result.complianceImpact.violations).length,
       },
       nextSteps,
     };
@@ -691,7 +691,7 @@ export class RegulatoryReportingController {
       violations,
       recommendations,
       trend,
-      actionPlan: {    },
+      actionPlan,
     };
   }
 
@@ -1163,8 +1163,6 @@ export class RegulatoryReportingController {
     // Extract user ID from JWT token
     const token = authorization.substring(7);
     // Mock implementation - replace with actual JWT decode
-
-  }
-
+    return 'mock-user-id';
   }
 }

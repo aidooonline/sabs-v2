@@ -1,8 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-import {
 import { nanoid } from 'nanoid';
-
+import {
   Controller,
   Get,
   Post,
@@ -16,6 +15,7 @@ import { nanoid } from 'nanoid';
   Logger,
   Headers,
 } from '@nestjs/common';
+import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -23,7 +23,7 @@ import { nanoid } from 'nanoid';
   ApiParam,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-
+import {
   ExecutiveDashboardService,
   ExecutiveDashboard,
   KPIMetric,
@@ -845,9 +845,9 @@ export class ExecutiveDashboardController {
     };
 
     const boardPackageSummary = {
-      totalMaterials: result.Object.values(boardPackage.materials).length,
-      reportsIncluded: result.Object.values(boardPackage.reports).length,
-      criticalItems: result.boardPackage.Object.values(kpiSummary.critical).length,
+      totalMaterials: Object.values(result.boardPackage.materials).length,
+      reportsIncluded: Object.values(result.boardPackage.reports).length,
+      criticalItems: Object.values(result.boardPackage.kpiSummary.critical).length,
       preparationStatus: 92,
     };
 
@@ -1032,9 +1032,7 @@ export class ExecutiveDashboardController {
     // Extract user ID from JWT token
     const token = authorization.substring(7);
     // Mock implementation - replace with actual JWT decode
-
-  }
-
+    return 'mock-user-id';
   }
 
   private getKeyDrivers(category: KPICategory): string[] {

@@ -295,7 +295,7 @@ export class TransactionService {
       customerId: transaction.customerId,
     });
 
-    this.logger.log(`Transaction approved: ${savedTransaction.transactionNumber}`);
+    this.logger.log(`Transaction approved: ${transaction.transactionNumber}`);
 
     return this.formatTransactionResponse(transaction);
   }
@@ -320,19 +320,19 @@ export class TransactionService {
 
     // Release hold
     if (transaction.holdPlaced) {
-      await this.releaseTransactionHold(savedTransaction.id);
+      await this.releaseTransactionHold(transaction.id);
     }
 
     // Emit rejection event
     this.eventEmitter.emit('transaction.rejected', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       rejecterId,
       reason: rejectDto.reason,
       customerId: transaction.customerId,
       allowResubmission: rejectDto.allowResubmission,
     });
 
-    this.logger.log(`Transaction rejected: ${savedTransaction.transactionNumber}`);
+    this.logger.log(`Transaction rejected: ${transaction.transactionNumber}`);
 
     return this.formatTransactionResponse(transaction);
   }
@@ -376,14 +376,14 @@ export class TransactionService {
 
       // Emit completion event
       this.eventEmitter.emit('transaction.completed', {
-        transactionId: savedTransaction.id,
-        transactionNumber: savedTransaction.transactionNumber,
+        transactionId: transaction.id,
+        transactionNumber: transaction.transactionNumber,
         customerId: transaction.customerId,
         amount: transaction.amount,
         newBalance,
       });
 
-      this.logger.log(`Transaction completed: ${savedTransaction.transactionNumber}`);
+      this.logger.log(`Transaction completed: ${transaction.transactionNumber}`);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? getErrorMessage(error) : JSON.stringify(error);
@@ -871,8 +871,8 @@ export class TransactionService {
     if (transaction.customer?.phoneNumber ) {
       this.eventEmitter.emit('notification.sms', {
         phoneNumber: transaction.customer?.phoneNumber ,
-        message: `Transaction ${savedTransaction.transactionNumber} completed. Amount: ${transaction.currency} ${transaction.amount}. New balance: ${transaction.currency} ${transaction.accountBalanceAfter}`,
-        transactionId: savedTransaction.id,
+        message: `Transaction ${transaction.transactionNumber} completed. Amount: ${transaction.currency} ${transaction.amount}. New balance: ${transaction.currency} ${transaction.accountBalanceAfter}`,
+        transactionId: transaction.id,
       });
     }
 
@@ -881,7 +881,7 @@ export class TransactionService {
       this.eventEmitter.emit('notification.email', {
         email: transaction.customer.email,
         subject: 'Transaction Completed',
-        transactionId: savedTransaction.id,
+        transactionId: transaction.id,
       });
     }
   }
@@ -1002,8 +1002,8 @@ export class TransactionService {
 
   private formatTransactionResponse(transaction: Transaction): TransactionResponseDto {
     return {
-      id: savedTransaction.id,
-      transactionNumber: savedTransaction.transactionNumber,
+      id: transaction.id,
+      transactionNumber: transaction.transactionNumber,
       companyId: transaction.companyId,
       customerId: transaction.customerId,
       accountId: transaction.accountId,
