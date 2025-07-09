@@ -47,7 +47,7 @@ export class CustomerOnboardingService {
     this.logger.log(`Starting onboarding for company ${companyId} by agent ${agentId}`);
 
     // Create onboarding record
-    const onboardingData = CustomerOnboarding.create({
+    const onboardingData = CustomerOnboarding.create({}, {
       companyId,
       agentId,
       agentName,
@@ -338,7 +338,7 @@ export class CustomerOnboardingService {
     // For now, we'll store the content as metadata
     const documentUrl = await this.uploadDocumentToStorage(dto);
 
-    onboarding.addDocument({
+    onboarding.addDocument({}, {
       type: dto.documentType,
       url: documentUrl,
       fileName: dto.fileName,
@@ -866,7 +866,7 @@ export class CustomerOnboardingService {
   }
 
   private async createCustomerFromOnboarding(onboarding: CustomerOnboarding): Promise<Customer> {
-    const customerData = Customer.createBasicCustomer({
+    const customerData = Customer.createBasicCustomer({}, {
       companyId: onboarding.companyId,
       firstName: onboarding.customerData.firstName,
       lastName: onboarding.customerData.lastName,

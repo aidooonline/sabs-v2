@@ -5,7 +5,7 @@ import { Repository, Between, Not, In, Like, MoreThanOrEqual, LessThanOrEqual } 
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 import { Transaction, TransactionType, TransactionStatus, TransactionChannel, AuthenticationMethod, ApprovalLevel } from '../entities/transaction.entity';
 import { Customer } from '../entities/customer.entity';
 import { Account } from '../entities/account.entity';
@@ -100,66 +100,56 @@ export class TransactionService {
     // 4. Perform compliance and risk assessment
     const complianceResult = await this.performComplianceCheck(customer, account, createDto.amount);
 
-    // 5. Create transaction entity
-    const transactionData = await this.transactionRepository.create({
-      companyId,
+    // 5. Create transaction entity with basic data only
+    const transaction = this.transactionRepository.create({
       customerId: createDto.customerId,
       accountId: createDto.accountId,
       amount: createDto.amount,
       currency: createDto.currency || 'GHS',
       description: createDto.description,
-      agentId: agentInfo.id,
-      agentName: agentInfo.name,
-      agentPhone: agentInfo.phone,
       channel: createDto.channel,
       reference: createDto.reference,
-      balanceBefore: account.currentBalance,
-      availableBalanceBefore: account.availableBalance,
-      location: createDto.location || agentInfo.location,
-      ipAddress: agentInfo.ipAddress,
     });
 
-    // Set fee and compliance data
-    transactionData.feeAmount = feeAmount;
-    transactionData.totalAmount = createDto.amount + feeAmount;
-    transactionData.riskScore = complianceResult.riskScore;
-    transactionData.complianceFlags = complianceResult.flags.map((flag: any) => ({
+    // Set additional properties after creation
+    transaction.feeAmount = feeAmount;
+    transaction.totalAmount = createDto.amount + feeAmount;
+    transaction.riskScore = complianceResult.riskScore;
+    transaction.complianceFlags = complianceResult.flags.map((flag: any) => ({
       ...flag,
       raisedAt: flag.raisedAt || new Date().toISOString()
     }));
-    transactionData.requiredApprovalLevel = complianceResult.approvalLevel;
-    transactionData.customerPresent = createDto.customerPresent ?? true;
-    transactionData.priority = createDto.priority;
-    transactionData.notes = createDto.notes;
-    transactionData.agentDeviceInfo = agentInfo.deviceInfo;
+    transaction.requiredApprovalLevel = complianceResult.approvalLevel;
+    transaction.customerPresent = createDto.customerPresent ?? true;
+    transaction.priority = createDto.priority;
+    transaction.notes = createDto.notes;
 
     // Set AML and sanctions check requirements
     if (complianceResult.riskScore >= 50 || createDto.amount >= 1000) {
-      transactionData.amlCheckRequired = true;
+      transaction.amlCheckRequired = true;
     }
     if (complianceResult.riskScore >= 70 || createDto.amount >= 5000) {
-      transactionData.sanctionsCheckRequired = true;
+      transaction.sanctionsCheckRequired = true;
     }
 
-    // Create and save transaction
-    const transaction = this.transactionRepository.create(transactionData);
+    // Save transaction to database
     await this.transactionRepository.save(transaction);
 
     // 6. Place hold on account if required
     if (createDto.amount <= account.availableBalance) {
-      await this.placeTransactionHold(savedTransaction.id, createDto.amount + feeAmount);
+      await this.placeTransactionHold(transaction.id, createDto.amount + feeAmount);
     }
 
     // 7. Cache transaction for quick access
     await this.cacheManager.set(
-      `transaction:${savedTransaction.id}`,
+      `transaction:${transaction.id}`,
       transaction,
       300000, // 5 minutes
     );
 
     // 8. Emit event for real-time updates
     this.eventEmitter.emit('transaction.created', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       customerId: customer.id,
       accountId: account.id,
       agentId: agentInfo.id,
@@ -168,9 +158,9 @@ export class TransactionService {
       status: TransactionStatus.PENDING,
     });
 
-    this.logger.log(`Withdrawal request created: ${savedTransaction.transactionNumber}`);
+    this.logger.log(`Withdrawal request created: ${transaction.transactionNumber}`);
 
-    return this.formatTransactionResponse(await this.getTransactionById(companyId, savedTransaction.id));
+    return this.formatTransactionResponse(await this.getTransactionById(companyId, transaction.id));
   }
 
   async verifyCustomer(
@@ -242,7 +232,7 @@ export class TransactionService {
 
     // Emit verification event
     this.eventEmitter.emit('transaction.customer_verified', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       customerId: transaction.customerId,
       method: verificationDto.method,
       verified: transaction.customerVerified,
@@ -284,18 +274,18 @@ export class TransactionService {
 
     // Schedule for processing if auto-processing is enabled
     if (transaction.amount < 2000 && transaction.customerVerified) {
-      await this.scheduleTransactionProcessing(savedTransaction.id);
+      await this.scheduleTransactionProcessing(transaction.id);
     }
 
     // Emit approval event
     this.eventEmitter.emit('transaction.approved', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       approverId,
       amount: transaction.amount,
       customerId: transaction.customerId,
     });
 
-    this.logger.log(`Transaction approved: ${savedTransaction.transactionNumber}`);
+    this.logger.log(`Transaction approved: ${transaction.transactionNumber}`);
 
     return this.formatTransactionResponse(transaction);
   }
@@ -320,19 +310,19 @@ export class TransactionService {
 
     // Release hold
     if (transaction.holdPlaced) {
-      await this.releaseTransactionHold(savedTransaction.id);
+      await this.releaseTransactionHold(transaction.id);
     }
 
     // Emit rejection event
     this.eventEmitter.emit('transaction.rejected', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       rejecterId,
       reason: rejectDto.reason,
       customerId: transaction.customerId,
       allowResubmission: rejectDto.allowResubmission,
     });
 
-    this.logger.log(`Transaction rejected: ${savedTransaction.transactionNumber}`);
+    this.logger.log(`Transaction rejected: ${transaction.transactionNumber}`);
 
     return this.formatTransactionResponse(transaction);
   }
@@ -376,14 +366,14 @@ export class TransactionService {
 
       // Emit completion event
       this.eventEmitter.emit('transaction.completed', {
-        transactionId: savedTransaction.id,
-        transactionNumber: savedTransaction.transactionNumber,
+        transactionId: transaction.id,
+        transactionNumber: transaction.transactionNumber,
         customerId: transaction.customerId,
         amount: transaction.amount,
         newBalance,
       });
 
-      this.logger.log(`Transaction completed: ${savedTransaction.transactionNumber}`);
+      this.logger.log(`Transaction completed: ${transaction.transactionNumber}`);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? getErrorMessage(error) : JSON.stringify(error);
@@ -397,7 +387,7 @@ export class TransactionService {
 
       // Emit failure event
       this.eventEmitter.emit('transaction.failed', {
-        transactionId: savedTransaction.id,
+        transactionId: transaction.id,
         error: errorMessage,
         customerId: transaction.customerId,
       });
@@ -423,12 +413,12 @@ export class TransactionService {
 
     // Release hold
     if (transaction.holdPlaced) {
-      await this.releaseTransactionHold(savedTransaction.id);
+      await this.releaseTransactionHold(transaction.id);
     }
 
     // Emit cancellation event
     this.eventEmitter.emit('transaction.cancelled', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       cancelledBy,
       reason: cancelDto.reason,
       customerId: transaction.customerId,
@@ -591,7 +581,7 @@ export class TransactionService {
 
     if (query.search) {
       queryBuilder.andWhere(
-        '(savedTransaction.transactionNumber ILIKE :search OR transaction.reference ILIKE :search OR transaction.description ILIKE :search)',
+        '(transaction.transactionNumber ILIKE :search OR transaction.reference ILIKE :search OR transaction.description ILIKE :search)',
         { search: `%${query.search}%` },
       );
     }
@@ -755,7 +745,7 @@ export class TransactionService {
     let riskScore = 0;
 
     // Customer risk factors
-    if ((transaction.customer as any).riskLevel === 'high') {
+    if ((customer as any).riskLevel === 'high') {
       riskScore += 30;
       flags.push({ flag: 'HIGH_RISK_CUSTOMER', severity: 'HIGH', description: 'Customer marked as high risk' });
     }
@@ -810,7 +800,7 @@ export class TransactionService {
       await this.transactionRepository.save(transaction);
 
       this.eventEmitter.emit('transaction.auto_approved', {
-        transactionId: savedTransaction.id,
+        transactionId: transaction.id,
         riskScore: transaction.riskScore,
         amount: transaction.amount,
       });
@@ -871,8 +861,8 @@ export class TransactionService {
     if (transaction.customer?.phoneNumber ) {
       this.eventEmitter.emit('notification.sms', {
         phoneNumber: transaction.customer?.phoneNumber ,
-        message: `Transaction ${savedTransaction.transactionNumber} completed. Amount: ${transaction.currency} ${transaction.amount}. New balance: ${transaction.currency} ${transaction.accountBalanceAfter}`,
-        transactionId: savedTransaction.id,
+        message: `Transaction ${transaction.transactionNumber} completed. Amount: ${transaction.currency} ${transaction.amount}. New balance: ${transaction.currency} ${transaction.accountBalanceAfter}`,
+        transactionId: transaction.id,
       });
     }
 
@@ -881,7 +871,7 @@ export class TransactionService {
       this.eventEmitter.emit('notification.email', {
         email: transaction.customer.email,
         subject: 'Transaction Completed',
-        transactionId: savedTransaction.id,
+        transactionId: transaction.id,
       });
     }
   }
@@ -1002,8 +992,8 @@ export class TransactionService {
 
   private formatTransactionResponse(transaction: Transaction): TransactionResponseDto {
     return {
-      id: savedTransaction.id,
-      transactionNumber: savedTransaction.transactionNumber,
+      id: transaction.id,
+      transactionNumber: transaction.transactionNumber,
       companyId: transaction.companyId,
       customerId: transaction.customerId,
       accountId: transaction.accountId,

@@ -2,7 +2,7 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 
@@ -619,7 +619,7 @@ export class BusinessIntelligenceService {
 
   // ===== ANOMALY DETECTION =====
 
-  async detectAnomalies(timeRange, { start: Date; end: Date }): Promise<{
+  async detectAnomalies(timeRange: { start: Date; end: Date }): Promise<{
     anomalies: AnomalyDetection[];
     summary: {
       total: number;

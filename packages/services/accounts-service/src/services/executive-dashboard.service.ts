@@ -3,7 +3,7 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
 
 
@@ -1095,12 +1095,11 @@ export class ExecutiveDashboardService {
 
     const typeMap = {
       [ReportType.EXECUTIVE]: 'Executive Summary',
-      [ReportType.EXECUTIVE]: 'Board Report',
-      [ReportType.STRATEGIC]: 'Strategic objectives achieved with ROI above targets. Risk management framework strengthened and regulatory compliance maintained at 99.5%.',
-      [ReportType.FINANCIAL_STATEMENT]: 'Strong financial performance with improved margins and cash flow. Capital allocation optimized for growth investments and shareholder returns.',
+      [ReportType.STRATEGIC]: 'Strategic Report',
+      [ReportType.FINANCIAL_STATEMENT]: 'Financial Statement',
     };
 
-    const summaryTemplates = { [ReportType.EXECUTIVE]: "Executive Report" }; return summaryTemplates[request.type] || 'Executive summary generated based on current performance metrics and strategic objectives.';
+    return `${periodMap[period]} ${typeMap[type]}` || 'Executive Report';
   }
 
   private async generateKeyFindings(request: GenerateReportRequest): Promise<string[]> {

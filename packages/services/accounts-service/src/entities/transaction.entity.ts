@@ -804,7 +804,7 @@ export class Transaction {
   }
 
   // Static factory methods
-  static createWithdrawalRequest(data, {
+  static createWithdrawalRequest(data: any, options: {
     companyId: string;
     customerId: string;
     accountId: string;
@@ -823,20 +823,29 @@ export class Transaction {
   }): Partial<Transaction> {
     return {
       ...data,
+      companyId: options.companyId,
+      customerId: options.customerId,
+      accountId: options.accountId,
+      amount: options.amount,
+      description: options.description,
+      agentId: options.agentId,
+      agentName: options.agentName,
+      agentPhone: options.agentPhone,
+      reference: options.reference,
       type: TransactionType.WITHDRAWAL,
       status: TransactionStatus.PENDING,
-      channel: data.channel || TransactionChannel.AGENT_MOBILE,
-      currency: data.currency || 'GHS',
+      channel: options.channel || TransactionChannel.AGENT_MOBILE,
+      currency: options.currency || 'GHS',
       feeAmount: 0, // Will be calculated by service
-      totalAmount: data.amount, // Will be updated with fees
-      accountBalanceBefore: data.balanceBefore,
-      availableBalanceBefore: data.availableBalanceBefore,
-      agentLocation: data.location,
-      agentIp: data.ipAddress,
+      totalAmount: options.amount, // Will be updated with fees
+      accountBalanceBefore: options.balanceBefore,
+      availableBalanceBefore: options.availableBalanceBefore,
+      agentLocation: options.location,
+      agentIp: options.ipAddress,
       customerPresent: true,
       approvalRequired: true,
-      requiredApprovalLevel: data.amount >= 1000 ? ApprovalLevel.MANAGER : ApprovalLevel.CLERK,
-      priority: data.amount >= 5000 ? TransactionPriority.HIGH : TransactionPriority.NORMAL,
+      requiredApprovalLevel: options.amount >= 1000 ? ApprovalLevel.MANAGER : ApprovalLevel.CLERK,
+      priority: options.amount >= 5000 ? TransactionPriority.HIGH : TransactionPriority.NORMAL,
       riskScore: 20, // Initial risk score
       retryCount: 0,
       maxRetries: 3,

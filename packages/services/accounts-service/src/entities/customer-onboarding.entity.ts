@@ -416,7 +416,7 @@ export class CustomerOnboarding {
     return true;
   }
 
-  addDocument(doc, {
+  addDocument(doc: any, options: {
     type: DocumentType;
     url: string;
     fileName: string;
@@ -424,12 +424,12 @@ export class CustomerOnboarding {
     mimeType: string;
   }): void {
     this.collectedDocuments.push({
-      ...doc,
+      ...options,
       uploadedAt: new Date().toISOString(),
       verified: false,
     });
     
-    this.addAuditEntry('DOCUMENT_UPLOADED', this.agentId, { documentType: doc.type });
+    this.addAuditEntry('DOCUMENT_UPLOADED', this.agentId, { documentType: options.type });
   }
 
   verifyDocument(type: DocumentType, verified: boolean, rejectionReason?: string): void {
@@ -573,7 +573,7 @@ export class CustomerOnboarding {
   }
 
   // Static factory methods
-  static create(data, {
+  static create(data: any, options: {
     companyId: string;
     agentId: string;
     agentName: string;
@@ -586,19 +586,20 @@ export class CustomerOnboarding {
     expiresAt.setDate(expiresAt.getDate() + 7); // 7 days to complete
 
     return {
-      companyId: data.companyId,
-      agentId: data.agentId,
-      agentName: data.agentName,
-      agentPhone: data.agentPhone,
-      channel: data.channel || OnboardingChannel.AGENT_MOBILE,
+      ...data,
+      companyId: options.companyId,
+      agentId: options.agentId,
+      agentName: options.agentName,
+      agentPhone: options.agentPhone,
+      channel: options.channel || OnboardingChannel.AGENT_MOBILE,
       status: OnboardingStatus.STARTED,
       currentStep: OnboardingStep.PERSONAL_INFO,
       completedSteps: [],
       progressPercentage: 0,
       startedAt: new Date(),
       expiresAt,
-      agentLocation: data.location,
-      agentIp: data.ipAddress,
+      agentLocation: options.location,
+      agentIp: options.ipAddress,
       riskScore: 10, // Low initial risk
       kycLevel: 1,
       verificationRequired: true,

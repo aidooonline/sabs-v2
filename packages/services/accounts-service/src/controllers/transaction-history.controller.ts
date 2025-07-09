@@ -1,5 +1,4 @@
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-import {
 import { Response } from 'express';
 import { Transaction, TransactionType, TransactionStatus } from '../entities/transaction.entity';
 import { AccountType } from '../entities/account.entity';
@@ -7,14 +6,7 @@ import { JwtAuthGuard } from '../../../identity-service/src/auth/guards/jwt-auth
 import { RolesGuard } from '../../../identity-service/src/auth/guards/roles.guard';
 import { TenantGuard } from '../../../identity-service/src/auth/guards/tenant.guard';
 import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
-// Mock @Roles decorator to fix signature issues
-function Roles(...roles: any[]) {
-  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
-    // Mock implementation
-    return descriptor;
-  };
-}
-
+import {
   Controller,
   Get,
   Post,
@@ -29,6 +21,7 @@ function Roles(...roles: any[]) {
   Header,
   Res,
 } from '@nestjs/common';
+import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -37,7 +30,7 @@ function Roles(...roles: any[]) {
   ApiBody,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-
+import {
   TransactionHistoryService, 
   TransactionSearchFilters, 
   TransactionHistoryResponse,
@@ -45,6 +38,14 @@ function Roles(...roles: any[]) {
   ReconciliationReport,
   ExportOptions
 } from '../services/transaction-history.service';
+
+// Mock @Roles decorator to fix signature issues
+function Roles(...roles: any[]) {
+  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+    // Mock implementation
+    return descriptor;
+  };
+}
 
 
 // DTOs for transaction history
@@ -180,8 +181,8 @@ export class TransactionHistoryController {
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getAccountTransactions(
     @Param('accountId', ParseUUIDPipe) accountId: string,
-    @Query() searchParams: Partial<TransactionSearchDto>,
     @CurrentUser() user: JwtPayload,
+    @Query() searchParams: Partial<TransactionSearchDto>,
   ): Promise<TransactionHistoryResponse> {
     this.logger.log(`Getting transactions for account ${accountId}`);
 
@@ -198,8 +199,8 @@ export class TransactionHistoryController {
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getCustomerTransactions(
     @Param('customerId', ParseUUIDPipe) customerId: string,
-    @Query() searchParams: Partial<TransactionSearchDto>,
     @CurrentUser() user: JwtPayload,
+    @Query() searchParams: Partial<TransactionSearchDto>,
   ): Promise<TransactionHistoryResponse> {
     this.logger.log(`Getting transactions for customer ${customerId}`);
 
@@ -219,8 +220,8 @@ export class TransactionHistoryController {
   @ApiResponse({ status: 200, description: 'Transaction analytics retrieved' })
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionAnalytics(
-    @Query() filters: Partial<TransactionSearchDto>,
     @CurrentUser() user: JwtPayload,
+    @Query() filters: Partial<TransactionSearchDto>,
   ): Promise<TransactionAnalytics> {
     this.logger.log(`Getting analytics for company ${user.companyId}`);
 
@@ -237,9 +238,9 @@ export class TransactionHistoryController {
   @ApiResponse({ status: 200, description: 'Reconciliation report generated' })
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getReconciliationReport(
+    @CurrentUser() user: JwtPayload,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-    @CurrentUser() user: JwtPayload,
   ): Promise<ReconciliationReport> {
     this.logger.log(`Generating reconciliation report for company ${user.companyId}`);
 
@@ -255,7 +256,8 @@ export class TransactionHistoryController {
   @ApiResponse({ status: 200, description: 'Transaction insights generated' })
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionInsights(
-    @Query('timeRange') timeRange: 'daily' | 'weekly' | 'monthly' = 'weekly', @CurrentUser() user: JwtPayload,
+    @Query('timeRange') timeRange: 'daily' | 'weekly' | 'monthly' = 'weekly',
+    @CurrentUser() user: JwtPayload,
   ): Promise<{
     insights: Array<{
       type: 'trend' | 'anomaly' | 'opportunity' | 'risk';
@@ -495,7 +497,8 @@ export class TransactionHistoryController {
   @ApiResponse({ status: 200, description: 'Dashboard data retrieved' })
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getDashboardData(
-    @Query('period') period: 'today' | 'week' | 'month' = 'today', @CurrentUser() user: JwtPayload,
+    @Query('period') period: 'today' | 'week' | 'month' = 'today',
+    @CurrentUser() user: JwtPayload,
   ): Promise<{
     summary: {
       totalTransactions: number;
@@ -581,8 +584,9 @@ export class TransactionHistoryController {
   @ApiResponse({ status: 200, description: 'Transaction summary retrieved' })
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionSummary(
-    @Query('groupBy') groupBy: 'day' | 'week' | 'month' = 'day', @CurrentUser() user: JwtPayload,
+    @Query('groupBy') groupBy: 'day' | 'week' | 'month' = 'day',
     @Query('compare') compare: boolean = false,
+    @CurrentUser() user: JwtPayload,
   ): Promise<{
     current: {
       count: number;

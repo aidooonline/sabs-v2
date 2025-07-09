@@ -1,5 +1,4 @@
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-import {
 import { JwtAuthGuard } from '../../../identity-service/src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../identity-service/src/auth/guards/roles.guard';
 import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
@@ -11,6 +10,7 @@ function Roles(...roles: any[]) {
   };
 }
 
+import {
   Controller,
   Get,
   Post,
@@ -25,6 +25,7 @@ function Roles(...roles: any[]) {
   NotFoundException,
   Logger,
 } from '@nestjs/common';
+import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -32,9 +33,7 @@ function Roles(...roles: any[]) {
   ApiParam,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-
-
-
+import {
   AuditComplianceService,
   AuditLog,
   ComplianceCheck,
@@ -801,15 +800,15 @@ export class AuditComplianceController {
     complianceSeverities: ComplianceSeverity[];
   }> {
     return {
-      auditEventTypes: AuditEventType,
+      auditEventTypes: Object.values(AuditEventType),
       auditActions: Object.values(AuditAction),
-      complianceCheckTypes: ComplianceCheckType,
-      complianceStatuses: ComplianceStatus,
-      complianceResults: ComplianceResult,
+      complianceCheckTypes: Object.values(ComplianceCheckType),
+      complianceStatuses: Object.values(ComplianceStatus),
+      complianceResults: Object.values(ComplianceResult),
       riskLevels: Object.values(RiskLevel),
       complianceCategories: Object.values(ComplianceCategory),
-      complianceRuleTypes: ComplianceRuleType,
-      complianceSeverities: ComplianceSeverity,
+      complianceRuleTypes: Object.values(ComplianceRuleType),
+      complianceSeverities: Object.values(ComplianceSeverity),
     };
   }
 

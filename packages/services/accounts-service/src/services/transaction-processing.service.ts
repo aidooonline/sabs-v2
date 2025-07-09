@@ -5,9 +5,9 @@ import { Repository, DataSource, QueryRunner } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
-import { Transaction, TransactionStatus, TransactionType } from '../entities/transaction.entity';
+import { Transaction, TransactionStatus, TransactionType, TransactionPriority } from '../entities/transaction.entity';
 import { Account } from '../entities/account.entity';
 import { Customer } from '../entities/customer.entity';
 import { ApprovalWorkflow, WorkflowStatus } from '../entities/approval-workflow.entity';
@@ -195,12 +195,12 @@ export class TransactionProcessingService {
       const processingTimeMs = Date.now() - startTime;
       await this.emitProcessingEvents(transaction, balanceUpdate, receipt, processingTimeMs);
 
-      this.logger.log(`Transaction ${savedTransaction.transactionNumber} processed successfully in ${processingTimeMs}ms`);
+      this.logger.log(`Transaction ${transaction.transactionNumber} processed successfully in ${processingTimeMs}ms`);
 
       return {
         success: true,
-        transactionId: savedTransaction.id,
-        transactionNumber: savedTransaction.transactionNumber,
+        transactionId: transaction.id,
+        transactionNumber: transaction.transactionNumber,
         finalBalance: balanceUpdate.newBalance,
         finalAvailableBalance: balanceUpdate.newAvailableBalance,
         receiptNumber: receipt.receiptNumber,
@@ -638,7 +638,7 @@ export class TransactionProcessingService {
 
     const receipt: Receipt = {
       receiptNumber,
-      transactionNumber: savedTransaction.transactionNumber,
+      transactionNumber: transaction.transactionNumber,
       customerName: transaction.customer.fullName,
       customerPhone: transaction.customer?.phoneNumber ,
       accountNumber: account.accountNumber,
@@ -651,7 +651,7 @@ export class TransactionProcessingService {
       agentPhone: transaction.agentPhone,
       location: transaction.agentLocation || 'Unknown',
       timestamp: transaction.completedAt.toISOString(),
-      reference: transaction.reference || savedTransaction.transactionNumber,
+      reference: transaction.reference || transaction.transactionNumber,
     };
 
     // Cache receipt for quick access
@@ -663,7 +663,7 @@ export class TransactionProcessingService {
 
     // Emit receipt generated event
     this.eventEmitter.emit('transaction.receipt_generated', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       receiptNumber,
       customerPhone: transaction.customer?.phoneNumber ,
     });
@@ -861,10 +861,40 @@ export class TransactionProcessingService {
     reversedBy: string,
     reason: string,
   ): Promise<Transaction> {
-    const reversalData = this.createReversalTransaction(originalTransaction, reversedBy, reason);
+    const reversalData = this.createReversalTransactionData(originalTransaction, reversedBy, reason);
     const reversalTransaction = queryRunner.manager.create(Transaction, reversalData);
     
     return await queryRunner.manager.save(Transaction, reversalTransaction);
+  }
+
+  private createReversalTransactionData(
+    originalTransaction: Transaction,
+    reversedBy: string,
+    reason: string,
+  ): Partial<Transaction> {
+    return {
+      companyId: originalTransaction.companyId,
+      customerId: originalTransaction.customerId,
+      accountId: originalTransaction.accountId,
+      type: originalTransaction.type,
+      amount: originalTransaction.amount,
+      currency: originalTransaction.currency,
+      description: `Reversal of ${originalTransaction.transactionNumber}`,
+      agentId: reversedBy,
+      agentName: 'System Reversal',
+      agentPhone: '',
+      channel: originalTransaction.channel,
+      reference: `REV-${originalTransaction.transactionNumber}`,
+      accountBalanceBefore: originalTransaction.accountBalanceAfter,
+      availableBalanceBefore: originalTransaction.availableBalanceAfter,
+      originalTransactionId: originalTransaction.id,
+      reversalReason: reason,
+      status: TransactionStatus.PENDING,
+      priority: TransactionPriority.HIGH,
+      riskScore: 10,
+      feeAmount: 0,
+      totalAmount: originalTransaction.amount,
+    };
   }
 
   private async releaseTransactionHolds(
@@ -884,12 +914,12 @@ export class TransactionProcessingService {
   ): Promise<void> {
     // This would typically create an entry in a reconciliation table
     // For now, we'll just log the reconciliation data
-    this.logger.log(`Reconciliation entry created for transaction ${savedTransaction.transactionNumber}`);
+    this.logger.log(`Reconciliation entry created for transaction ${transaction.transactionNumber}`);
   }
 
   private async clearRelatedCaches(transaction: Transaction): Promise<void> {
     const cacheKeys = [
-      `transaction:${savedTransaction.id}`,
+      `transaction:${transaction.id}`,
       `account:${transaction.accountId}`,
       `customer:${transaction.customerId}`,
       `balance:${transaction.accountId}`,
@@ -906,8 +936,8 @@ export class TransactionProcessingService {
   ): Promise<void> {
     // Emit completion event
     this.eventEmitter.emit('transaction.completed', {
-      transactionId: savedTransaction.id,
-      transactionNumber: savedTransaction.transactionNumber,
+      transactionId: transaction.id,
+      transactionNumber: transaction.transactionNumber,
       customerId: transaction.customerId,
       accountId: transaction.accountId,
       amount: transaction.amount,
@@ -918,7 +948,7 @@ export class TransactionProcessingService {
 
     // Emit receipt event
     this.eventEmitter.emit('transaction.receipt_ready', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       receiptNumber: receipt.receiptNumber,
       customerPhone: transaction.customer?.phoneNumber  ,
       customerEmail: transaction.customer.email,
@@ -926,14 +956,14 @@ export class TransactionProcessingService {
 
     // Emit notification event
     this.eventEmitter.emit('transaction.notification_required', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       customerId: transaction.customerId,
       type: 'transaction_completed',
       channels: ['sms', 'email'],
       data: {
         amount: transaction.amount,
         balance: balanceUpdate.newBalance,
-        reference: savedTransaction.transactionNumber,
+        reference: transaction.transactionNumber,
       },
     });
   }

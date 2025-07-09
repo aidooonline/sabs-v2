@@ -3,7 +3,7 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
 
 
@@ -726,9 +726,7 @@ export class RegulatoryReportingService {
 
   private generateReportName(type: ReportType, period: ReportingPeriod): string {
     const typeNames = {
-      [ReportType.COMPLIANCE]: 'Prudential Report',
-      [ReportType.COMPLIANCE]: 'AML/CFT Report',
-      [ReportType.COMPLIANCE]: 'Consumer Protection Report',
+      [ReportType.COMPLIANCE]: 'Compliance Report',
       [ReportType.CREDIT_REPORTING]: 'Credit Reporting Return',
       [ReportType.OPERATIONAL_RISK]: 'Operational Risk Report',
       [ReportType.FINANCIAL_INCLUSION]: 'Financial Inclusion Report',
@@ -741,8 +739,6 @@ export class RegulatoryReportingService {
 
   private determineFrequency(type: ReportType): ReportingFrequency {
     const frequencies = {
-      [ReportType.COMPLIANCE]: ReportingFrequency.MONTHLY,
-      [ReportType.COMPLIANCE]: ReportingFrequency.QUARTERLY,
       [ReportType.COMPLIANCE]: ReportingFrequency.QUARTERLY,
       [ReportType.CREDIT_REPORTING]: ReportingFrequency.MONTHLY,
       [ReportType.OPERATIONAL_RISK]: ReportingFrequency.QUARTERLY,
@@ -756,9 +752,7 @@ export class RegulatoryReportingService {
 
   private calculateDueDate(type: ReportType, period: ReportingPeriod): Date {
     const daysAfterPeriod = {
-      [ReportType.COMPLIANCE]: 15,
       [ReportType.COMPLIANCE]: 30,
-      [ReportType.COMPLIANCE]: 45,
       [ReportType.CREDIT_REPORTING]: 10,
       [ReportType.OPERATIONAL_RISK]: 60,
       [ReportType.FINANCIAL_INCLUSION]: 90,
@@ -874,8 +868,6 @@ export class RegulatoryReportingService {
   private getSubmissionWindow(type: ReportType): number {
     const windows = {
       [ReportType.COMPLIANCE]: 5,
-      [ReportType.COMPLIANCE]: 3,
-      [ReportType.COMPLIANCE]: 7,
       [ReportType.CREDIT_REPORTING]: 2,
       [ReportType.OPERATIONAL_RISK]: 10,
       [ReportType.FINANCIAL_INCLUSION]: 14,
@@ -996,9 +988,10 @@ export class RegulatoryReportingService {
     const significantEntities = ['regulatory_report', 'compliance_rule', 'audit_trail'];
     
     if (significantActions.includes(action) || significantEntities.includes(entityType)) {
-
+      return 'high';
     }
 
+    return 'low';
   }
 
   private initializeComplianceRules(): void {

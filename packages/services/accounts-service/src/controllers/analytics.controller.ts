@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import {
 import { nanoid } from 'nanoid';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+import {
   Controller,
   Get,
   Post,
@@ -16,6 +16,7 @@ import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, L
   Logger,
   Headers,
 } from '@nestjs/common';
+import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -23,7 +24,7 @@ import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, L
   ApiParam,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-
+import {
   AnalyticsService,
   AnalyticsDashboard,
   AnalyticsMetric,
@@ -610,7 +611,7 @@ export class AnalyticsController {
 
     return {
       metrics: filteredMetrics,
-      categories: MetricCategory,
+      categories: Object.values(MetricCategory),
       totalMetrics: Object.values(metrics).length,
       realtimeMetrics: metrics.filter(m => m.isRealTime).length,
     };
@@ -648,7 +649,7 @@ export class AnalyticsController {
     return {
       insights: filteredInsights,
       kpis: result.kpis,
-      alerts: result.alerts: (alerts as any)?.alerts || alerts,
+      alerts: result.alerts,
     };
   }
 
@@ -1120,8 +1121,6 @@ export class AnalyticsController {
     // Extract user ID from JWT token
     const token = authorization.substring(7);
     // Mock implementation - replace with actual JWT decode
-
-  }
-
+    return 'mock-user-id';
   }
 }

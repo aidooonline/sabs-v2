@@ -23,7 +23,6 @@ import { TransactionProcessingController } from './controllers/transaction-proce
 import { TransactionHistoryController } from './controllers/transaction-history.controller';
 import { NotificationController } from './controllers/notification.controller';
 import { AuditComplianceController } from './controllers/audit-compliance.controller';
-import { DatabaseModule } from '@sabs/database';
 
 // Entities
 

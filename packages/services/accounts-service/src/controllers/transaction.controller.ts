@@ -1,25 +1,9 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, Request, Logger, HttpStatus, HttpException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, Request, Logger } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { TransactionService, AgentInfo } from '../services/transaction.service';
 import {
-// Mock @Roles decorator to fix signature issues
-function Roles(...roles: any[]) {
-  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
-    // Mock implementation
-    return descriptor;
-  };
-}
-
-
-
-// Mock imports - these should be replaced with actual implementations
-class JwtAuthGuard {}
-class RolesGuard {}
-class TenantGuard {}
-
-
   CreateWithdrawalRequestDto,
   CustomerVerificationDto,
   ApproveTransactionDto,
@@ -36,6 +20,19 @@ class TenantGuard {}
   BulkTransactionActionDto,
   TransactionReceiptDto,
 } from '../dto/transaction.dto';
+
+// Mock @Roles decorator to fix signature issues
+function Roles(...roles: any[]) {
+  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+    // Mock implementation
+    return descriptor;
+  };
+}
+
+// Mock imports - these should be replaced with actual implementations
+class JwtAuthGuard {}
+class RolesGuard {}
+class TenantGuard {}
 
 export interface AuthenticatedRequest extends Request {
   user: {

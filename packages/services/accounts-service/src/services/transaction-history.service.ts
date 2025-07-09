@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder, Between, In, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 import { Transaction, TransactionStatus, TransactionType } from '../entities/transaction.entity';
 import { Account, AccountType } from '../entities/account.entity';
 import { Customer } from '../entities/customer.entity';
@@ -891,7 +891,7 @@ export class TransactionHistoryService {
     }
   }
 
-  private getDateRange(filters, { startDate?: string; endDate?: string }): any {
+  private getDateRange(filters: TransactionSearchFilters): any {
     if (!filters.startDate && !filters.endDate) {
       return {};
     }
@@ -971,7 +971,6 @@ export class TransactionHistoryService {
   }
 
   private async calculatePerformanceMetrics(companyId: string, filters: TransactionSearchFilters): Promise<any> {
-    // This would calculate performance metrics
     return {
       averageProcessingTime: 0,
       fastestTransaction: 0,

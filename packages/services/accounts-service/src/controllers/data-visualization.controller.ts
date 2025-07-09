@@ -1,8 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-import {
 import { nanoid } from 'nanoid';
-
+import {
   Controller,
   Get,
   Post,
@@ -17,6 +16,7 @@ import { nanoid } from 'nanoid';
   Logger,
   Headers,
 } from '@nestjs/common';
+import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -24,7 +24,7 @@ import { nanoid } from 'nanoid';
   ApiParam,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-
+import {
   DataVisualizationService,
   Visualization,
   InteractiveReport,
@@ -984,9 +984,7 @@ export class DataVisualizationController {
     // Extract user ID from JWT token
     const token = authorization.substring(7);
     // Mock implementation - replace with actual JWT decode
-
-  }
-
+    return 'mock-user-id';
   }
 
   private groupByField<T extends Record<string, any>>(items: T[], field: keyof T): Record<string, number> {

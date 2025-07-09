@@ -1,18 +1,10 @@
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-import {
 import { TransactionProcessingService, ProcessingResult, Receipt } from '../services/transaction-processing.service';
 import { JwtAuthGuard } from '../../../identity-service/src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../identity-service/src/auth/guards/roles.guard';
 import { TenantGuard } from '../../../identity-service/src/auth/guards/tenant.guard';
 import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
-// Mock @Roles decorator to fix signature issues
-function Roles(...roles: any[]) {
-  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
-    // Mock implementation
-    return descriptor;
-  };
-}
-
+import {
   Controller,
   Get,
   Post,
@@ -26,6 +18,7 @@ function Roles(...roles: any[]) {
   HttpCode,
   BadRequestException,
 } from '@nestjs/common';
+import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -33,6 +26,14 @@ function Roles(...roles: any[]) {
   ApiBody,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+
+// Mock @Roles decorator to fix signature issues
+function Roles(...roles: any[]) {
+  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+    // Mock implementation
+    return descriptor;
+  };
+}
 
 
 

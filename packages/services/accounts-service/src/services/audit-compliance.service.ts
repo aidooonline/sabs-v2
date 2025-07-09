@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
 import { Transaction } from '../entities/transaction.entity';
 import { Customer } from '../entities/customer.entity';
@@ -972,15 +972,15 @@ export class AuditComplianceService {
   private getImpactDescription(severity: ComplianceSeverity): string {
     switch (severity) {
       case ComplianceSeverity.CRITICAL:
-
+        return 'Critical impact requiring immediate action';
       case ComplianceSeverity.HIGH:
-
+        return 'High impact requiring urgent attention';
       case ComplianceSeverity.MEDIUM:
-
+        return 'Medium impact requiring timely resolution';
       case ComplianceSeverity.LOW:
-
+        return 'Low impact for informational purposes';
       default:
-
+        return 'Impact level unknown';
     }
   }
 

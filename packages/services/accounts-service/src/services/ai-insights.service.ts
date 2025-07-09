@@ -2,7 +2,7 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
 
 // ===== AI INSIGHTS ENTITIES =====
@@ -352,7 +352,7 @@ export class AIInsightsService {
     
     let recommendations: Recommendation[] = [];
     if (request.includeRecommendations) {
-      recommendations = await this.generateRecommendations(insights: [], request);
+      recommendations = await this.generateRecommendations([], request);
     }
 
     let predictions: PredictionResult[] = [];
@@ -361,7 +361,7 @@ export class AIInsightsService {
     }
 
     const summary = this.generateInsightsSummary(insights);
-    const naturalLanguageSummary = await this.generateNaturalLanguageSummary(insights: [], recommendations);
+    const naturalLanguageSummary = await this.generateNaturalLanguageSummary([], recommendations);
     const actionPlan = this.generateActionPlan(recommendations);
 
     this.eventEmitter.emit('ai.insights_generated', {
@@ -377,7 +377,7 @@ export class AIInsightsService {
       recommendations,
       predictions: [],
       naturalLanguageSummary,
-      actionPlan: {    },
+      actionPlan: { immediate: [], shortTerm: [], longTerm: [] },
     };
   }
 
@@ -422,7 +422,7 @@ export class AIInsightsService {
     const report: BusinessIntelligenceReport = {
       id: reportId,
       title: `AI-Powered Business Intelligence Report - ${this.formatPeriod(period)}`,
-      summary: await this.generateExecutiveSummary(insights: [], recommendations),
+      summary: await this.generateExecutiveSummary([], recommendations),
       period,
       insights: [],
       recommendations,
@@ -430,7 +430,7 @@ export class AIInsightsService {
       trends: await this.analyzeTrends(period),
       predictions: [],
       actionItems: this.generateActionItems(recommendations),
-      executiveSummary: await this.generateDetailedExecutiveSummary(insights: [], recommendations, predictions),
+      executiveSummary: await this.generateDetailedExecutiveSummary([], recommendations, predictions),
       generated: new Date(),
     };
 
@@ -457,9 +457,9 @@ export class AIInsightsService {
 
     const performanceScore = {
       overall: this.calculateOverallPerformance(insights),
-      financial: this.calculateCategoryPerformance(insights: [], InsightCategory.FINANCIAL_PERFORMANCE),
-      operational: this.calculateCategoryPerformance(insights: [], InsightCategory.OPERATIONAL_EFFICIENCY),
-      strategic: this.calculateCategoryPerformance(insights: [], InsightCategory.STRATEGIC_PLANNING),
+      financial: this.calculateCategoryPerformance([], InsightCategory.FINANCIAL_PERFORMANCE),
+      operational: this.calculateCategoryPerformance([], InsightCategory.OPERATIONAL_EFFICIENCY),
+      strategic: this.calculateCategoryPerformance([], InsightCategory.STRATEGIC_PLANNING),
     };
 
     const competitiveAnalysis = await this.performCompetitiveAnalysis();
@@ -595,10 +595,10 @@ export class AIInsightsService {
     return {
       predictions: [],
       models: {
-        
+        used: [],
         performance: { accuracy: 0, precision: 0, recall: 0, f1Score: 0 },
-      confidence: 0
-    },
+        confidence: 0
+      },
       scenarios: { optimistic: { probability: 0, outcome: {}, factors: [] }, realistic: { probability: 0, outcome: {}, factors: [] }, pessimistic: { probability: 0, outcome: {}, factors: [] } },
       insights: [],
     };
@@ -632,8 +632,17 @@ export class AIInsightsService {
 
     return {
       segments: [],
-      insights: [],
-      actionPlan: {    },
+      insights: {
+        highValueSegments: [],
+        growthOpportunities: [],
+        churnRisks: [],
+        crossSellOpportunities: []
+      },
+      actionPlan: {
+        targeting: [],
+        personalization: [],
+        retention: []
+      },
     };
   }
 
@@ -935,7 +944,7 @@ export class AIInsightsService {
   }
 
   private async generateExecutiveSummary(insights: AIInsight[], recommendations: Recommendation[]): Promise<string> {
-
+    return `Executive Summary: ${insights.length} insights analyzed with ${recommendations.length} actionable recommendations.`;
   }
 
   private calculateOverallPerformance(insights: AIInsight[]): number {
@@ -1169,7 +1178,4 @@ interface InfluencingFactor {
   factor: string;
   impact: number;
   confidence: number;
-  private generateExecutiveSummary(request: any): string {
-    return 'Executive summary generated based on current performance metrics and strategic objectives.';
-  }
 }

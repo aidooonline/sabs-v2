@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 import { nanoid } from 'nanoid';
 import { Transaction, TransactionStatus, TransactionType } from '../entities/transaction.entity';
 import { Customer } from '../entities/customer.entity';
@@ -701,13 +701,13 @@ export class NotificationService {
     transaction: Transaction, 
     type: NotificationType
   ): Promise<void> {
-    if (!transactionEntity.customer) {
+    if (!transaction.customer) {
       this.logger.error(`Customer not found for transaction: ${transaction.id}`);
       return;
     }
 
     const data = {
-      customerName: transactionEntity.customer.fullName,
+      customerName: transaction.customer.fullName,
       transactionType: transaction.type.toUpperCase(),
       transactionNumber: transaction.transactionNumber,
       amount: transaction.amount.toFixed(2),

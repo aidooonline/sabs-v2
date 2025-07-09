@@ -383,7 +383,7 @@ export class Customer {
   }
 
   // Static factory methods
-  static createBasicCustomer(data, {
+  static createBasicCustomer(data: any, options: {
     companyId: string;
     firstName: string;
     lastName: string;
@@ -399,6 +399,18 @@ export class Customer {
   }): Partial<Customer> {
     return {
       ...data,
+      companyId: options.companyId,
+      firstName: options.firstName,
+      lastName: options.lastName,
+      phoneNumber: options.phoneNumber,
+      dateOfBirth: options.dateOfBirth,
+      gender: options.gender,
+      addressLine1: options.addressLine1,
+      city: options.city,
+      region: options.region,
+      identificationType: options.identificationType,
+      identificationNumber: options.identificationNumber,
+      onboardedBy: options.onboardedBy,
       status: CustomerStatus.PENDING,
       tier: CustomerTier.BASIC,
       kycLevel: 1,
@@ -412,7 +424,7 @@ export class Customer {
     };
   }
 
-  static createBusinessCustomer(data, {
+  static createBusinessCustomer(data: any, options: {
     companyId: string;
     firstName: string;
     lastName: string;
@@ -430,11 +442,11 @@ export class Customer {
     onboardedBy: string;
   }): Partial<Customer> {
     return {
-      ...Customer.createBasicCustomer(data),
+      ...Customer.createBasicCustomer(data, options),
       isBusiness: true,
-      businessName: data.businessName,
-      businessRegistrationNumber: data.businessRegistrationNumber,
-      businessType: data.businessType,
+      businessName: options.businessName,
+      businessRegistrationNumber: options.businessRegistrationNumber,
+      businessType: options.businessType,
       kycLevel: 2, // Business customers start with enhanced KYC
       riskScore: 20, // Slightly higher initial risk for business
     };
