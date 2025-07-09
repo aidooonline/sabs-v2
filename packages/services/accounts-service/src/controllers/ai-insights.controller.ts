@@ -12,6 +12,7 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
+import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -19,7 +20,7 @@ import {
   ApiParam,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-
+import {
   AIInsightsService,
   AIInsight,
   Recommendation,
