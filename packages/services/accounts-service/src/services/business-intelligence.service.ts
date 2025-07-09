@@ -619,7 +619,7 @@ export class BusinessIntelligenceService {
 
   // ===== ANOMALY DETECTION =====
 
-  async detectAnomalies(timeRange, { start: Date; end: Date }): Promise<{
+  async detectAnomalies(timeRange: { start: Date; end: Date }): Promise<{
     anomalies: AnomalyDetection[];
     summary: {
       total: number;

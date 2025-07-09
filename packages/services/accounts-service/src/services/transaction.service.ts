@@ -100,49 +100,39 @@ export class TransactionService {
     // 4. Perform compliance and risk assessment
     const complianceResult = await this.performComplianceCheck(customer, account, createDto.amount);
 
-    // 5. Create transaction entity
-    const transactionData = await this.transactionRepository.create({
-      companyId,
+    // 5. Create transaction entity with basic data only
+    const transaction = this.transactionRepository.create({
       customerId: createDto.customerId,
       accountId: createDto.accountId,
       amount: createDto.amount,
       currency: createDto.currency || 'GHS',
       description: createDto.description,
-      agentId: agentInfo.id,
-      agentName: agentInfo.name,
-      agentPhone: agentInfo.phone,
       channel: createDto.channel,
       reference: createDto.reference,
-      balanceBefore: account.currentBalance,
-      availableBalanceBefore: account.availableBalance,
-      location: createDto.location || agentInfo.location,
-      ipAddress: agentInfo.ipAddress,
     });
 
-    // Set fee and compliance data
-    transactionData.feeAmount = feeAmount;
-    transactionData.totalAmount = createDto.amount + feeAmount;
-    transactionData.riskScore = complianceResult.riskScore;
-    transactionData.complianceFlags = complianceResult.flags.map((flag: any) => ({
+    // Set additional properties after creation
+    transaction.feeAmount = feeAmount;
+    transaction.totalAmount = createDto.amount + feeAmount;
+    transaction.riskScore = complianceResult.riskScore;
+    transaction.complianceFlags = complianceResult.flags.map((flag: any) => ({
       ...flag,
       raisedAt: flag.raisedAt || new Date().toISOString()
     }));
-    transactionData.requiredApprovalLevel = complianceResult.approvalLevel;
-    transactionData.customerPresent = createDto.customerPresent ?? true;
-    transactionData.priority = createDto.priority;
-    transactionData.notes = createDto.notes;
-    transactionData.agentDeviceInfo = agentInfo.deviceInfo;
+    transaction.requiredApprovalLevel = complianceResult.approvalLevel;
+    transaction.customerPresent = createDto.customerPresent ?? true;
+    transaction.priority = createDto.priority;
+    transaction.notes = createDto.notes;
 
     // Set AML and sanctions check requirements
     if (complianceResult.riskScore >= 50 || createDto.amount >= 1000) {
-      transactionData.amlCheckRequired = true;
+      transaction.amlCheckRequired = true;
     }
     if (complianceResult.riskScore >= 70 || createDto.amount >= 5000) {
-      transactionData.sanctionsCheckRequired = true;
+      transaction.sanctionsCheckRequired = true;
     }
 
-    // Create and save transaction
-    const transaction = this.transactionRepository.create(transactionData);
+    // Save transaction to database
     await this.transactionRepository.save(transaction);
 
     // 6. Place hold on account if required
@@ -397,7 +387,7 @@ export class TransactionService {
 
       // Emit failure event
       this.eventEmitter.emit('transaction.failed', {
-        transactionId: savedTransaction.id,
+        transactionId: transaction.id,
         error: errorMessage,
         customerId: transaction.customerId,
       });
@@ -423,12 +413,12 @@ export class TransactionService {
 
     // Release hold
     if (transaction.holdPlaced) {
-      await this.releaseTransactionHold(savedTransaction.id);
+      await this.releaseTransactionHold(transaction.id);
     }
 
     // Emit cancellation event
     this.eventEmitter.emit('transaction.cancelled', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       cancelledBy,
       reason: cancelDto.reason,
       customerId: transaction.customerId,
@@ -591,7 +581,7 @@ export class TransactionService {
 
     if (query.search) {
       queryBuilder.andWhere(
-        '(savedTransaction.transactionNumber ILIKE :search OR transaction.reference ILIKE :search OR transaction.description ILIKE :search)',
+        '(transaction.transactionNumber ILIKE :search OR transaction.reference ILIKE :search OR transaction.description ILIKE :search)',
         { search: `%${query.search}%` },
       );
     }

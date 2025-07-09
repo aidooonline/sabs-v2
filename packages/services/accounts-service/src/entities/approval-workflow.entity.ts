@@ -723,7 +723,7 @@ export class ApprovalWorkflow {
   }
 
   // Static factory methods
-  static createForTransaction(data, {
+  static createForTransaction(data: any, options: {
     companyId: string;
     transactionId: string;
     priority?: ApprovalPriority;
@@ -733,10 +733,14 @@ export class ApprovalWorkflow {
   }): Partial<ApprovalWorkflow> {
     return {
       ...data,
+      companyId: options.companyId,
+      transactionId: options.transactionId,
       status: WorkflowStatus.PENDING,
       currentStage: ApprovalStage.INITIAL_REVIEW,
-      priority: data.priority || ApprovalPriority.NORMAL,
-      slaDurationMinutes: data.slaDurationMinutes || 60,
+      priority: options.priority || ApprovalPriority.NORMAL,
+      slaDurationMinutes: options.slaDurationMinutes || 60,
+      managerReviewRequired: options.managerReviewRequired || false,
+      adminReviewRequired: options.adminReviewRequired || false,
       escalated: false,
       escalationLevel: 0,
       touchesCount: 0,
