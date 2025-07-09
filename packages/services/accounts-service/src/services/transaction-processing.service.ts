@@ -884,12 +884,12 @@ export class TransactionProcessingService {
   ): Promise<void> {
     // This would typically create an entry in a reconciliation table
     // For now, we'll just log the reconciliation data
-    this.logger.log(`Reconciliation entry created for transaction ${savedTransaction.transactionNumber}`);
+    this.logger.log(`Reconciliation entry created for transaction ${transaction.transactionNumber}`);
   }
 
   private async clearRelatedCaches(transaction: Transaction): Promise<void> {
     const cacheKeys = [
-      `transaction:${savedTransaction.id}`,
+      `transaction:${transaction.id}`,
       `account:${transaction.accountId}`,
       `customer:${transaction.customerId}`,
       `balance:${transaction.accountId}`,
@@ -906,8 +906,8 @@ export class TransactionProcessingService {
   ): Promise<void> {
     // Emit completion event
     this.eventEmitter.emit('transaction.completed', {
-      transactionId: savedTransaction.id,
-      transactionNumber: savedTransaction.transactionNumber,
+      transactionId: transaction.id,
+      transactionNumber: transaction.transactionNumber,
       customerId: transaction.customerId,
       accountId: transaction.accountId,
       amount: transaction.amount,
@@ -918,7 +918,7 @@ export class TransactionProcessingService {
 
     // Emit receipt event
     this.eventEmitter.emit('transaction.receipt_ready', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       receiptNumber: receipt.receiptNumber,
       customerPhone: transaction.customer?.phoneNumber  ,
       customerEmail: transaction.customer.email,
@@ -926,14 +926,14 @@ export class TransactionProcessingService {
 
     // Emit notification event
     this.eventEmitter.emit('transaction.notification_required', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       customerId: transaction.customerId,
       type: 'transaction_completed',
       channels: ['sms', 'email'],
       data: {
         amount: transaction.amount,
         balance: balanceUpdate.newBalance,
-        reference: savedTransaction.transactionNumber,
+        reference: transaction.transactionNumber,
       },
     });
   }

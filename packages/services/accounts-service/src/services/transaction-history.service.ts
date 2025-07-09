@@ -971,7 +971,6 @@ export class TransactionHistoryService {
   }
 
   private async calculatePerformanceMetrics(companyId: string, filters: TransactionSearchFilters): Promise<any> {
-    // This would calculate performance metrics
     return {
       averageProcessingTime: 0,
       fastestTransaction: 0,

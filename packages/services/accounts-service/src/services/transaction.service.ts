@@ -147,19 +147,19 @@ export class TransactionService {
 
     // 6. Place hold on account if required
     if (createDto.amount <= account.availableBalance) {
-      await this.placeTransactionHold(savedTransaction.id, createDto.amount + feeAmount);
+      await this.placeTransactionHold(transaction.id, createDto.amount + feeAmount);
     }
 
     // 7. Cache transaction for quick access
     await this.cacheManager.set(
-      `transaction:${savedTransaction.id}`,
+      `transaction:${transaction.id}`,
       transaction,
       300000, // 5 minutes
     );
 
     // 8. Emit event for real-time updates
     this.eventEmitter.emit('transaction.created', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       customerId: customer.id,
       accountId: account.id,
       agentId: agentInfo.id,
@@ -168,9 +168,9 @@ export class TransactionService {
       status: TransactionStatus.PENDING,
     });
 
-    this.logger.log(`Withdrawal request created: ${savedTransaction.transactionNumber}`);
+    this.logger.log(`Withdrawal request created: ${transaction.transactionNumber}`);
 
-    return this.formatTransactionResponse(await this.getTransactionById(companyId, savedTransaction.id));
+    return this.formatTransactionResponse(await this.getTransactionById(companyId, transaction.id));
   }
 
   async verifyCustomer(
@@ -242,7 +242,7 @@ export class TransactionService {
 
     // Emit verification event
     this.eventEmitter.emit('transaction.customer_verified', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       customerId: transaction.customerId,
       method: verificationDto.method,
       verified: transaction.customerVerified,
@@ -284,12 +284,12 @@ export class TransactionService {
 
     // Schedule for processing if auto-processing is enabled
     if (transaction.amount < 2000 && transaction.customerVerified) {
-      await this.scheduleTransactionProcessing(savedTransaction.id);
+      await this.scheduleTransactionProcessing(transaction.id);
     }
 
     // Emit approval event
     this.eventEmitter.emit('transaction.approved', {
-      transactionId: savedTransaction.id,
+      transactionId: transaction.id,
       approverId,
       amount: transaction.amount,
       customerId: transaction.customerId,
