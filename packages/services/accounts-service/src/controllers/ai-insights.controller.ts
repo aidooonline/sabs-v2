@@ -285,7 +285,32 @@ export class AIInsightsController {
       summary,
       recommendations,
       naturalLanguageSummary: result.naturalLanguageSummary,
-      actionPlan: {    },
+      actionPlan: {
+        immediate: [
+          {
+            action: 'Review high-priority insights',
+            priority: 'HIGH',
+            timeline: '24 hours',
+            owner: 'Management Team',
+          },
+        ],
+        shortTerm: [
+          {
+            action: 'Implement top recommendations',
+            priority: 'MEDIUM',
+            timeline: '1-2 weeks',
+            owner: 'Operations Team',
+          },
+        ],
+        longTerm: [
+          {
+            action: 'Strategic planning alignment',
+            priority: 'LOW',
+            timeline: '1-3 months',
+            owner: 'Strategy Team',
+          },
+        ],
+      },
       processingMetrics,
     };
   }
@@ -514,25 +539,25 @@ export class AIInsightsController {
     };
 
     const insights = {
-      total: result.Object.values(report.insights).length,
+      total: Object.values(result.report.insights).length,
       categories: Object.keys(InsightCategory).reduce((acc, cat) => {
         acc[cat] = result.report.insights.filter(i => i.category === cat).length;
         return acc;
       }, {} as Record<string, number>),
       highPriority: result.report.insights.filter(i => i.priority === InsightPriority.HIGH || i.priority === InsightPriority.CRITICAL).length,
-      averageConfidence: result.Object.values(report.insights).reduce((sum, i) => sum + i.confidence, 0) / result.Object.values(report.insights).length,
+      averageConfidence: Object.values(result.report.insights).reduce((sum, i) => sum + i.confidence, 0) / Object.values(result.report.insights).length,
     };
 
     const recommendations = {
-      total: result.Object.values(report.recommendations).length,
+      total: Object.values(result.report.recommendations).length,
       byPriority: Object.keys(RecommendationPriority).reduce((acc, priority) => {
         acc[priority] = result.report.recommendations.filter(r => r.priority === priority).length;
         return acc;
       }, {} as Record<string, number>),
       estimatedImpact: {
-        revenue: result.Object.values(report.recommendations).reduce((sum, r) => sum + r.impact.revenueImpact, 0),
-        costSavings: Math.abs(result.Object.values(report.recommendations).reduce((sum, r) => sum + r.impact.costImpact, 0)),
-        riskReduction: result.Object.values(report.recommendations).reduce((sum, r) => sum + r.impact.riskReduction, 0) / result.Object.values(report.recommendations).length,
+        revenue: Object.values(result.report.recommendations).reduce((sum, r) => sum + r.impact.revenueImpact, 0),
+        costSavings: Math.abs(Object.values(result.report.recommendations).reduce((sum, r) => sum + r.impact.costImpact, 0)),
+        riskReduction: Object.values(result.report.recommendations).reduce((sum, r) => sum + r.impact.riskReduction, 0) / Object.values(result.report.recommendations).length,
       },
     };
 
@@ -585,9 +610,9 @@ export class AIInsightsController {
       title: result.report.title,
       period: reportPeriod,
       executiveSummary,
-      insights: [],
+      insights,
       recommendations,
-      predictions: [],
+      predictions,
       performanceScore,
       competitiveAnalysis,
     };
@@ -675,9 +700,9 @@ export class AIInsightsController {
     }));
 
     const prioritization = {
-      quickWins: result.prioritization.quickWins.map(this.mapRecommendation),
-      majorProjects: result.prioritization.majorProjects.map(this.mapRecommendation),
-      strategicInitiatives: result.prioritization.strategicInitiatives.map(this.mapRecommendation),
+      quickWins: [],
+      majorProjects: [],
+      strategicInitiatives: [],
     };
 
     const implementation = {
