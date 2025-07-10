@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import {
 import { nanoid } from 'nanoid';
 import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+import {
   Controller,
   Get,
   Post,
@@ -16,6 +16,7 @@ import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, L
   Logger,
   Headers,
 } from '@nestjs/common';
+import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -23,7 +24,7 @@ import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, L
   ApiParam,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-
+import {
   AnalyticsService,
   AnalyticsDashboard,
   AnalyticsMetric,
@@ -165,10 +166,10 @@ export class AnalyticsController {
   @Get('dashboards')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user dashboards' })
-  @ApiQuery({ name: 'type', required: false, enum: DashboardType })
-  @ApiQuery({ name: 'category', required: false, enum: DashboardCategory })
-  @ApiQuery({ name: 'isPublic', required: false, type: Boolean })
-  @ApiResponse({ status: 200, description: 'Dashboards retrieved successfully' })
+  @ApiQuery({ name: 'type', _required: any, enum: DashboardType })
+  @ApiQuery({ name: 'category', _required: any, enum: DashboardCategory })
+  @ApiQuery({ name: 'isPublic', _required: any, type: Boolean })
+  @ApiResponse({ status: 200, _description: any)
   async getDashboards(
     @Headers('authorization') authorization: string,
     @Query('type') type?: DashboardType,
@@ -243,8 +244,8 @@ export class AnalyticsController {
   @Post('dashboards')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create new dashboard' })
-  @ApiResponse({ status: 201, description: 'Dashboard created successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid dashboard data' })
+  @ApiResponse({ status: 201, _description: any)
+  @ApiResponse({ status: 400, _description: any)
   async createDashboard(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) dashboardDto: CreateDashboardDto,
@@ -278,8 +279,8 @@ export class AnalyticsController {
   @Get('dashboards/:dashboardId')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get dashboard details' })
-  @ApiParam({ name: 'dashboardId', description: 'Dashboard ID' })
-  @ApiResponse({ status: 200, description: 'Dashboard details retrieved' })
+  @ApiParam({ name: 'dashboardId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async getDashboardDetails(
     @Headers('authorization') authorization: string,
     @Param('dashboardId') dashboardId: string,
@@ -309,7 +310,7 @@ export class AnalyticsController {
       owner: userId,
       isPublic: false,
       widgets: [],
-      layout: { columns: 12, rows: 8, gap: 16, autoResize: true },
+      layout: { columns: 12, _rows: any, gap: 16, _autoResize: any,
       filters: [],
       refreshInterval: 60,
       createdAt: new Date(),
@@ -327,8 +328,8 @@ export class AnalyticsController {
         previousValue: 28900000,
         change: 12.5,
         trend: TrendDirection.UP,
-        position: { x: 0, y: 0 },
-        size: { width: 3, height: 2 },
+        position: { x: 0, _y: any,
+        size: { width: 3, _height: any,
       },
       {
         id: 'widget_002',
@@ -336,12 +337,12 @@ export class AnalyticsController {
         type: WidgetType.LINE_CHART,
         dataSource: 'transaction_metrics',
         data: [
-          { timestamp: '2024-11-01', value: 12000000 },
-          { timestamp: '2024-11-02', value: 12500000 },
-          { timestamp: '2024-11-03', value: 13200000 },
+          { timestamp: '2024-11-01', _value: any,
+          { timestamp: '2024-11-02', _value: any,
+          { timestamp: '2024-11-03', _value: any,
         ],
-        position: { x: 3, y: 0 },
-        size: { width: 6, height: 4 },
+        position: { x: 3, _y: any,
+        size: { width: 6, _height: any,
       },
     ];
 
@@ -364,8 +365,8 @@ export class AnalyticsController {
   @Put('dashboards/:dashboardId')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update dashboard' })
-  @ApiParam({ name: 'dashboardId', description: 'Dashboard ID' })
-  @ApiResponse({ status: 200, description: 'Dashboard updated successfully' })
+  @ApiParam({ name: 'dashboardId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async updateDashboard(
     @Headers('authorization') authorization: string,
     @Param('dashboardId') dashboardId: string,
@@ -393,7 +394,7 @@ export class AnalyticsController {
   @Get('realtime')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get real-time system and business metrics' })
-  @ApiResponse({ status: 200, description: 'Real-time metrics retrieved', type: RealtimeMetricsDto })
+  @ApiResponse({ status: 200, _description: any, type: RealtimeMetricsDto })
   async getRealtimeMetrics(
     @Headers('authorization') authorization: string,
   ): Promise<RealtimeMetricsDto> {
@@ -421,7 +422,7 @@ export class AnalyticsController {
   @Get('realtime/stream')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get real-time metrics stream' })
-  @ApiResponse({ status: 200, description: 'Real-time metrics stream' })
+  @ApiResponse({ status: 200, _description: any)
   async getRealtimeStream(
     @Headers('authorization') authorization: string,
   ): Promise<{
@@ -457,8 +458,8 @@ export class AnalyticsController {
   @Post('query')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Execute analytics query' })
-  @ApiResponse({ status: 200, description: 'Query executed successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid query parameters' })
+  @ApiResponse({ status: 200, _description: any)
+  @ApiResponse({ status: 400, _description: any)
   async queryAnalytics(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) queryDto: QueryAnalyticsDto,
@@ -528,9 +529,9 @@ export class AnalyticsController {
   @Get('metrics')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get available metrics catalog' })
-  @ApiQuery({ name: 'category', required: false, enum: MetricCategory })
-  @ApiQuery({ name: 'realTimeOnly', required: false, type: Boolean })
-  @ApiResponse({ status: 200, description: 'Metrics catalog retrieved' })
+  @ApiQuery({ name: 'category', _required: any, enum: MetricCategory })
+  @ApiQuery({ name: 'realTimeOnly', _required: any, type: Boolean })
+  @ApiResponse({ status: 200, _description: any)
   async getMetricsCatalog(
     @Headers('authorization') authorization: string,
     @Query('category') category?: MetricCategory,
@@ -621,9 +622,9 @@ export class AnalyticsController {
   @Get('insights')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get business insights and recommendations' })
-  @ApiQuery({ name: 'category', required: false, type: String })
-  @ApiQuery({ name: 'impact', required: false, enum: ['high', 'medium', 'low'] })
-  @ApiResponse({ status: 200, description: 'Business insights retrieved', type: BusinessInsightsDto })
+  @ApiQuery({ name: 'category', _required: any, type: String })
+  @ApiQuery({ name: 'impact', _required: any, enum: ['high', 'medium', 'low'] })
+  @ApiResponse({ status: 200, _description: any, type: BusinessInsightsDto })
   async getBusinessInsights(
     @Headers('authorization') authorization: string,
     @Query('category') category?: string,
@@ -655,7 +656,7 @@ export class AnalyticsController {
   @Get('insights/recommendations')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get AI-powered recommendations' })
-  @ApiResponse({ status: 200, description: 'Recommendations retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getRecommendations(
     @Headers('authorization') authorization: string,
   ): Promise<{
@@ -761,9 +762,9 @@ export class AnalyticsController {
   @Get('performance')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get system performance report' })
-  @ApiQuery({ name: 'timeRange', required: false, type: String })
-  @ApiQuery({ name: 'component', required: false, type: String })
-  @ApiResponse({ status: 200, description: 'Performance report retrieved' })
+  @ApiQuery({ name: 'timeRange', _required: any, type: String })
+  @ApiQuery({ name: 'component', _required: any, type: String })
+  @ApiResponse({ status: 200, _description: any)
   async getPerformanceReport(
     @Headers('authorization') authorization: string,
     @Query('timeRange') timeRange?: string,
@@ -834,7 +835,7 @@ export class AnalyticsController {
   @Get('performance/sla')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get SLA compliance report' })
-  @ApiResponse({ status: 200, description: 'SLA report retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getSLAReport(
     @Headers('authorization') authorization: string,
   ): Promise<{
@@ -914,8 +915,8 @@ export class AnalyticsController {
   @Get('reports')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get available reports' })
-  @ApiQuery({ name: 'category', required: false, type: String })
-  @ApiResponse({ status: 200, description: 'Available reports retrieved' })
+  @ApiQuery({ name: 'category', _required: any, type: String })
+  @ApiResponse({ status: 200, _description: any)
   async getAvailableReports(
     @Headers('authorization') authorization: string,
     @Query('category') category?: string,
@@ -1001,8 +1002,8 @@ export class AnalyticsController {
   @Post('reports/:reportId/generate')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Generate report' })
-  @ApiParam({ name: 'reportId', description: 'Report ID' })
-  @ApiResponse({ status: 200, description: 'Report generation started' })
+  @ApiParam({ name: 'reportId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async generateReport(
     @Headers('authorization') authorization: string,
     @Param('reportId') reportId: string,
@@ -1046,7 +1047,7 @@ export class AnalyticsController {
 
   @Get('enums')
   @ApiOperation({ summary: 'Get analytics-related enums' })
-  @ApiResponse({ status: 200, description: 'Enums retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   
   @Get('enums')
   @ApiOperation({ summary: 'Get analytics enums' })
@@ -1071,7 +1072,7 @@ export class AnalyticsController {
 
   @Get('health')
   @ApiOperation({ summary: 'Check analytics service health' })
-  @ApiResponse({ status: 200, description: 'Service health status' })
+  @ApiResponse({ status: 200, _description: any)
   
   @Get('health')
   @ApiOperation({ summary: 'Get system health status' })
@@ -1113,7 +1114,7 @@ export class AnalyticsController {
   // ===== PRIVATE HELPER METHODS =====
 
   
-  private async extractUserId(authorization: string): Promise<string> {
+  private async extractUserId(_authorization: any): Promise<string> {
     if (!authorization || !authorization.startsWith('Bearer ')) {
       throw new HttpException('Invalid authorization header', HttpStatus.UNAUTHORIZED);
     }

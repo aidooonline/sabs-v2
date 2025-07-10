@@ -5,17 +5,17 @@ import { WorkflowStatus, ApprovalStage, EscalationReason, ApprovalPriority } fro
 
 // Base Approval DTOs
 export class AssignWorkflowDto {
-  @ApiProperty({ description: 'User ID to assign workflow to', example: 'uuid-string' })
+  @ApiProperty({ description: 'User ID to assign workflow to', _example: any)
   @IsString()
   assignedTo: string;
 
-  @ApiPropertyOptional({ description: 'Queue name for assignment', example: 'approval-clerk' })
+  @ApiPropertyOptional({ description: 'Queue name for assignment', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 50)
   queueName?: string;
 
-  @ApiPropertyOptional({ description: 'Assignment reason or notes', example: 'Assigning to specialist for review' })
+  @ApiPropertyOptional({ description: 'Assignment reason or notes', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 500)
@@ -23,16 +23,16 @@ export class AssignWorkflowDto {
 }
 
 export class ReassignWorkflowDto {
-  @ApiProperty({ description: 'New user ID to assign workflow to', example: 'uuid-string' })
+  @ApiProperty({ description: 'New user ID to assign workflow to', _example: any)
   @IsString()
   newAssignee: string;
 
-  @ApiProperty({ description: 'Reason for reassignment', example: 'Original assignee unavailable' })
+  @ApiProperty({ description: 'Reason for reassignment', _example: any)
   @IsString()
   @Length(5, 500)
   reason: string;
 
-  @ApiPropertyOptional({ description: 'New queue name', example: 'approval-manager' })
+  @ApiPropertyOptional({ description: 'New queue name', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 50)
@@ -40,13 +40,13 @@ export class ReassignWorkflowDto {
 }
 
 export class StartReviewDto {
-  @ApiPropertyOptional({ description: 'Initial review notes', example: 'Starting detailed review of withdrawal request' })
+  @ApiPropertyOptional({ description: 'Initial review notes', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 1000)
   initialNotes?: string;
 
-  @ApiPropertyOptional({ description: 'Estimated review duration in minutes', example: 30 })
+  @ApiPropertyOptional({ description: 'Estimated review duration in minutes', _example: any)
   @IsNumber()
   @Min(1)
   @Max(480) // Max 8 hours
@@ -55,7 +55,7 @@ export class StartReviewDto {
 }
 
 export class ApprovalDecisionDto {
-  @ApiPropertyOptional({ description: 'Approval notes', example: 'Transaction approved after thorough review. Customer identity verified.' })
+  @ApiPropertyOptional({ description: 'Approval notes', _example: any)
   @IsString()
   @IsOptional()
   @Length(10, 2000)
@@ -68,12 +68,12 @@ export class ApprovalDecisionDto {
   @Type(() => ApprovalConditionDto)
   conditions?: ApprovalConditionDto[];
 
-  @ApiPropertyOptional({ description: 'Override authorization checks', example: false })
+  @ApiPropertyOptional({ description: 'Override authorization checks', _example: any)
   @IsBoolean()
   @IsOptional()
   overrideChecks?: boolean = false;
 
-  @ApiPropertyOptional({ description: 'Confidence level in decision (0-100)', example: 95 })
+  @ApiPropertyOptional({ description: 'Confidence level in decision (0-100)', _example: any)
   @IsNumber()
   @Min(0)
   @Max(100)
@@ -82,20 +82,20 @@ export class ApprovalDecisionDto {
 }
 
 export class ApprovalConditionDto {
-  @ApiProperty({ description: 'Condition description', example: 'Customer must present valid ID' })
+  @ApiProperty({ description: 'Condition description', _example: any)
   @IsString()
   @Length(1, 200)
   condition: string;
 
-  @ApiProperty({ description: 'Is this condition required?', example: true })
+  @ApiProperty({ description: 'Is this condition required?', _example: any)
   @IsBoolean()
   required: boolean;
 
-  @ApiProperty({ description: 'Has this condition been verified?', example: false })
+  @ApiProperty({ description: 'Has this condition been verified?', _example: any)
   @IsBoolean()
   verified: boolean;
 
-  @ApiPropertyOptional({ description: 'Verification notes', example: 'ID verified by agent' })
+  @ApiPropertyOptional({ description: 'Verification notes', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 500)
@@ -103,18 +103,18 @@ export class ApprovalConditionDto {
 }
 
 export class RejectionDecisionDto {
-  @ApiProperty({ description: 'Detailed rejection reason', example: 'Insufficient documentation provided. Customer unable to verify identity adequately.' })
+  @ApiProperty({ description: 'Detailed rejection reason', _example: any)
   @IsString()
   @Length(10, 2000)
   reason: string;
 
-  @ApiPropertyOptional({ description: 'Rejection category', example: 'documentation_incomplete' })
+  @ApiPropertyOptional({ description: 'Rejection category', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 50)
   category?: string;
 
-  @ApiPropertyOptional({ description: 'Allow customer to resubmit request?', example: true })
+  @ApiPropertyOptional({ description: 'Allow customer to resubmit request?', _example: any)
   @IsBoolean()
   @IsOptional()
   allowResubmission?: boolean = true;
@@ -124,75 +124,75 @@ export class RejectionDecisionDto {
   @IsOptional()
   requiredActions?: string[];
 
-  @ApiPropertyOptional({ description: 'Escalation recommended?', example: false })
+  @ApiPropertyOptional({ description: 'Escalation recommended?', _example: any)
   @IsBoolean()
   @IsOptional()
   recommendEscalation?: boolean = false;
 }
 
 export class EscalationDto {
-  @ApiProperty({ description: 'Escalation reason', enum: EscalationReason, example: EscalationReason.HIGH_RISK })
+  @ApiProperty({ description: 'Escalation reason', _enum: any, example: EscalationReason.HIGH_RISK })
   @IsEnum(EscalationReason)
   reason: EscalationReason;
 
-  @ApiProperty({ description: 'Escalation notes', example: 'Transaction flagged for unusual pattern requiring manager review' })
+  @ApiProperty({ description: 'Escalation notes', _example: any)
   @IsString()
   @Length(10, 1000)
   notes: string;
 
-  @ApiPropertyOptional({ description: 'Escalate to specific user', example: 'uuid-string' })
+  @ApiPropertyOptional({ description: 'Escalate to specific user', _example: any)
   @IsString()
   @IsOptional()
   escalateTo?: string;
 
-  @ApiPropertyOptional({ description: 'Urgency level', example: 'high' })
+  @ApiPropertyOptional({ description: 'Urgency level', _example: any)
   @IsString()
   @IsOptional()
   urgency?: string;
 }
 
 export class BulkApprovalDto {
-  @ApiProperty({ description: 'Workflow IDs to approve', type: [String] })
+  @ApiProperty({ description: 'Workflow IDs to approve', _type: any)
   @IsArray()
   @IsString({ each: true })
   workflowIds: string[];
 
-  @ApiPropertyOptional({ description: 'Bulk approval notes', example: 'Batch approval of low-risk transactions' })
+  @ApiPropertyOptional({ description: 'Bulk approval notes', _example: any)
   @IsString()
   @IsOptional()
   @Length(5, 1000)
   notes?: string;
 
-  @ApiPropertyOptional({ description: 'Override individual checks', example: false })
+  @ApiPropertyOptional({ description: 'Override individual checks', _example: any)
   @IsBoolean()
   @IsOptional()
   overrideChecks?: boolean = false;
 }
 
 export class BulkRejectionDto {
-  @ApiProperty({ description: 'Workflow IDs to reject', type: [String] })
+  @ApiProperty({ description: 'Workflow IDs to reject', _type: any)
   @IsArray()
   @IsString({ each: true })
   workflowIds: string[];
 
-  @ApiProperty({ description: 'Bulk rejection reason', example: 'System maintenance - all pending requests rejected' })
+  @ApiProperty({ description: 'Bulk rejection reason', _example: any)
   @IsString()
   @Length(10, 1000)
   reason: string;
 
-  @ApiPropertyOptional({ description: 'Allow resubmission for all?', example: true })
+  @ApiPropertyOptional({ description: 'Allow resubmission for all?', _example: any)
   @IsBoolean()
   @IsOptional()
   allowResubmission?: boolean = true;
 }
 
 export class AddCommentDto {
-  @ApiProperty({ description: 'Comment text', example: 'Requested additional documentation from customer' })
+  @ApiProperty({ description: 'Comment text', _example: any)
   @IsString()
   @Length(1, 2000)
   comment: string;
 
-  @ApiPropertyOptional({ description: 'Is this an internal comment?', example: false })
+  @ApiPropertyOptional({ description: 'Is this an internal comment?', _example: any)
   @IsBoolean()
   @IsOptional()
   internal?: boolean = false;
@@ -205,45 +205,45 @@ export class AddCommentDto {
 }
 
 export class UpdatePriorityDto {
-  @ApiProperty({ description: 'New priority level', enum: ApprovalPriority, example: ApprovalPriority.HIGH })
+  @ApiProperty({ description: 'New priority level', _enum: any, example: ApprovalPriority.HIGH })
   @IsEnum(ApprovalPriority)
   priority: ApprovalPriority;
 
-  @ApiProperty({ description: 'Reason for priority change', example: 'VIP customer request requires urgent processing' })
+  @ApiProperty({ description: 'Reason for priority change', _example: any)
   @IsString()
   @Length(5, 500)
   reason: string;
 }
 
 export class ExtendSLADto {
-  @ApiProperty({ description: 'Additional time in minutes', example: 60, minimum: 15, maximum: 1440 })
+  @ApiProperty({ description: 'Additional time in minutes', _example: any, minimum: 15, _maximum: any)
   @IsNumber()
   @Min(15)
   @Max(1440) // Max 24 hours
   additionalMinutes: number;
 
-  @ApiProperty({ description: 'Reason for SLA extension', example: 'Awaiting external verification response' })
+  @ApiProperty({ description: 'Reason for SLA extension', _example: any)
   @IsString()
   @Length(10, 500)
   reason: string;
 
-  @ApiPropertyOptional({ description: 'Auto-approve after extension?', example: false })
+  @ApiPropertyOptional({ description: 'Auto-approve after extension?', _example: any)
   @IsBoolean()
   @IsOptional()
   autoApproveAfterExtension?: boolean = false;
 }
 
 export class ChecklistItemDto {
-  @ApiProperty({ description: 'Checklist item description', example: 'Verify customer identity documents' })
+  @ApiProperty({ description: 'Checklist item description', _example: any)
   @IsString()
   @Length(1, 200)
   item: string;
 
-  @ApiProperty({ description: 'Is this item required?', example: true })
+  @ApiProperty({ description: 'Is this item required?', _example: any)
   @IsBoolean()
   required: boolean;
 
-  @ApiPropertyOptional({ description: 'Item completion notes', example: 'ID documents verified against database' })
+  @ApiPropertyOptional({ description: 'Item completion notes', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 500)
@@ -251,12 +251,12 @@ export class ChecklistItemDto {
 }
 
 export class CompleteChecklistItemDto {
-  @ApiProperty({ description: 'Index of checklist item to complete', example: 0 })
+  @ApiProperty({ description: 'Index of checklist item to complete', _example: any)
   @IsNumber()
   @Min(0)
   itemIndex: number;
 
-  @ApiPropertyOptional({ description: 'Completion notes', example: 'Item verified successfully' })
+  @ApiPropertyOptional({ description: 'Completion notes', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 500)
@@ -265,25 +265,25 @@ export class CompleteChecklistItemDto {
 
 // Response DTOs
 export class ApprovalWorkflowResponseDto {
-  @ApiProperty({ description: 'Workflow ID', example: 'uuid-string' })
+  @ApiProperty({ description: 'Workflow ID', _example: any)
   id: string;
 
-  @ApiProperty({ description: 'Workflow number', example: 'AWF1234567890' })
+  @ApiProperty({ description: 'Workflow number', _example: any)
   workflowNumber: string;
 
-  @ApiProperty({ description: 'Company ID', example: 'uuid-string' })
+  @ApiProperty({ description: 'Company ID', _example: any)
   companyId: string;
 
-  @ApiProperty({ description: 'Transaction ID', example: 'uuid-string' })
+  @ApiProperty({ description: 'Transaction ID', _example: any)
   transactionId: string;
 
-  @ApiProperty({ description: 'Workflow status', enum: WorkflowStatus })
+  @ApiProperty({ description: 'Workflow status', _enum: any)
   status: WorkflowStatus;
 
-  @ApiProperty({ description: 'Current approval stage', enum: ApprovalStage })
+  @ApiProperty({ description: 'Current approval stage', _enum: any)
   currentStage: ApprovalStage;
 
-  @ApiProperty({ description: 'Workflow priority', enum: ApprovalPriority })
+  @ApiProperty({ description: 'Workflow priority', _enum: any)
   priority: ApprovalPriority;
 
   @ApiProperty({ description: 'Assignment information' })
@@ -410,50 +410,50 @@ export class ApprovalWorkflowResponseDto {
   @ApiProperty({ description: 'Workflow tags' })
   tags?: string[];
 
-  @ApiProperty({ description: 'Creation timestamp', example: '2024-01-15T10:30:00Z' })
+  @ApiProperty({ description: 'Creation timestamp', _example: any)
   createdAt: string;
 
-  @ApiProperty({ description: 'Last update timestamp', example: '2024-01-15T10:35:00Z' })
+  @ApiProperty({ description: 'Last update timestamp', _example: any)
   updatedAt: string;
 }
 
 export class ApprovalWorkflowListResponseDto {
-  @ApiProperty({ description: 'List of approval workflows', type: [ApprovalWorkflowResponseDto] })
+  @ApiProperty({ description: 'List of approval workflows', _type: any)
   workflows: ApprovalWorkflowResponseDto[];
 
-  @ApiProperty({ description: 'Total count', example: 150 })
+  @ApiProperty({ description: 'Total count', _example: any)
   total: number;
 
-  @ApiProperty({ description: 'Current page', example: 1 })
+  @ApiProperty({ description: 'Current page', _example: any)
   page: number;
 
-  @ApiProperty({ description: 'Items per page', example: 20 })
+  @ApiProperty({ description: 'Items per page', _example: any)
   limit: number;
 
-  @ApiProperty({ description: 'Total pages', example: 8 })
+  @ApiProperty({ description: 'Total pages', _example: any)
   totalPages: number;
 }
 
 export class ApprovalQueueStatsDto {
-  @ApiProperty({ description: 'Queue name', example: 'approval-clerk' })
+  @ApiProperty({ description: 'Queue name', _example: any)
   queueName: string;
 
-  @ApiProperty({ description: 'Total pending items', example: 25 })
+  @ApiProperty({ description: 'Total pending items', _example: any)
   pendingCount: number;
 
-  @ApiProperty({ description: 'Items in review', example: 8 })
+  @ApiProperty({ description: 'Items in review', _example: any)
   inReviewCount: number;
 
-  @ApiProperty({ description: 'Overdue items', example: 3 })
+  @ApiProperty({ description: 'Overdue items', _example: any)
   overdueCount: number;
 
-  @ApiProperty({ description: 'High priority items', example: 5 })
+  @ApiProperty({ description: 'High priority items', _example: any)
   highPriorityCount: number;
 
-  @ApiProperty({ description: 'Average SLA adherence percentage', example: 87.5 })
+  @ApiProperty({ description: 'Average SLA adherence percentage', _example: any)
   slaAdherence: number;
 
-  @ApiProperty({ description: 'Average processing time in minutes', example: 45 })
+  @ApiProperty({ description: 'Average processing time in minutes', _example: any)
   averageProcessingTime: number;
 
   @ApiProperty({ description: 'Items by priority' })
@@ -506,17 +506,17 @@ export class ApprovalDashboardStatsDto {
 
 // Query DTOs
 export class ApprovalWorkflowQueryDto {
-  @ApiPropertyOptional({ description: 'Filter by workflow status', enum: WorkflowStatus })
+  @ApiPropertyOptional({ description: 'Filter by workflow status', _enum: any)
   @IsEnum(WorkflowStatus)
   @IsOptional()
   status?: WorkflowStatus;
 
-  @ApiPropertyOptional({ description: 'Filter by approval stage', enum: ApprovalStage })
+  @ApiPropertyOptional({ description: 'Filter by approval stage', _enum: any)
   @IsEnum(ApprovalStage)
   @IsOptional()
   stage?: ApprovalStage;
 
-  @ApiPropertyOptional({ description: 'Filter by priority', enum: ApprovalPriority })
+  @ApiPropertyOptional({ description: 'Filter by priority', _enum: any)
   @IsEnum(ApprovalPriority)
   @IsOptional()
   priority?: ApprovalPriority;
@@ -546,19 +546,19 @@ export class ApprovalWorkflowQueryDto {
   @IsOptional()
   agentId?: string;
 
-  @ApiPropertyOptional({ description: 'Show only escalated workflows', example: false })
+  @ApiPropertyOptional({ description: 'Show only escalated workflows', _example: any)
   @IsBoolean()
   @IsOptional()
   @Transform(({ value }) => value === 'true')
   escalatedOnly?: boolean;
 
-  @ApiPropertyOptional({ description: 'Show only overdue workflows', example: false })
+  @ApiPropertyOptional({ description: 'Show only overdue workflows', _example: any)
   @IsBoolean()
   @IsOptional()
   @Transform(({ value }) => value === 'true')
   overdueOnly?: boolean;
 
-  @ApiPropertyOptional({ description: 'Show only high priority workflows', example: false })
+  @ApiPropertyOptional({ description: 'Show only high priority workflows', _example: any)
   @IsBoolean()
   @IsOptional()
   @Transform(({ value }) => value === 'true')
@@ -594,14 +594,14 @@ export class ApprovalWorkflowQueryDto {
   @Length(2, 100)
   search?: string;
 
-  @ApiPropertyOptional({ description: 'Page number', example: 1, minimum: 1 })
+  @ApiPropertyOptional({ description: 'Page number', _example: any, minimum: 1 })
   @IsNumber()
   @Min(1)
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
   page?: number = 1;
 
-  @ApiPropertyOptional({ description: 'Items per page', example: 20, minimum: 1, maximum: 100 })
+  @ApiPropertyOptional({ description: 'Items per page', _example: any, minimum: 1, _maximum: any)
   @IsNumber()
   @Min(1)
   @Max(100)
@@ -609,25 +609,25 @@ export class ApprovalWorkflowQueryDto {
   @Transform(({ value }) => parseInt(value, 10))
   limit?: number = 20;
 
-  @ApiPropertyOptional({ description: 'Sort by field', example: 'createdAt' })
+  @ApiPropertyOptional({ description: 'Sort by field', _example: any)
   @IsString()
   @IsOptional()
   sortBy?: string = 'urgencyLevel';
 
-  @ApiPropertyOptional({ description: 'Sort order', example: 'DESC' })
+  @ApiPropertyOptional({ description: 'Sort order', _example: any)
   @IsString()
   @IsOptional()
   sortOrder?: 'ASC' | 'DESC' = 'DESC';
 }
 
 export class BulkActionResultDto {
-  @ApiProperty({ description: 'Total items processed', example: 10 })
+  @ApiProperty({ description: 'Total items processed', _example: any)
   totalProcessed: number;
 
-  @ApiProperty({ description: 'Successful operations', example: 8 })
+  @ApiProperty({ description: 'Successful operations', _example: any)
   successCount: number;
 
-  @ApiProperty({ description: 'Failed operations', example: 2 })
+  @ApiProperty({ description: 'Failed operations', _example: any)
   failedCount: number;
 
   @ApiProperty({ description: 'Detailed results' })

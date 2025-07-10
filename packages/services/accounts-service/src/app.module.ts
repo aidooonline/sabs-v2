@@ -23,7 +23,7 @@ import { TransactionProcessingController } from './controllers/transaction-proce
 import { TransactionHistoryController } from './controllers/transaction-history.controller';
 import { NotificationController } from './controllers/notification.controller';
 import { AuditComplianceController } from './controllers/audit-compliance.controller';
-import { DatabaseModule } from '@sabs/database';
+// import { DatabaseModule } from '@sabs/database'; // TODO: Fix database module export
 
 // Entities
 
@@ -46,7 +46,7 @@ import { DatabaseModule } from '@sabs/database';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: (_configService: any) => ({
         type: 'postgres',
         host: configService.get('DB_HOST', 'localhost'),
         port: configService.get('DB_PORT', 5432),
@@ -94,7 +94,7 @@ import { DatabaseModule } from '@sabs/database';
     CacheModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: (_configService: any) => ({
         store: 'redis',
         host: configService.get('REDIS_HOST', 'localhost'),
         port: configService.get('REDIS_PORT', 6379),
@@ -109,7 +109,7 @@ import { DatabaseModule } from '@sabs/database';
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: (_configService: any) => ({
         redis: {
           host: configService.get('REDIS_HOST', 'localhost'),
           port: configService.get('REDIS_PORT', 6379),

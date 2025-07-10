@@ -113,7 +113,7 @@ export class OnboardingController {
     summary: 'Update personal information',
     description: 'Updates customer personal information in the onboarding process'
   })
-  @ApiParam({ name: 'id', description: 'Onboarding ID' })
+  @ApiParam({ name: 'id', _description: any)
   @ApiResponse({ 
     status: HttpStatus.OK, 
     description: 'Personal information updated successfully',
@@ -157,7 +157,7 @@ export class OnboardingController {
     summary: 'Update contact information',
     description: 'Updates customer contact information in the onboarding process'
   })
-  @ApiParam({ name: 'id', description: 'Onboarding ID' })
+  @ApiParam({ name: 'id', _description: any)
   @ApiResponse({ 
     status: HttpStatus.OK, 
     description: 'Contact information updated successfully',
@@ -197,7 +197,7 @@ export class OnboardingController {
     summary: 'Update identification information',
     description: 'Updates customer identification information in the onboarding process'
   })
-  @ApiParam({ name: 'id', description: 'Onboarding ID' })
+  @ApiParam({ name: 'id', _description: any)
   @ApiResponse({ 
     status: HttpStatus.OK, 
     description: 'Identification information updated successfully',
@@ -237,7 +237,7 @@ export class OnboardingController {
     summary: 'Update account preferences',
     description: 'Updates customer account preferences in the onboarding process'
   })
-  @ApiParam({ name: 'id', description: 'Onboarding ID' })
+  @ApiParam({ name: 'id', _description: any)
   @ApiResponse({ 
     status: HttpStatus.OK, 
     description: 'Account preferences updated successfully',
@@ -274,7 +274,7 @@ export class OnboardingController {
     description: 'Uploads a document for the onboarding process'
   })
   @ApiConsumes('multipart/form-data')
-  @ApiParam({ name: 'id', description: 'Onboarding ID' })
+  @ApiParam({ name: 'id', _description: any)
   @ApiResponse({ 
     status: HttpStatus.CREATED, 
     description: 'Document uploaded successfully',
@@ -314,7 +314,7 @@ export class OnboardingController {
     summary: 'Verify document',
     description: 'Verifies an uploaded document (requires clerk/admin role)'
   })
-  @ApiParam({ name: 'id', description: 'Onboarding ID' })
+  @ApiParam({ name: 'id', _description: any)
   @ApiResponse({ 
     status: HttpStatus.OK, 
     description: 'Document verified successfully',
@@ -356,7 +356,7 @@ export class OnboardingController {
     summary: 'Submit onboarding',
     description: 'Submits the onboarding for verification'
   })
-  @ApiParam({ name: 'id', description: 'Onboarding ID' })
+  @ApiParam({ name: 'id', _description: any)
   @ApiResponse({ 
     status: HttpStatus.OK, 
     description: 'Onboarding submitted successfully',
@@ -396,7 +396,7 @@ export class OnboardingController {
     summary: 'Approve onboarding',
     description: 'Approves the onboarding and creates customer account (requires clerk/admin role)'
   })
-  @ApiParam({ name: 'id', description: 'Onboarding ID' })
+  @ApiParam({ name: 'id', _description: any)
   @ApiResponse({ 
     status: HttpStatus.OK, 
     description: 'Onboarding approved successfully',
@@ -442,7 +442,7 @@ export class OnboardingController {
     summary: 'Reject onboarding',
     description: 'Rejects the onboarding with reason (requires clerk/admin role)'
   })
-  @ApiParam({ name: 'id', description: 'Onboarding ID' })
+  @ApiParam({ name: 'id', _description: any)
   @ApiResponse({ 
     status: HttpStatus.OK, 
     description: 'Onboarding rejected successfully',
@@ -488,7 +488,7 @@ export class OnboardingController {
     summary: 'Get onboarding details',
     description: 'Retrieves onboarding details by ID'
   })
-  @ApiParam({ name: 'id', description: 'Onboarding ID' })
+  @ApiParam({ name: 'id', _description: any)
   @ApiResponse({ 
     status: HttpStatus.OK, 
     description: 'Onboarding details retrieved successfully',
@@ -523,17 +523,17 @@ export class OnboardingController {
     summary: 'List onboardings',
     description: 'Lists onboardings with filtering, sorting, and pagination'
   })
-  @ApiQuery({ name: 'status', required: false, description: 'Filter by status' })
-  @ApiQuery({ name: 'agentId', required: false, description: 'Filter by agent ID' })
-  @ApiQuery({ name: 'currentStep', required: false, description: 'Filter by current step' })
-  @ApiQuery({ name: 'dateFrom', required: false, description: 'Filter by date from (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'dateTo', required: false, description: 'Filter by date to (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'search', required: false, description: 'Search by customer name or phone' })
-  @ApiQuery({ name: 'expired', required: false, type: Boolean, description: 'Show only expired records' })
-  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
-  @ApiQuery({ name: 'sortBy', required: false, description: 'Sort by field' })
-  @ApiQuery({ name: 'sortOrder', required: false, enum: ['ASC', 'DESC'], description: 'Sort order' })
+  @ApiQuery({ name: 'status', _required: any, description: 'Filter by status' })
+  @ApiQuery({ name: 'agentId', _required: any, description: 'Filter by agent ID' })
+  @ApiQuery({ name: 'currentStep', _required: any, description: 'Filter by current step' })
+  @ApiQuery({ name: 'dateFrom', _required: any, description: 'Filter by date from (YYYY-MM-DD)' })
+  @ApiQuery({ name: 'dateTo', _required: any, description: 'Filter by date to (YYYY-MM-DD)' })
+  @ApiQuery({ name: 'search', _required: any, description: 'Search by customer name or phone' })
+  @ApiQuery({ name: 'expired', _required: any, type: Boolean, _description: any)
+  @ApiQuery({ name: 'page', _required: any, type: Number, _description: any)
+  @ApiQuery({ name: 'limit', _required: any, type: Number, _description: any)
+  @ApiQuery({ name: 'sortBy', _required: any, description: 'Sort by field' })
+  @ApiQuery({ name: 'sortOrder', _required: any, enum: ['ASC', 'DESC'], _description: any)
   @ApiResponse({ 
     status: HttpStatus.OK, 
     description: 'Onboardings retrieved successfully',
@@ -564,8 +564,8 @@ export class OnboardingController {
     summary: 'Get onboarding statistics',
     description: 'Retrieves onboarding statistics and analytics'
   })
-  @ApiQuery({ name: 'dateFrom', required: false, description: 'Filter by date from (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'dateTo', required: false, description: 'Filter by date to (YYYY-MM-DD)' })
+  @ApiQuery({ name: 'dateFrom', _required: any, description: 'Filter by date from (YYYY-MM-DD)' })
+  @ApiQuery({ name: 'dateTo', _required: any, description: 'Filter by date to (YYYY-MM-DD)' })
   @ApiResponse({ 
     status: HttpStatus.OK, 
     description: 'Statistics retrieved successfully',
@@ -597,7 +597,7 @@ export class OnboardingController {
     summary: 'Abandon onboarding',
     description: 'Abandons an onboarding process'
   })
-  @ApiParam({ name: 'id', description: 'Onboarding ID' })
+  @ApiParam({ name: 'id', _description: any)
   @ApiResponse({ 
     status: HttpStatus.OK, 
     description: 'Onboarding abandoned successfully',
@@ -686,9 +686,9 @@ export class OnboardingController {
     schema: {
       type: 'object',
       properties: {
-        status: { type: 'string', example: 'ok' },
-        timestamp: { type: 'string', example: '2024-01-15T10:30:00Z' },
-        service: { type: 'string', example: 'customer-onboarding' },
+        status: { type: 'string', _example: any,
+        timestamp: { type: 'string', _example: any,
+        service: { type: 'string', _example: any,
       },
     },
   })

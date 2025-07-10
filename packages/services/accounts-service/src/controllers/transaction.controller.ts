@@ -1,25 +1,22 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, Request, Logger, HttpStatus, HttpException } from '@nestjs/common';
+import { 
+  Controller, 
+  Get, 
+  Post, 
+  Put, 
+  Delete, 
+  Param, 
+  Body, 
+  Query, 
+  UseGuards, 
+  Request, 
+  Logger, 
+  HttpStatus, 
+  HttpException 
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 import { TransactionService, AgentInfo } from '../services/transaction.service';
 import {
-// Mock @Roles decorator to fix signature issues
-function Roles(...roles: any[]) {
-  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
-    // Mock implementation
-    return descriptor;
-  };
-}
-
-
-
-// Mock imports - these should be replaced with actual implementations
-class JwtAuthGuard {}
-class RolesGuard {}
-class TenantGuard {}
-
-
   CreateWithdrawalRequestDto,
   CustomerVerificationDto,
   ApproveTransactionDto,
@@ -36,6 +33,19 @@ class TenantGuard {}
   BulkTransactionActionDto,
   TransactionReceiptDto,
 } from '../dto/transaction.dto';
+
+// Mock @Roles decorator to fix signature issues
+function Roles(...roles: any[]) {
+  return function (_target: any, propertyName: string, _descriptor: any) {
+    // Mock implementation
+    return descriptor;
+  };
+}
+
+// Mock imports - these should be replaced with actual implementations
+class JwtAuthGuard {}
+class RolesGuard {}
+class TenantGuard {}
 
 export interface AuthenticatedRequest extends Request {
   user: {
@@ -115,7 +125,7 @@ export class TransactionController {
     summary: 'Verify customer for transaction',
     description: 'Perform customer verification using PIN, OTP, biometric, or agent visual confirmation.'
   })
-  @ApiParam({ name: 'transactionId', description: 'Transaction ID' })
+  @ApiParam({ name: 'transactionId', _description: any)
   @ApiResponse({ 
     status: 200, 
     description: 'Customer verification updated successfully',
@@ -155,7 +165,7 @@ export class TransactionController {
     summary: 'Approve transaction',
     description: 'Approve a pending withdrawal request. Requires appropriate authorization level.'
   })
-  @ApiParam({ name: 'transactionId', description: 'Transaction ID' })
+  @ApiParam({ name: 'transactionId', _description: any)
   @ApiResponse({ 
     status: 200, 
     description: 'Transaction approved successfully',
@@ -195,7 +205,7 @@ export class TransactionController {
     summary: 'Reject transaction',
     description: 'Reject a pending withdrawal request with reason.'
   })
-  @ApiParam({ name: 'transactionId', description: 'Transaction ID' })
+  @ApiParam({ name: 'transactionId', _description: any)
   @ApiResponse({ 
     status: 200, 
     description: 'Transaction rejected successfully',
@@ -231,7 +241,7 @@ export class TransactionController {
     summary: 'Process transaction',
     description: 'Execute the approved withdrawal transaction and update account balances.'
   })
-  @ApiParam({ name: 'transactionId', description: 'Transaction ID' })
+  @ApiParam({ name: 'transactionId', _description: any)
   @ApiResponse({ 
     status: 200, 
     description: 'Transaction processed successfully',
@@ -267,7 +277,7 @@ export class TransactionController {
     summary: 'Cancel transaction',
     description: 'Cancel a pending or approved transaction.'
   })
-  @ApiParam({ name: 'transactionId', description: 'Transaction ID' })
+  @ApiParam({ name: 'transactionId', _description: any)
   @ApiResponse({ 
     status: 200, 
     description: 'Transaction cancelled successfully',
@@ -299,7 +309,7 @@ export class TransactionController {
     summary: 'Reverse transaction',
     description: 'Reverse a completed transaction. Requires manager or admin authorization.'
   })
-  @ApiParam({ name: 'transactionId', description: 'Transaction ID' })
+  @ApiParam({ name: 'transactionId', _description: any)
   @ApiResponse({ 
     status: 200, 
     description: 'Transaction reversal initiated successfully',
@@ -338,16 +348,16 @@ export class TransactionController {
     summary: 'Get transactions',
     description: 'Retrieve transactions with filtering, pagination, and sorting options.'
   })
-  @ApiQuery({ name: 'type', required: false, description: 'Filter by transaction type' })
-  @ApiQuery({ name: 'status', required: false, description: 'Filter by transaction status' })
-  @ApiQuery({ name: 'customerId', required: false, description: 'Filter by customer ID' })
-  @ApiQuery({ name: 'accountId', required: false, description: 'Filter by account ID' })
-  @ApiQuery({ name: 'agentId', required: false, description: 'Filter by agent ID' })
-  @ApiQuery({ name: 'dateFrom', required: false, description: 'Filter from date (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'dateTo', required: false, description: 'Filter to date (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'search', required: false, description: 'Search in transaction number, reference, or description' })
-  @ApiQuery({ name: 'page', required: false, description: 'Page number (default: 1)' })
-  @ApiQuery({ name: 'limit', required: false, description: 'Items per page (default: 20)' })
+  @ApiQuery({ name: 'type', _required: any, description: 'Filter by transaction type' })
+  @ApiQuery({ name: 'status', _required: any, description: 'Filter by transaction status' })
+  @ApiQuery({ name: 'customerId', _required: any, description: 'Filter by customer ID' })
+  @ApiQuery({ name: 'accountId', _required: any, description: 'Filter by account ID' })
+  @ApiQuery({ name: 'agentId', _required: any, description: 'Filter by agent ID' })
+  @ApiQuery({ name: 'dateFrom', _required: any, description: 'Filter from date (YYYY-MM-DD)' })
+  @ApiQuery({ name: 'dateTo', _required: any, description: 'Filter to date (YYYY-MM-DD)' })
+  @ApiQuery({ name: 'search', _required: any, description: 'Search in transaction number, reference, or description' })
+  @ApiQuery({ name: 'page', _required: any, description: 'Page number (_default: any)' })
+  @ApiQuery({ name: 'limit', _required: any, description: 'Items per page (_default: any)' })
   @ApiResponse({ 
     status: 200, 
     description: 'Transactions retrieved successfully',
@@ -373,7 +383,7 @@ export class TransactionController {
     summary: 'Get transaction by ID',
     description: 'Retrieve detailed information about a specific transaction.'
   })
-  @ApiParam({ name: 'transactionId', description: 'Transaction ID' })
+  @ApiParam({ name: 'transactionId', _description: any)
   @ApiResponse({ 
     status: 200, 
     description: 'Transaction retrieved successfully',
@@ -404,8 +414,8 @@ export class TransactionController {
     summary: 'Get transaction statistics',
     description: 'Retrieve comprehensive transaction statistics and analytics.'
   })
-  @ApiQuery({ name: 'dateFrom', required: false, description: 'Statistics from date (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'dateTo', required: false, description: 'Statistics to date (YYYY-MM-DD)' })
+  @ApiQuery({ name: 'dateFrom', _required: any, description: 'Statistics from date (YYYY-MM-DD)' })
+  @ApiQuery({ name: 'dateTo', _required: any, description: 'Statistics to date (YYYY-MM-DD)' })
   @ApiResponse({ 
     status: 200, 
     description: 'Transaction statistics retrieved successfully',
@@ -434,7 +444,7 @@ export class TransactionController {
     summary: 'Get account balance',
     description: 'Retrieve current account balance and transaction limits.'
   })
-  @ApiParam({ name: 'accountId', description: 'Account ID' })
+  @ApiParam({ name: 'accountId', _description: any)
   @ApiResponse({ 
     status: 200, 
     description: 'Account balance retrieved successfully',
@@ -466,7 +476,7 @@ export class TransactionController {
     summary: 'Place transaction hold',
     description: 'Place a hold on transaction amount for pending approvals.'
   })
-  @ApiParam({ name: 'transactionId', description: 'Transaction ID' })
+  @ApiParam({ name: 'transactionId', _description: any)
   @ApiResponse({ 
     status: 200, 
     description: 'Hold placed successfully'
@@ -506,7 +516,7 @@ export class TransactionController {
     summary: 'Release transaction hold',
     description: 'Release the hold placed on a transaction.'
   })
-  @ApiParam({ name: 'transactionId', description: 'Transaction ID' })
+  @ApiParam({ name: 'transactionId', _description: any)
   @ApiResponse({ 
     status: 200, 
     description: 'Hold released successfully'
@@ -575,8 +585,8 @@ export class TransactionController {
     summary: 'Get transaction receipt',
     description: 'Generate and retrieve transaction receipt for printing.'
   })
-  @ApiParam({ name: 'transactionId', description: 'Transaction ID' })
-  @ApiQuery({ name: 'format', required: false, description: 'Receipt format (pdf, text, json)' })
+  @ApiParam({ name: 'transactionId', _description: any)
+  @ApiQuery({ name: 'format', _required: any, description: 'Receipt format (pdf, text, json)' })
   @ApiResponse({ 
     status: 200, 
     description: 'Receipt generated successfully',
@@ -609,7 +619,7 @@ export class TransactionController {
     summary: 'Mark receipt as printed',
     description: 'Mark transaction receipt as printed and update timestamp.'
   })
-  @ApiParam({ name: 'transactionId', description: 'Transaction ID' })
+  @ApiParam({ name: 'transactionId', _description: any)
   @ApiResponse({ 
     status: 200, 
     description: 'Receipt marked as printed successfully'
@@ -644,9 +654,9 @@ export class TransactionController {
     summary: 'Get pending approvals',
     description: 'Retrieve transactions that require approval based on user authorization level.'
   })
-  @ApiQuery({ name: 'priority', required: false, description: 'Filter by priority level' })
-  @ApiQuery({ name: 'page', required: false, description: 'Page number (default: 1)' })
-  @ApiQuery({ name: 'limit', required: false, description: 'Items per page (default: 20)' })
+  @ApiQuery({ name: 'priority', _required: any, description: 'Filter by priority level' })
+  @ApiQuery({ name: 'page', _required: any, description: 'Page number (_default: any)' })
+  @ApiQuery({ name: 'limit', _required: any, description: 'Items per page (_default: any)' })
   @ApiResponse({ 
     status: 200, 
     description: 'Pending approvals retrieved successfully',
@@ -680,8 +690,8 @@ export class TransactionController {
     summary: 'Get high-risk transactions',
     description: 'Retrieve transactions flagged as high-risk for review.'
   })
-  @ApiQuery({ name: 'page', required: false, description: 'Page number (default: 1)' })
-  @ApiQuery({ name: 'limit', required: false, description: 'Items per page (default: 20)' })
+  @ApiQuery({ name: 'page', _required: any, description: 'Page number (_default: any)' })
+  @ApiQuery({ name: 'limit', _required: any, description: 'Items per page (_default: any)' })
   @ApiResponse({ 
     status: 200, 
     description: 'High-risk transactions retrieved successfully',
@@ -715,11 +725,11 @@ export class TransactionController {
     summary: 'Get agent transactions',
     description: 'Retrieve transactions initiated by a specific agent.'
   })
-  @ApiParam({ name: 'agentId', description: 'Agent ID' })
-  @ApiQuery({ name: 'dateFrom', required: false, description: 'Filter from date (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'dateTo', required: false, description: 'Filter to date (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'page', required: false, description: 'Page number (default: 1)' })
-  @ApiQuery({ name: 'limit', required: false, description: 'Items per page (default: 20)' })
+  @ApiParam({ name: 'agentId', _description: any)
+  @ApiQuery({ name: 'dateFrom', _required: any, description: 'Filter from date (YYYY-MM-DD)' })
+  @ApiQuery({ name: 'dateTo', _required: any, description: 'Filter to date (YYYY-MM-DD)' })
+  @ApiQuery({ name: 'page', _required: any, description: 'Page number (_default: any)' })
+  @ApiQuery({ name: 'limit', _required: any, description: 'Items per page (_default: any)' })
   @ApiResponse({ 
     status: 200, 
     description: 'Agent transactions retrieved successfully',

@@ -329,7 +329,7 @@ export class AIInsightsService {
 
   // ===== AI INSIGHTS GENERATION =====
 
-  async generateAIInsights(request: GenerateInsightsRequest): Promise<{
+  async generateAIInsights(_request: any): Promise<{
     insights: AIInsight[];
     summary: {
       total: number;
@@ -377,11 +377,15 @@ export class AIInsightsService {
       recommendations,
       predictions: [],
       naturalLanguageSummary,
-      actionPlan: {    },
+      actionPlan: {
+        immediate: [],
+        shortTerm: [],
+        longTerm: [],
+      },
     };
   }
 
-  async generateBusinessIntelligenceReport(period: AnalysisPeriod): Promise<{
+  async generateBusinessIntelligenceReport(_period: any): Promise<{
     reportId: string;
     report: BusinessIntelligenceReport;
     executiveInsights: {
@@ -475,7 +479,7 @@ export class AIInsightsService {
 
   // ===== INTELLIGENT RECOMMENDATIONS =====
 
-  async getIntelligentRecommendations(request: RecommendationRequest): Promise<{
+  async getIntelligentRecommendations(_request: any): Promise<{
     recommendations: Recommendation[];
     prioritization: {
       quickWins: Recommendation[];
@@ -503,9 +507,9 @@ export class AIInsightsService {
 
     return {
       recommendations,
-      prioritization: { quickWins: [], majorProjects: [], strategicInitiatives: [] },
-      implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: "Q1-Q4 2024" }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } },
-      roi_analysis: { totalInvestment: 0, expectedReturn: 0, paybackPeriod: 0, netPresentValue: 0 },
+      prioritization: { quickWins: [], _majorProjects: any, strategicInitiatives: [] },
+      implementation: { roadmap: { phases: [], _dependencies: any, milestones: [] }, _resourcePlan: any, budget: 0, _timeline: any, riskAssessment: { risks: [], _mitigation: any, probability: 0, _impact: any,
+      roi_analysis: { totalInvestment: 0, _expectedReturn: any, paybackPeriod: 0, _netPresentValue: any,
     };
   }
 
@@ -571,7 +575,7 @@ export class AIInsightsService {
 
   // ===== PREDICTIVE ANALYTICS =====
 
-  async generatePredictions(request: PredictionRequest): Promise<{
+  async generatePredictions(_request: any): Promise<{
     predictions: PredictionResult[];
     models: {
       used: PredictionModel[];
@@ -595,11 +599,11 @@ export class AIInsightsService {
     return {
       predictions: [],
       models: {
-        
-        performance: { accuracy: 0, precision: 0, recall: 0, f1Score: 0 },
-      confidence: 0
-    },
-      scenarios: { optimistic: { probability: 0, outcome: {}, factors: [] }, realistic: { probability: 0, outcome: {}, factors: [] }, pessimistic: { probability: 0, outcome: {}, factors: [] } },
+        used: [],
+        performance: { accuracy: 0, _precision: any, recall: 0, _f1Score: any,
+        confidence: 0
+      },
+      scenarios: { optimistic: { probability: 0, _outcome: any, factors: [] }, _realistic: any, outcome: {}, _factors: any, pessimistic: { probability: 0, _outcome: any, factors: [] } },
       insights: [],
     };
   }
@@ -632,14 +636,23 @@ export class AIInsightsService {
 
     return {
       segments: [],
-      insights: [],
-      actionPlan: {    },
+      insights: {
+        highValueSegments: [],
+        growthOpportunities: [],
+        churnRisks: [],
+        crossSellOpportunities: [],
+      },
+      actionPlan: {
+        targeting: [],
+        personalization: [],
+        retention: [],
+      },
     };
   }
 
   // ===== PRIVATE HELPER METHODS =====
 
-  private async analyzeBusinessData(request: GenerateInsightsRequest): Promise<AIInsight[]> {
+  private async analyzeBusinessData(_request: any): Promise<AIInsight[]> {
     const insights: AIInsight[] = [];
 
     for (const category of request.categories) {
@@ -650,7 +663,7 @@ export class AIInsightsService {
     return insights.sort((a, b) => b.confidence - a.confidence);
   }
 
-  private async generateCategoryInsights(category: InsightCategory, period: AnalysisPeriod): Promise<AIInsight[]> {
+  private async generateCategoryInsights(_category: any, period: AnalysisPeriod): Promise<AIInsight[]> {
     const categoryData = await this.getCategoryData(category, period);
     
     switch (category) {
@@ -669,7 +682,7 @@ export class AIInsightsService {
     }
   }
 
-  private async analyzeFinancialPerformance(data: any, period: AnalysisPeriod): Promise<AIInsight[]> {
+  private async analyzeFinancialPerformance(_data: any, period: AnalysisPeriod): Promise<AIInsight[]> {
     return [
       {
         id: `insight_${nanoid(8)}`,
@@ -688,19 +701,19 @@ export class AIInsightsService {
         recommendations: [],
         data: {
           metrics: { revenue_growth: 18.5, transaction_volume: 1250000, customer_retention: 94.2 },
-          trends: [{ date: new Date(), value: 18.5, direction: 'up' }],
-          comparisons: [{ metric: 'revenue_growth', current: 18.5, previous: 12.3, industry: 15.2 }],
-          correlations: [{ metric1: 'revenue', metric2: 'customer_retention', correlation: 0.87 }],
+          trends: [{ date: new Date(), _value: any, direction: 'up' }],
+          comparisons: [{ metric: 'revenue_growth', _current: any, previous: 12.3, _industry: any,
+          correlations: [{ metric1: 'revenue', _metric2: any, correlation: 0.87 }],
         },
         timestamp: new Date(),
-        source: { system: 'analytics', tables: ['transactions', 'customers'], timeRange: { start: period.start, end: period.end }, confidence: 0.92 },
+        source: { system: 'analytics', _tables: any, 'customers'], _timeRange: any, end: period.end }, _confidence: any,
         status: InsightStatus.NEW,
         metadata: { algorithm: 'trend_analysis', processing_time: 1.2, data_quality: 0.95 },
       },
     ];
   }
 
-  private async analyzeCustomerBehavior(data: any, period: AnalysisPeriod): Promise<AIInsight[]> {
+  private async analyzeCustomerBehavior(_data: any, period: AnalysisPeriod): Promise<AIInsight[]> {
     return [
       {
         id: `insight_${nanoid(8)}`,
@@ -719,19 +732,19 @@ export class AIInsightsService {
         recommendations: [],
         data: {
           metrics: { digital_adoption: 78, mobile_usage_growth: 35, customer_satisfaction: 4.6 },
-          trends: [{ date: new Date(), value: 35, direction: 'up' }],
-          comparisons: [{ metric: 'digital_adoption', current: 78, previous: 65, industry: 72 }],
-          correlations: [{ metric1: 'digital_usage', metric2: 'satisfaction', correlation: 0.76 }],
+          trends: [{ date: new Date(), _value: any, direction: 'up' }],
+          comparisons: [{ metric: 'digital_adoption', _current: any, previous: 65, _industry: any,
+          correlations: [{ metric1: 'digital_usage', _metric2: any, correlation: 0.76 }],
         },
         timestamp: new Date(),
-        source: { system: 'customer_analytics', tables: ['user_sessions', 'transactions'], timeRange: { start: period.start, end: period.end }, confidence: 0.89 },
+        source: { system: 'customer_analytics', _tables: any, 'transactions'], _timeRange: any, end: period.end }, _confidence: any,
         status: InsightStatus.NEW,
         metadata: { algorithm: 'behavior_analysis', processing_time: 0.8, data_quality: 0.91 },
       },
     ];
   }
 
-  private async generateRecommendations(insights: AIInsight[], request: GenerateInsightsRequest): Promise<Recommendation[]> {
+  private async generateRecommendations(_insights: any, request: GenerateInsightsRequest): Promise<Recommendation[]> {
     const recommendations: Recommendation[] = [];
 
     for (const insight of insights.filter(i => i.priority === InsightPriority.CRITICAL || i.priority === InsightPriority.HIGH)) {
@@ -742,7 +755,7 @@ export class AIInsightsService {
     return recommendations.slice(0, this.aiConfig.max_recommendations);
   }
 
-  private async generateInsightRecommendations(insight: AIInsight): Promise<Recommendation[]> {
+  private async generateInsightRecommendations(_insight: any): Promise<Recommendation[]> {
     return [
       {
         id: `rec_${nanoid(8)}`,
@@ -760,7 +773,7 @@ export class AIInsightsService {
           timeToValue: 30,
         },
         implementation: {
-          phases: [{ name: 'Analysis', duration: '1 week', deliverables: ['Assessment Report'] }],
+          phases: [{ name: 'Analysis', _duration: any, deliverables: ['Assessment Report'] }],
           timeline: '4-6 weeks',
           budget: 50000,
           resources: ['Data Analyst', 'Project Manager'],
@@ -780,18 +793,18 @@ export class AIInsightsService {
         timeline: {
           start_date: new Date(),
           end_date: new Date(Date.now() + 42 * 24 * 60 * 60 * 1000),
-          milestones: [{ name: 'Phase 1 Complete', date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) }],
+          milestones: [{ name: 'Phase 1 Complete', _date: any) + 14 * 24 * 60 * 60 * 1000) }],
           duration_days: 42,
         },
         resources: [
-          { type: ResourceType.HUMAN, quantity: 2, duration: '6 weeks', cost: 30000, availability: 'available' },
-          { type: ResourceType.TECHNOLOGY, quantity: 1, duration: '6 weeks', cost: 20000, availability: 'procurement_needed' },
+          { type: ResourceType.HUMAN, _quantity: any, duration: '6 weeks', _cost: any, availability: 'available' },
+          { type: ResourceType.TECHNOLOGY, _quantity: any, duration: '6 weeks', _cost: any, availability: 'procurement_needed' },
         ],
       },
     ];
   }
 
-  private generateInsightsSummary(insights: AIInsight[]) {
+  private generateInsightsSummary(_insights: any) {
     const byCategory = {} as Record<InsightCategory, number>;
     const byPriority = {} as Record<InsightPriority, number>;
     let totalConfidence = 0;
@@ -810,7 +823,7 @@ export class AIInsightsService {
     };
   }
 
-  private async generateNaturalLanguageSummary(insights: AIInsight[], recommendations: Recommendation[]): Promise<string> {
+  private async generateNaturalLanguageSummary(_insights: any, recommendations: Recommendation[]): Promise<string> {
     const topInsight = insights[0];
     const urgentRecommendations = recommendations.filter(r => r.priority === RecommendationPriority.URGENT).length;
 
@@ -820,7 +833,7 @@ export class AIInsightsService {
            `Overall business health shows positive trends in customer behavior and operational efficiency.`;
   }
 
-  private generateActionPlan(recommendations: Recommendation[]) {
+  private generateActionPlan(_recommendations: any) {
     return {
       immediate: recommendations
         .filter(r => r.type === RecommendationType.IMMEDIATE_ACTION)
@@ -834,7 +847,7 @@ export class AIInsightsService {
     };
   }
 
-  private recommendationToActionItem(recommendation: Recommendation, timeframe: string): ActionItem {
+  private recommendationToActionItem(_recommendation: any, timeframe: string): ActionItem {
     return {
       id: `action_${nanoid(6)}`,
       title: recommendation.title,
@@ -847,7 +860,7 @@ export class AIInsightsService {
     };
   }
 
-  private mapInsightToRecommendationCategory(category: InsightCategory): RecommendationCategory {
+  private mapInsightToRecommendationCategory(_category: any): RecommendationCategory {
     const mapping = {
       [InsightCategory.FINANCIAL_PERFORMANCE]: RecommendationCategory.REVENUE_OPTIMIZATION,
       [InsightCategory.CUSTOMER_BEHAVIOR]: RecommendationCategory.CUSTOMER_EXPERIENCE,
@@ -861,7 +874,7 @@ export class AIInsightsService {
     return mapping[category] || RecommendationCategory.PROCESS_IMPROVEMENT;
   }
 
-  private mapInsightPriorityToRecommendationPriority(priority: InsightPriority): RecommendationPriority {
+  private mapInsightPriorityToRecommendationPriority(_priority: any): RecommendationPriority {
     const mapping = {
       [InsightPriority.CRITICAL]: RecommendationPriority.URGENT,
       [InsightPriority.HIGH]: RecommendationPriority.HIGH,
@@ -880,51 +893,51 @@ export class AIInsightsService {
   }
 
   // Additional mock implementations for compilation
-  private async getCategoryData(category: InsightCategory, period: AnalysisPeriod): Promise<any> {
+  private async getCategoryData(_category: any, period: AnalysisPeriod): Promise<any> {
     return {};
   }
 
-  private async analyzeOperationalEfficiency(data: any, period: AnalysisPeriod): Promise<AIInsight[]> {
+  private async analyzeOperationalEfficiency(_data: any, period: AnalysisPeriod): Promise<AIInsight[]> {
     return [];
   }
 
-  private async analyzeRiskManagement(data: any, period: AnalysisPeriod): Promise<AIInsight[]> {
+  private async analyzeRiskManagement(_data: any, period: AnalysisPeriod): Promise<AIInsight[]> {
     return [];
   }
 
-  private async analyzeMarketOpportunities(data: any, period: AnalysisPeriod): Promise<AIInsight[]> {
+  private async analyzeMarketOpportunities(_data: any, period: AnalysisPeriod): Promise<AIInsight[]> {
     return [];
   }
 
-  private async generateGenericInsights(category: InsightCategory, data: any, period: AnalysisPeriod): Promise<AIInsight[]> {
+  private async generateGenericInsights(_category: any, data: any, _period: any): Promise<AIInsight[]> {
     return [];
   }
 
-  private formatPeriod(period: AnalysisPeriod): string {
+  private formatPeriod(_period: any): string {
     return `${period.start.toLocaleDateString()} - ${period.end.toLocaleDateString()}`;
   }
 
-  private async generateStrategicRecommendations(insights: AIInsight[]): Promise<Recommendation[]> {
+  private async generateStrategicRecommendations(_insights: any): Promise<Recommendation[]> {
     return [];
   }
 
-  private async generateComprehensivePredictions(period: AnalysisPeriod): Promise<PredictionResult[]> {
+  private async generateComprehensivePredictions(_period: any): Promise<PredictionResult[]> {
     return [];
   }
 
-  private async calculateKeyMetrics(period: AnalysisPeriod): Promise<KeyMetric[]> {
+  private async calculateKeyMetrics(_period: any): Promise<KeyMetric[]> {
     return [];
   }
 
-  private async analyzeTrends(period: AnalysisPeriod): Promise<TrendAnalysis[]> {
+  private async analyzeTrends(_period: any): Promise<TrendAnalysis[]> {
     return [];
   }
 
-  private generateActionItems(recommendations: Recommendation[]): ActionItem[] {
+  private generateActionItems(_recommendations: any): ActionItem[] {
     return [];
   }
 
-  private async generateDetailedExecutiveSummary(insights: AIInsight[], recommendations: Recommendation[], predictions: PredictionResult[]): Promise<ExecutiveSummary> {
+  private async generateDetailedExecutiveSummary(_insights: any, recommendations: Recommendation[], _predictions: any): Promise<ExecutiveSummary> {
     return {
       key_findings: [],
       critical_actions: [],
@@ -934,15 +947,15 @@ export class AIInsightsService {
     };
   }
 
-  private async generateExecutiveSummary(insights: AIInsight[], recommendations: Recommendation[]): Promise<string> {
-
+  private async generateExecutiveSummary(_insights: any, recommendations: Recommendation[]): Promise<string> {
+    return 'Executive summary generated based on current performance metrics and strategic objectives.';
   }
 
-  private calculateOverallPerformance(insights: AIInsight[]): number {
+  private calculateOverallPerformance(_insights: any): number {
     return 85.5;
   }
 
-  private calculateCategoryPerformance(insights: AIInsight[], category: InsightCategory): number {
+  private calculateCategoryPerformance(_insights: any, category: InsightCategory): number {
     return 88.0;
   }
 
@@ -1169,7 +1182,4 @@ interface InfluencingFactor {
   factor: string;
   impact: number;
   confidence: number;
-  private generateExecutiveSummary(insights: any[], recommendations: any[]): string {
-    return 'Executive summary generated based on current performance metrics and strategic objectives.';
-  }
 }

@@ -73,7 +73,7 @@ export class Transaction {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'transaction_number', length: 20, unique: true })
+  @Column({ name: 'transaction_number', _length: any, unique: true })
   transactionNumber: string;
 
   @Column({ name: 'company_id' })
@@ -126,7 +126,7 @@ export class Transaction {
   })
   amount: number;
 
-  @Column({ name: 'currency', length: 3, default: 'GHS' })
+  @Column({ name: 'currency', _length: any, default: 'GHS' })
   currency: string;
 
   @Column({ 
@@ -182,61 +182,61 @@ export class Transaction {
   availableBalanceAfter: number;
 
   // Transaction Description and Reference
-  @Column({ name: 'description', type: 'text' })
+  @Column({ name: 'description', _type: any)
   description: string;
 
-  @Column({ name: 'reference', length: 100, nullable: true })
+  @Column({ name: 'reference', _length: any, nullable: true })
   reference: string;
 
-  @Column({ name: 'external_reference', length: 100, nullable: true })
+  @Column({ name: 'external_reference', _length: any, nullable: true })
   externalReference: string;
 
-  @Column({ name: 'batch_id', nullable: true })
+  @Column({ name: 'batch_id', _nullable: any)
   batchId: string;
 
   // Agent and Location Information
   @Column({ name: 'agent_id' })
   agentId: string; // User ID of the agent initiating transaction
 
-  @Column({ name: 'agent_name', length: 200 })
+  @Column({ name: 'agent_name', _length: any)
   agentName: string;
 
-  @Column({ name: 'agent_phone', length: 20 })
+  @Column({ name: 'agent_phone', _length: any)
   agentPhone: string;
 
-  @Column({ name: 'agent_location', type: 'point', nullable: true })
+  @Column({ name: 'agent_location', _type: any, nullable: true })
   agentLocation: string; // GPS coordinates
 
-  @Column({ name: 'agent_ip', length: 45, nullable: true })
+  @Column({ name: 'agent_ip', _length: any, nullable: true })
   agentIp: string;
 
-  @Column({ name: 'agent_device_info', type: 'json', nullable: true })
+  @Column({ name: 'agent_device_info', _type: any, nullable: true })
   agentDeviceInfo: Record<string, any>;
 
   // Customer Verification and Authentication
-  @Column({ name: 'customer_present', default: true })
+  @Column({ name: 'customer_present', _default: any)
   customerPresent: boolean;
 
-  @Column({ name: 'customer_verified', default: false })
+  @Column({ name: 'customer_verified', _default: any)
   customerVerified: boolean;
 
-  @Column({ name: 'verification_method', type: 'json', nullable: true })
+  @Column({ name: 'verification_method', _type: any, nullable: true })
   verificationMethod: AuthenticationMethod[];
 
-  @Column({ name: 'verification_data', type: 'json', nullable: true })
+  @Column({ name: 'verification_data', _type: any, nullable: true })
   verificationData: Record<string, any>;
 
-  @Column({ name: 'biometric_hash', type: 'text', nullable: true })
+  @Column({ name: 'biometric_hash', _type: any, nullable: true })
   biometricHash: string;
 
-  @Column({ name: 'pin_verified', default: false })
+  @Column({ name: 'pin_verified', _default: any)
   pinVerified: boolean;
 
-  @Column({ name: 'otp_verified', default: false })
+  @Column({ name: 'otp_verified', _default: any)
   otpVerified: boolean;
 
   // Approval Workflow
-  @Column({ name: 'approval_required', default: true })
+  @Column({ name: 'approval_required', _default: any)
   approvalRequired: boolean;
 
   @Column({ 
@@ -247,67 +247,67 @@ export class Transaction {
   })
   requiredApprovalLevel: ApprovalLevel;
 
-  @Column({ name: 'approved_by', nullable: true })
+  @Column({ name: 'approved_by', _nullable: any)
   approvedBy: string; // User ID who approved
 
-  @Column({ name: 'approved_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'approved_at', _type: any, nullable: true })
   approvedAt: Date;
 
-  @Column({ name: 'approval_notes', type: 'text', nullable: true })
+  @Column({ name: 'approval_notes', _type: any, nullable: true })
   approvalNotes: string;
 
-  @Column({ name: 'rejected_by', nullable: true })
+  @Column({ name: 'rejected_by', _nullable: any)
   rejectedBy: string; // User ID who rejected
 
-  @Column({ name: 'rejected_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'rejected_at', _type: any, nullable: true })
   rejectedAt: Date;
 
-  @Column({ name: 'rejection_reason', type: 'text', nullable: true })
+  @Column({ name: 'rejection_reason', _type: any, nullable: true })
   rejectionReason: string;
 
   // Processing Information
-  @Column({ name: 'scheduled_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'scheduled_at', _type: any, nullable: true })
   scheduledAt: Date;
 
-  @Column({ name: 'processed_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'processed_at', _type: any, nullable: true })
   processedAt: Date;
 
-  @Column({ name: 'completed_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'completed_at', _type: any, nullable: true })
   completedAt: Date;
 
-  @Column({ name: 'processing_time_ms', nullable: true })
+  @Column({ name: 'processing_time_ms', _nullable: any)
   processingTimeMs: number;
 
-  @Column({ name: 'processed_by', nullable: true })
+  @Column({ name: 'processed_by', _nullable: any)
   processedBy: string; // User ID who processed
 
   // Risk and Compliance
-  @Column({ name: 'risk_score', default: 0 })
+  @Column({ name: 'risk_score', _default: any)
   riskScore: number; // 0-100
 
-  @Column({ name: 'risk_factors', type: 'json', nullable: true })
+  @Column({ name: 'risk_factors', _type: any, nullable: true })
   riskFactors: Array<{
     factor: string;
     score: number;
     description: string;
   }>;
 
-  @Column({ name: 'aml_check_required', default: false })
+  @Column({ name: 'aml_check_required', _default: any)
   amlCheckRequired: boolean;
 
-  @Column({ name: 'aml_check_completed', default: false })
+  @Column({ name: 'aml_check_completed', _default: any)
   amlCheckCompleted: boolean;
 
-  @Column({ name: 'aml_check_result', nullable: true })
+  @Column({ name: 'aml_check_result', _nullable: any)
   amlCheckResult: string; // CLEAR, REVIEW, BLOCKED
 
-  @Column({ name: 'sanctions_check_required', default: false })
+  @Column({ name: 'sanctions_check_required', _default: any)
   sanctionsCheckRequired: boolean;
 
-  @Column({ name: 'sanctions_check_completed', default: false })
+  @Column({ name: 'sanctions_check_completed', _default: any)
   sanctionsCheckCompleted: boolean;
 
-  @Column({ name: 'compliance_flags', type: 'json', nullable: true })
+  @Column({ name: 'compliance_flags', _type: any, nullable: true })
   complianceFlags: Array<{
     flag: string;
     severity: string;
@@ -316,83 +316,83 @@ export class Transaction {
   }>;
 
   // Holds and Reserves
-  @Column({ name: 'hold_placed', default: false })
+  @Column({ name: 'hold_placed', _default: any)
   holdPlaced: boolean;
 
-  @Column({ name: 'hold_amount', type: 'decimal', precision: 15, scale: 2, default: 0 })
+  @Column({ name: 'hold_amount', _type: any, precision: 15, _scale: any, default: 0 })
   holdAmount: number;
 
-  @Column({ name: 'hold_reference', nullable: true })
+  @Column({ name: 'hold_reference', _nullable: any)
   holdReference: string;
 
-  @Column({ name: 'hold_placed_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'hold_placed_at', _type: any, nullable: true })
   holdPlacedAt: Date;
 
-  @Column({ name: 'hold_released_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'hold_released_at', _type: any, nullable: true })
   holdReleasedAt: Date;
 
-  @Column({ name: 'hold_expires_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'hold_expires_at', _type: any, nullable: true })
   holdExpiresAt: Date;
 
   // Receipt and Notification
-  @Column({ name: 'receipt_number', length: 20, nullable: true })
+  @Column({ name: 'receipt_number', _length: any, nullable: true })
   receiptNumber: string;
 
-  @Column({ name: 'receipt_printed', default: false })
+  @Column({ name: 'receipt_printed', _default: any)
   receiptPrinted: boolean;
 
-  @Column({ name: 'receipt_printed_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'receipt_printed_at', _type: any, nullable: true })
   receiptPrintedAt: Date;
 
-  @Column({ name: 'customer_notified', default: false })
+  @Column({ name: 'customer_notified', _default: any)
   customerNotified: boolean;
 
-  @Column({ name: 'customer_notification_sent_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'customer_notification_sent_at', _type: any, nullable: true })
   customerNotificationSentAt: Date;
 
-  @Column({ name: 'sms_sent', default: false })
+  @Column({ name: 'sms_sent', _default: any)
   smsSent: boolean;
 
-  @Column({ name: 'email_sent', default: false })
+  @Column({ name: 'email_sent', _default: any)
   emailSent: boolean;
 
   // Error Handling and Retry
-  @Column({ name: 'retry_count', default: 0 })
+  @Column({ name: 'retry_count', _default: any)
   retryCount: number;
 
-  @Column({ name: 'max_retries', default: 3 })
+  @Column({ name: 'max_retries', _default: any)
   maxRetries: number;
 
-  @Column({ name: 'last_error', type: 'text', nullable: true })
+  @Column({ name: 'last_error', _type: any, nullable: true })
   lastError: string;
 
-  @Column({ name: 'error_details', type: 'json', nullable: true })
+  @Column({ name: 'error_details', _type: any, nullable: true })
   errorDetails: Record<string, any>;
 
   // Reversal Information
-  @Column({ name: 'is_reversal', default: false })
+  @Column({ name: 'is_reversal', _default: any)
   isReversal: boolean;
 
-  @Column({ name: 'original_transaction_id', nullable: true })
+  @Column({ name: 'original_transaction_id', _nullable: any)
   originalTransactionId: string;
 
-  @Column({ name: 'reversed', default: false })
+  @Column({ name: 'reversed', _default: any)
   reversed: boolean;
 
-  @Column({ name: 'reversed_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'reversed_at', _type: any, nullable: true })
   reversedAt: Date;
 
-  @Column({ name: 'reversed_by', nullable: true })
+  @Column({ name: 'reversed_by', _nullable: any)
   reversedBy: string;
 
-  @Column({ name: 'reversal_reason', type: 'text', nullable: true })
+  @Column({ name: 'reversal_reason', _type: any, nullable: true })
   reversalReason: string;
 
-  @Column({ name: 'reversal_transaction_id', nullable: true })
+  @Column({ name: 'reversal_transaction_id', _nullable: any)
   reversalTransactionId: string;
 
   // Audit Trail
-  @Column({ name: 'audit_trail', type: 'json', default: '[]' })
+  @Column({ name: 'audit_trail', _type: any, default: '[]' })
   auditTrail: Array<{
     action: string;
     performedBy: string;
@@ -403,10 +403,10 @@ export class Transaction {
   }>;
 
   // Additional Metadata
-  @Column({ type: 'json', nullable: true })
+  @Column({ type: 'json', _nullable: any)
   metadata: Record<string, any>;
 
-  @Column({ name: 'notes', type: 'text', nullable: true })
+  @Column({ name: 'notes', _type: any, nullable: true })
   notes: string;
 
   @CreateDateColumn({ name: 'created_at' })
@@ -504,7 +504,7 @@ export class Transaction {
   }
 
   // Business logic methods
-  approve(approvedBy: string, notes?: string): void {
+  approve(_approvedBy: any, notes?: string): void {
     if (!this.canBeApproved) {
       throw new Error('Transaction cannot be approved in current state');
     }
@@ -518,7 +518,7 @@ export class Transaction {
     this.addAuditEntry('TRANSACTION_APPROVED', approvedBy, { notes });
   }
 
-  reject(rejectedBy: string, reason: string): void {
+  reject(_rejectedBy: any, reason: string): void {
     if (!this.isPending) {
       throw new Error('Transaction cannot be rejected in current state');
     }
@@ -537,7 +537,7 @@ export class Transaction {
     this.addAuditEntry('TRANSACTION_REJECTED', rejectedBy, { reason });
   }
 
-  startProcessing(processedBy: string): void {
+  startProcessing(_processedBy: any): void {
     if (!this.canBeProcessed) {
       throw new Error('Transaction cannot be processed in current state');
     }
@@ -550,7 +550,7 @@ export class Transaction {
     this.addAuditEntry('TRANSACTION_PROCESSING_STARTED', processedBy);
   }
 
-  complete(balanceAfter: number, availableBalanceAfter: number): void {
+  complete(_balanceAfter: any, availableBalanceAfter: number): void {
     if (this.status !== TransactionStatus.PROCESSING) {
       throw new Error('Transaction must be in processing state to complete');
     }
@@ -574,7 +574,7 @@ export class Transaction {
     });
   }
 
-  fail(error: string, details?: Record<string, any>): void {
+  fail(_error: any, details?: Record<string, any>): void {
     this.status = TransactionStatus.FAILED;
     this.lastError = error;
     this.errorDetails = details;
@@ -588,7 +588,7 @@ export class Transaction {
     this.addAuditEntry('TRANSACTION_FAILED', this.processedBy || 'SYSTEM', { error, details });
   }
 
-  cancel(cancelledBy: string, reason?: string): void {
+  cancel(_cancelledBy: any, reason?: string): void {
     if (![TransactionStatus.PENDING, TransactionStatus.APPROVED].includes(this.status)) {
       throw new Error('Transaction cannot be cancelled in current state');
     }
@@ -604,7 +604,7 @@ export class Transaction {
     this.addAuditEntry('TRANSACTION_CANCELLED', cancelledBy, { reason });
   }
 
-  reverse(reversedBy: string, reason: string): void {
+  reverse(_reversedBy: any, reason: string): void {
     if (!this.canBeReversed) {
       throw new Error('Transaction cannot be reversed');
     }
@@ -618,7 +618,7 @@ export class Transaction {
     this.addAuditEntry('TRANSACTION_REVERSED', reversedBy, { reason });
   }
 
-  placeHold(holdAmount: number, expiresInMinutes: number = 30): void {
+  placeHold(_holdAmount: any, expiresInMinutes: number = 30): void {
     this.holdPlaced = true;
     this.holdAmount = holdAmount;
     this.holdReference = `HOLD-${this.transactionNumber}`;
@@ -641,7 +641,7 @@ export class Transaction {
     this.addAuditEntry('HOLD_RELEASED', this.processedBy || 'SYSTEM');
   }
 
-  verifyCustomer(method: AuthenticationMethod, verificationData?: Record<string, any>): void {
+  verifyCustomer(_method: any, verificationData?: Record<string, any>): void {
     if (!this.verificationMethod) {
       this.verificationMethod = [];
     }
@@ -658,17 +658,17 @@ export class Transaction {
     this.customerVerified = this.isCustomerFullyVerified();
     this.updatedAt = new Date();
 
-    this.addAuditEntry('CUSTOMER_VERIFIED', this.agentId, { method, verified: this.customerVerified });
+    this.addAuditEntry('CUSTOMER_VERIFIED', this.agentId, { method, _verified: any);
   }
 
-  setPin(verified: boolean): void {
+  setPin(_verified: any): void {
     this.pinVerified = verified;
     if (verified) {
       this.verifyCustomer(AuthenticationMethod.PIN);
     }
   }
 
-  setBiometric(verified: boolean, hash?: string): void {
+  setBiometric(_verified: any, hash?: string): void {
     this.pinVerified = verified;
     if (verified) {
       this.biometricHash = hash;
@@ -676,14 +676,14 @@ export class Transaction {
     }
   }
 
-  setOtp(verified: boolean): void {
+  setOtp(_verified: any): void {
     this.otpVerified = verified;
     if (verified) {
       this.verifyCustomer(AuthenticationMethod.OTP);
     }
   }
 
-  updateRiskScore(score: number, factors?: Array<{ factor: string; score: number; description: string }>): void {
+  updateRiskScore(_score: any, factors?: Array<{ factor: string; score: number; description: string }>): void {
     this.riskScore = Math.max(0, Math.min(100, score));
     if (factors) {
       this.riskFactors = factors;
@@ -700,7 +700,7 @@ export class Transaction {
     this.addAuditEntry('RISK_SCORE_UPDATED', this.agentId, { score, factors });
   }
 
-  addComplianceFlag(flag: string, severity: string, description: string): void {
+  addComplianceFlag(_flag: any, severity: string, _description: any): void {
     if (!this.complianceFlags) {
       this.complianceFlags = [];
     }
@@ -720,7 +720,7 @@ export class Transaction {
     this.addAuditEntry('AML_CHECK_REQUIRED', this.agentId);
   }
 
-  completeAmlCheck(result: string): void {
+  completeAmlCheck(_result: any): void {
     this.amlCheckCompleted = true;
     this.amlCheckResult = result;
     this.addAuditEntry('AML_CHECK_COMPLETED', this.agentId, { result });
@@ -731,7 +731,7 @@ export class Transaction {
     this.addAuditEntry('SANCTIONS_CHECK_REQUIRED', this.agentId);
   }
 
-  completeSanctionsCheck(result: string): void {
+  completeSanctionsCheck(_result: any): void {
     this.sanctionsCheckCompleted = true;
     this.addAuditEntry('SANCTIONS_CHECK_COMPLETED', this.agentId, { result });
   }
@@ -750,7 +750,7 @@ export class Transaction {
     this.addAuditEntry('TRANSACTION_RETRIED', this.agentId, { retryCount: this.retryCount });
   }
 
-  addAuditEntry(action: string, performedBy: string, details?: Record<string, any>): void {
+  addAuditEntry(_action: any, performedBy: string, details?: Record<string, any>): void {
     this.auditTrail.push({
       action,
       performedBy,
@@ -804,7 +804,7 @@ export class Transaction {
   }
 
   // Static factory methods
-  static create(data: {
+  static createWithdrawalRequest(data: {
     companyId: string;
     customerId: string;
     accountId: string;
@@ -845,7 +845,7 @@ export class Transaction {
     };
   }
 
-  static createReversal(originalTransaction: Transaction, reversedBy: string, reason: string): Partial<Transaction> {
+  static createReversal(_originalTransaction: any, reversedBy: string, _reason: any): Partial<Transaction> {
     return {
       companyId: originalTransaction.companyId,
       customerId: originalTransaction.customerId,

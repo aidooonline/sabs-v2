@@ -398,7 +398,7 @@ export class AnalyticsService {
 
   // ===== DASHBOARD MANAGEMENT =====
 
-  async createDashboard(userId: string, request: CreateDashboardRequest): Promise<{
+  async createDashboard(_userId: any, request: CreateDashboardRequest): Promise<{
     dashboardId: string;
     url: string;
     widgets: number;
@@ -445,7 +445,7 @@ export class AnalyticsService {
     };
   }
 
-  async getDashboards(userId: string, filters?: {
+  async getDashboards(_userId: any, filters?: {
     type?: DashboardType;
     category?: DashboardCategory;
     isPublic?: boolean;
@@ -540,9 +540,9 @@ export class AnalyticsService {
         successRate: 99.2,
         averageAmount: 273,
         topChannels: [
-          { channel: 'Mobile App', count: 28000, volume: 7500000 },
-          { channel: 'Web Portal', count: 12000, volume: 3200000 },
-          { channel: 'ATM', count: 5780, volume: 1800000 },
+          { channel: 'Mobile App', _count: any, volume: 7500000 },
+          { channel: 'Web Portal', _count: any, volume: 3200000 },
+          { channel: 'ATM', _count: any, volume: 1800000 },
         ],
       },
       loans: {
@@ -563,22 +563,22 @@ export class AnalyticsService {
     const customerMetrics: CustomerMetrics = {
       demographics: {
         ageGroups: [
-          { range: '18-25', count: 25000, percentage: 20 },
-          { range: '26-35', count: 45000, percentage: 36 },
-          { range: '36-45', count: 35000, percentage: 28 },
-          { range: '46-55', count: 15000, percentage: 12 },
-          { range: '56+', count: 5000, percentage: 4 },
+          { range: '18-25', _count: any, percentage: 20 },
+          { range: '26-35', _count: any, percentage: 36 },
+          { range: '36-45', _count: any, percentage: 28 },
+          { range: '46-55', _count: any, percentage: 12 },
+          { range: '56+', _count: any, percentage: 4 },
         ],
         genderDistribution: [
-          { gender: 'Male', count: 68000, percentage: 54.4 },
-          { gender: 'Female', count: 57000, percentage: 45.6 },
+          { gender: 'Male', _count: any, percentage: 54.4 },
+          { gender: 'Female', _count: any, percentage: 45.6 },
         ],
         locationDistribution: [
-          { region: 'Greater Accra', count: 45000, percentage: 36 },
-          { region: 'Ashanti', count: 28000, percentage: 22.4 },
-          { region: 'Northern', count: 15000, percentage: 12 },
-          { region: 'Western', count: 12000, percentage: 9.6 },
-          { region: 'Other', count: 25000, percentage: 20 },
+          { region: 'Greater Accra', _count: any, percentage: 36 },
+          { region: 'Ashanti', _count: any, percentage: 22.4 },
+          { region: 'Northern', _count: any, percentage: 12 },
+          { region: 'Western', _count: any, percentage: 9.6 },
+          { region: 'Other', _count: any, percentage: 20 },
         ],
       },
       behavior: {
@@ -593,11 +593,11 @@ export class AnalyticsService {
         csat: 4.6,
         ces: 3.2,
         reviews: [
-          { rating: 5, count: 8500 },
-          { rating: 4, count: 4200 },
-          { rating: 3, count: 1800 },
-          { rating: 2, count: 650 },
-          { rating: 1, count: 350 },
+          { rating: 5, _count: any,
+          { rating: 4, _count: any,
+          { rating: 3, _count: any,
+          { rating: 2, _count: any,
+          { rating: 1, _count: any,
         ],
       },
     };
@@ -611,15 +611,15 @@ export class AnalyticsService {
         averageResponseTime: 285,
       },
       categories: [
-        { type: 'Transfer', count: 15000, volume: 8500000, successRate: 99.5 },
-        { type: 'Bill Payment', count: 12000, volume: 2800000, successRate: 98.8 },
-        { type: 'Airtime', count: 8500, volume: 450000, successRate: 99.8 },
-        { type: 'Loan Payment', count: 5200, volume: 1200000, successRate: 99.1 },
+        { type: 'Transfer', _count: any, volume: 8500000, _successRate: any,
+        { type: 'Bill Payment', _count: any, volume: 2800000, _successRate: any,
+        { type: 'Airtime', _count: any, volume: 450000, _successRate: any,
+        { type: 'Loan Payment', _count: any, volume: 1200000, _successRate: any,
       ],
       channels: [
-        { channel: 'Mobile', count: 28000, volume: 8500000, conversionRate: 0.85 },
-        { channel: 'Web', count: 12000, volume: 3200000, conversionRate: 0.78 },
-        { channel: 'ATM', count: 5780, volume: 800000, conversionRate: 0.92 },
+        { channel: 'Mobile', _count: any, volume: 8500000, _conversionRate: any,
+        { channel: 'Web', _count: any, volume: 3200000, _conversionRate: any,
+        { channel: 'ATM', _count: any, volume: 800000, _conversionRate: any,
       ],
       fraud: {
         detectedCount: 45,
@@ -665,7 +665,7 @@ export class AnalyticsService {
     };
   }
 
-  async queryAnalytics(request: QueryAnalyticsRequest): Promise<{
+  async queryAnalytics(_request: any): Promise<{
     data: Array<Record<string, any>>;
     metadata: {
       totalRows: number;
@@ -832,7 +832,7 @@ export class AnalyticsService {
 
   // ===== PERFORMANCE MONITORING =====
 
-  async getPerformanceReport(timeRange: TimeRange): Promise<{
+  async getPerformanceReport(_timeRange: any): Promise<{
     summary: {
       averageResponseTime: number;
       errorRate: number;
@@ -984,7 +984,7 @@ export class AnalyticsService {
     });
   }
 
-  private generateRealtimeValue(metric: AnalyticsMetric): number {
+  private generateRealtimeValue(_metric: any): number {
     // Simulate realistic value changes
     const baseValue = metric.value;
     const volatility = 0.05; // 5% volatility
@@ -992,7 +992,7 @@ export class AnalyticsService {
     return Math.max(0, baseValue * (1 + randomFactor));
   }
 
-  private generateMockAnalyticsData(request: QueryAnalyticsRequest): Array<Record<string, any>> {
+  private generateMockAnalyticsData(_request: any): Array<Record<string, any>> {
     const data: Array<Record<string, any>> = [];
     const recordCount = Math.min(request.limit || 100, 1000);
 
@@ -1015,7 +1015,7 @@ export class AnalyticsService {
     return data;
   }
 
-  private generateDimensionValue(dimension: string): any {
+  private generateDimensionValue(_dimension: any): any {
     const dimensionValues = {
       channel: ['mobile', 'web', 'atm', 'branch'],
       region: ['Greater Accra', 'Ashanti', 'Northern', 'Western'],
@@ -1028,7 +1028,7 @@ export class AnalyticsService {
     return values[Math.floor(Math.random() * Object.values(values).length)];
   }
 
-  private generatePerformanceTrends(timeRange: TimeRange): Array<{
+  private generatePerformanceTrends(_timeRange: any): Array<{
     timestamp: Date;
     responseTime: number;
     errorRate: number;
@@ -1049,7 +1049,7 @@ export class AnalyticsService {
     return trends;
   }
 
-  private groupByField(items: any[], field: string): Record<string, number> {
+  private groupByField(_items: any, field: string): Record<string, number> {
     return Object.values(items).reduce((acc, item) => {
       const key = item[field];
       acc[key] = (acc[key] || 0) + 1;

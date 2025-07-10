@@ -239,10 +239,10 @@ export class AuditComplianceService {
       ruleType: ComplianceRuleType.VALIDATION,
       severity: ComplianceSeverity.HIGH,
       conditions: [
-        { field: 'customer.kycStatus', operator: 'equals', value: 'completed', description: 'KYC must be completed' }
+        { field: 'customer.kycStatus', _operator: any, value: 'completed', description: 'KYC must be completed' }
       ],
       actions: [
-        { type: 'block_transaction', description: 'Block transaction if KYC incomplete', parameters: { reason: 'KYC verification required' } }
+        { type: 'block_transaction', _description: any, parameters: { reason: 'KYC verification required' } }
       ],
     },
     transaction_limit: {
@@ -252,10 +252,10 @@ export class AuditComplianceService {
       ruleType: ComplianceRuleType.MONITORING,
       severity: ComplianceSeverity.MEDIUM,
       conditions: [
-        { field: 'transaction.dailyTotal', operator: 'lessThan', value: 50000, description: 'Daily limit GHS 50,000' }
+        { field: 'transaction.dailyTotal', _operator: any, value: 50000, _description: any,000' }
       ],
       actions: [
-        { type: 'require_approval', description: 'Require approval for exceeding limit', parameters: { approvalLevel: UserRole.COMPANY_ADMIN } }
+        { type: 'require_approval', _description: any, parameters: { approvalLevel: UserRole.COMPANY_ADMIN } }
       ],
     },
     aml_screening: {
@@ -265,10 +265,10 @@ export class AuditComplianceService {
       ruleType: ComplianceRuleType.DETECTIVE,
       severity: ComplianceSeverity.CRITICAL,
       conditions: [
-        { field: 'transaction.amount', operator: 'greaterThan', value: 10000, description: 'Transactions over GHS 10,000' }
+        { field: 'transaction.amount', _operator: any, value: 10000, _description: any,000' }
       ],
       actions: [
-        { type: 'flag_review', description: 'Flag for manual AML review', parameters: { priority: 'high' } }
+        { type: 'flag_review', _description: any, parameters: { priority: 'high' } }
       ],
     },
   };
@@ -297,7 +297,7 @@ export class AuditComplianceService {
   // ===== EVENT LISTENERS =====
 
   @OnEvent('transaction.created')
-  async handleTransactionCreated(event: any): Promise<void> {
+  async handleTransactionCreated(_event: any): Promise<void> {
     await this.logAuditEvent({
       eventType: AuditEventType.TRANSACTION_EVENT,
       entityType: 'transaction',
@@ -307,7 +307,7 @@ export class AuditComplianceService {
       action: AuditAction.CREATE,
       description: 'Transaction created',
       newData: event.transactionData,
-      metadata: { amount: event.amount, type: event.type },
+      metadata: { amount: event.amount, _type: any,
     });
 
     // Run compliance checks
@@ -315,7 +315,7 @@ export class AuditComplianceService {
   }
 
   @OnEvent('transaction.approved')
-  async handleTransactionApproved(event: any): Promise<void> {
+  async handleTransactionApproved(_event: any): Promise<void> {
     await this.logAuditEvent({
       eventType: AuditEventType.APPROVAL_EVENT,
       entityType: 'transaction',
@@ -324,12 +324,12 @@ export class AuditComplianceService {
       userRole: event.approverRole,
       action: AuditAction.APPROVE,
       description: 'Transaction approved',
-      metadata: { approvalLevel: event.approvalLevel, reason: event.reason },
+      metadata: { approvalLevel: event.approvalLevel, _reason: any,
     });
   }
 
   @OnEvent('customer.created')
-  async handleCustomerCreated(event: any): Promise<void> {
+  async handleCustomerCreated(_event: any): Promise<void> {
     await this.logAuditEvent({
       eventType: AuditEventType.USER_ACTION,
       entityType: UserRole.CUSTOMER,
@@ -347,7 +347,7 @@ export class AuditComplianceService {
   }
 
   @OnEvent('user.login')
-  async handleUserLogin(event: any): Promise<void> {
+  async handleUserLogin(_event: any): Promise<void> {
     await this.logAuditEvent({
       eventType: AuditEventType.ACCESS_EVENT,
       entityType: 'user',
@@ -365,7 +365,7 @@ export class AuditComplianceService {
 
   // ===== AUDIT LOGGING METHODS =====
 
-  async logAuditEvent(eventData: Partial<AuditLog>): Promise<string> {
+  async logAuditEvent(_eventData: any): Promise<string> {
     const auditId = `audit_${nanoid(8)}`;
     
     const auditLog: AuditLog = {
@@ -408,7 +408,7 @@ export class AuditComplianceService {
     return auditId;
   }
 
-  async searchAuditLogs(filters: AuditSearchFilters): Promise<{
+  async searchAuditLogs(_filters: any): Promise<{
     logs: AuditLog[];
     total: number;
     hasMore: boolean;
@@ -475,7 +475,7 @@ export class AuditComplianceService {
     };
   }
 
-  async getAuditLog(auditId: string): Promise<AuditLog | null> {
+  async getAuditLog(_auditId: any): Promise<AuditLog | null> {
     // Try cache first
     const cached = await this.cacheManager.get<AuditLog>(`audit_${auditId}`);
     if (cached) {
@@ -487,7 +487,7 @@ export class AuditComplianceService {
 
   // ===== COMPLIANCE METHODS =====
 
-  async runComplianceChecks(entityType: string, entityId: string): Promise<ComplianceCheck[]> {
+  async runComplianceChecks(_entityType: any, entityId: string): Promise<ComplianceCheck[]> {
     const checks: ComplianceCheck[] = [];
     const applicableRules = this.getApplicableRules(entityType);
 
@@ -594,7 +594,7 @@ export class AuditComplianceService {
     return check;
   }
 
-  async searchComplianceChecks(filters: ComplianceSearchFilters): Promise<{
+  async searchComplianceChecks(_filters: any): Promise<{
     checks: ComplianceCheck[];
     total: number;
     hasMore: boolean;
@@ -647,13 +647,13 @@ export class AuditComplianceService {
     };
   }
 
-  async getComplianceCheck(checkId: string): Promise<ComplianceCheck | null> {
+  async getComplianceCheck(_checkId: any): Promise<ComplianceCheck | null> {
     return this.complianceChecks.get(checkId) || null;
   }
 
   // ===== COMPLIANCE RULE MANAGEMENT =====
 
-  async createComplianceRule(ruleData: Partial<ComplianceRule>): Promise<string> {
+  async createComplianceRule(_ruleData: any): Promise<string> {
     const ruleId = `rule_${nanoid(8)}`;
     
     const rule: ComplianceRule = {
@@ -682,13 +682,13 @@ export class AuditComplianceService {
       action: AuditAction.CREATE,
       description: 'Compliance rule created',
       newData: rule,
-      metadata: { category: rule.category, severity: rule.severity },
+      metadata: { category: rule.category, _severity: any,
     });
 
     return ruleId;
   }
 
-  async updateComplianceRule(ruleId: string, updates: Partial<ComplianceRule>): Promise<void> {
+  async updateComplianceRule(_ruleId: any, updates: Partial<ComplianceRule>): Promise<void> {
     const rule = this.complianceRules.get(ruleId);
     if (!rule) {
       throw new Error('Compliance rule not found');
@@ -791,34 +791,34 @@ export class AuditComplianceService {
         criticalFindings: 12,
       },
       byCategory: {
-        [ComplianceCategory.REGULATORY]: { total: 1200, passed: 1185, failed: 15, complianceRate: 98.7 },
-        [ComplianceCategory.OPERATIONAL]: { total: 800, passed: 782, failed: 18, complianceRate: 97.7 },
-        [ComplianceCategory.SECURITY]: { total: 300, passed: 285, failed: 15, complianceRate: 95.0 },
-        [ComplianceCategory.FINANCIAL]: { total: 120, passed: 112, failed: 8, complianceRate: 93.3 },
-        [ComplianceCategory.DATA_PROTECTION]: { total: 36, passed: 34, failed: 2, complianceRate: 94.4 },
+        [ComplianceCategory.REGULATORY]: { total: 1200, _passed: any, failed: 15, _complianceRate: any,
+        [ComplianceCategory.OPERATIONAL]: { total: 800, _passed: any, failed: 18, _complianceRate: any,
+        [ComplianceCategory.SECURITY]: { total: 300, _passed: any, failed: 15, _complianceRate: any,
+        [ComplianceCategory.FINANCIAL]: { total: 120, _passed: any, failed: 8, _complianceRate: any,
+        [ComplianceCategory.DATA_PROTECTION]: { total: 36, _passed: any, failed: 2, _complianceRate: any,
       },
       byRiskLevel: {
-        [RiskLevel.LOW]: { count: 1856, percentage: 75.6 },
-        [RiskLevel.MEDIUM]: { count: 456, percentage: 18.6 },
-        [RiskLevel.HIGH]: { count: 120, percentage: 4.9 },
-        [RiskLevel.CRITICAL]: { count: 24, percentage: 0.9 },
+        [RiskLevel.LOW]: { count: 1856, _percentage: any,
+        [RiskLevel.MEDIUM]: { count: 456, _percentage: any,
+        [RiskLevel.HIGH]: { count: 120, _percentage: any,
+        [RiskLevel.CRITICAL]: { count: 24, _percentage: any,
       },
       trends: [
-        { date: '2024-01-01', total: 85, passed: 82, failed: 3, complianceRate: 96.5 },
-        { date: '2024-01-02', total: 92, passed: 89, failed: 3, complianceRate: 96.7 },
+        { date: '2024-01-01', _total: any, passed: 82, _failed: any, complianceRate: 96.5 },
+        { date: '2024-01-02', _total: any, passed: 89, _failed: any, complianceRate: 96.7 },
         // ... more trend data
       ],
       topFindings: [
-        { type: 'KYC Incomplete', count: 15, impact: 'High', recommendation: 'Complete KYC verification' },
-        { type: 'Transaction Limit Exceeded', count: 12, impact: 'Medium', recommendation: 'Implement approval workflow' },
-        { type: 'AML Screening Required', count: 8, impact: 'Critical', recommendation: 'Immediate AML review' },
+        { type: 'KYC Incomplete', _count: any, impact: 'High', _recommendation: any,
+        { type: 'Transaction Limit Exceeded', _count: any, impact: 'Medium', _recommendation: any,
+        { type: 'AML Screening Required', _count: any, impact: 'Critical', _recommendation: any,
       ],
     };
   }
 
   // ===== PRIVATE HELPER METHODS =====
 
-  private calculateRiskScore(eventData: Partial<AuditLog>): number {
+  private calculateRiskScore(_eventData: any): number {
     let score = 0;
 
     // Base score by event type
@@ -857,12 +857,12 @@ export class AuditComplianceService {
     return Math.min(score, 100);
   }
 
-  private getApplicableRules(entityType: string): ComplianceRule[] {
+  private getApplicableRules(_entityType: any): ComplianceRule[] {
     const rules = Array.from(this.complianceRules.values());
     return rules.filter(rule => rule.isActive);
   }
 
-  private mapRuleToCheckType(rule: ComplianceRule): ComplianceCheckType {
+  private mapRuleToCheckType(_rule: any): ComplianceCheckType {
     if (rule.name.toLowerCase().includes('kyc')) {
       return ComplianceCheckType.KYC_VERIFICATION;
     }
@@ -875,20 +875,20 @@ export class AuditComplianceService {
     return ComplianceCheckType.RISK_ASSESSMENT;
   }
 
-  private async getEntity(entityType: string, entityId: string): Promise<any> {
+  private async getEntity(_entityType: any, entityId: string): Promise<any> {
     switch (entityType) {
       case 'transaction':
-        return this.transactionRepository.findOne({ where: { id: entityId }, relations: ["customer", 'account'] });
+        return this.transactionRepository.findOne({ where: { id: entityId }, _relations: any, 'account'] });
       case UserRole.CUSTOMER:
         return this.customerRepository.findOne({ where: { id: entityId } });
       case 'account':
-        return this.accountRepository.findOne({ where: { id: entityId }, relations: ["customer"] });
+        return this.accountRepository.findOne({ where: { id: entityId }, _relations: any);
       default:
         return null;
     }
   }
 
-  private async evaluateConditions(conditions: ComplianceCondition[], entity: any): Promise<Array<{
+  private async evaluateConditions(_conditions: any, entity: any): Promise<Array<{
     passed: boolean;
     description: string;
     recommendation: string;
@@ -904,14 +904,14 @@ export class AuditComplianceService {
         passed,
         description: condition.description,
         recommendation: passed ? 'No action required' : `Ensure ${condition.description}`,
-        evidence: { fieldValue, expectedValue: condition.value, operator: condition.operator },
+        evidence: { fieldValue, _expectedValue: any, operator: condition.operator },
       });
     }
 
     return results;
   }
 
-  private getFieldValue(entity: any, fieldPath: string): any {
+  private getFieldValue(_entity: any, fieldPath: string): any {
     const parts = fieldPath.split('.');
     let value = entity;
 
@@ -926,7 +926,7 @@ export class AuditComplianceService {
     return value;
   }
 
-  private evaluateCondition(fieldValue: any, operator: string, expectedValue: any): boolean {
+  private evaluateCondition(_fieldValue: any, operator: string, _expectedValue: any): boolean {
     switch (operator) {
       case 'equals':
         return fieldValue === expectedValue;
@@ -953,7 +953,7 @@ export class AuditComplianceService {
     }
   }
 
-  private calculateRiskLevel(score: number, severity: ComplianceSeverity): RiskLevel {
+  private calculateRiskLevel(_score: any, severity: ComplianceSeverity): RiskLevel {
     if (severity === ComplianceSeverity.CRITICAL) {
       return RiskLevel.CRITICAL;
     }
@@ -969,7 +969,7 @@ export class AuditComplianceService {
     return RiskLevel.CRITICAL;
   }
 
-  private getImpactDescription(severity: ComplianceSeverity): string {
+  private getImpactDescription(_severity: any): string {
     switch (severity) {
       case ComplianceSeverity.CRITICAL:
 
@@ -984,7 +984,7 @@ export class AuditComplianceService {
     }
   }
 
-  private async executeComplianceActions(actions: ComplianceAction[], check: ComplianceCheck): Promise<void> {
+  private async executeComplianceActions(_actions: any, check: ComplianceCheck): Promise<void> {
     for (const action of actions) {
       try {
         switch (action.type) {

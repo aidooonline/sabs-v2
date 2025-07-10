@@ -43,8 +43,8 @@ async function bootstrap() {
   const port = process.env.PORT || 3002;
   await app.listen(port);
   
-  console.log(`🚀 Accounts Service is running on: http://localhost:${port}`);
-  console.log(`📚 API Documentation: http://localhost:${port}/api/docs`);
+  console.log(`🚀 Accounts Service is running on: _http: any);
+  console.log(`📚 API Documentation: _http: any);
 }
 
 bootstrap();

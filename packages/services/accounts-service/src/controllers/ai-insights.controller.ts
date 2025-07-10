@@ -12,6 +12,7 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
+import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -19,7 +20,7 @@ import {
   ApiParam,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-
+import {
   AIInsightsService,
   AIInsight,
   Recommendation,
@@ -140,7 +141,7 @@ export class AIInsightsController {
   @Post('generate')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Generate AI-powered business insights' })
-  @ApiResponse({ status: 201, description: 'AI insights generated successfully' })
+  @ApiResponse({ status: 201, _description: any)
   async generateAIInsights(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) insightsDto: GenerateInsightsDto,
@@ -292,11 +293,11 @@ export class AIInsightsController {
   @Get('insights')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get existing AI insights' })
-  @ApiQuery({ name: 'category', required: false, enum: InsightCategory })
-  @ApiQuery({ name: 'priority', required: false, enum: InsightPriority })
-  @ApiQuery({ name: 'type', required: false, enum: InsightType })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiResponse({ status: 200, description: 'AI insights retrieved successfully' })
+  @ApiQuery({ name: 'category', _required: any, enum: InsightCategory })
+  @ApiQuery({ name: 'priority', _required: any, enum: InsightPriority })
+  @ApiQuery({ name: 'type', _required: any, enum: InsightType })
+  @ApiQuery({ name: 'limit', _required: any, type: Number })
+  @ApiResponse({ status: 200, _description: any)
   async getAIInsights(
     @Headers('authorization') authorization: string,
     @Query('category') category?: InsightCategory,
@@ -424,10 +425,10 @@ export class AIInsightsController {
   @Get('business-intelligence/report')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Generate comprehensive business intelligence report' })
-  @ApiQuery({ name: 'startDate', required: true, type: String })
-  @ApiQuery({ name: 'endDate', required: true, type: String })
-  @ApiQuery({ name: 'format', required: false, enum: ['summary', 'detailed', 'executive'] })
-  @ApiResponse({ status: 200, description: 'Business intelligence report generated successfully' })
+  @ApiQuery({ name: 'startDate', _required: any, type: String })
+  @ApiQuery({ name: 'endDate', _required: any, type: String })
+  @ApiQuery({ name: 'format', _required: any, enum: ['summary', 'detailed', 'executive'] })
+  @ApiResponse({ status: 200, _description: any)
   async generateBusinessIntelligenceReport(
     @Headers('authorization') authorization: string,
     @Query('startDate') startDate: string,
@@ -597,7 +598,7 @@ export class AIInsightsController {
   @Post('recommendations')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get intelligent business recommendations' })
-  @ApiResponse({ status: 201, description: 'Intelligent recommendations generated successfully' })
+  @ApiResponse({ status: 201, _description: any)
   async getIntelligentRecommendations(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) requestDto: RecommendationRequestDto,
@@ -727,8 +728,8 @@ export class AIInsightsController {
 
     return {
       recommendations,
-      prioritization: { quickWins: [], majorProjects: [], strategicInitiatives: [] },
-      implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: "Q1-Q4 2024" }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } },
+      prioritization: { quickWins: [], _majorProjects: any, strategicInitiatives: [] },
+      implementation: { roadmap: { phases: [], _dependencies: any, milestones: [] }, _resourcePlan: any, budget: 0, _timeline: any, riskAssessment: { risks: [], _mitigation: any, probability: 0, _impact: any,
       roiAnalysis,
       success_metrics,
     };
@@ -737,7 +738,7 @@ export class AIInsightsController {
   @Post('optimization/processes')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Optimize business processes using AI' })
-  @ApiResponse({ status: 201, description: 'Process optimization completed successfully' })
+  @ApiResponse({ status: 201, _description: any)
   async optimizeBusinessProcesses(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) optimizationDto: OptimizationRequestDto,
@@ -839,7 +840,7 @@ export class AIInsightsController {
   @Post('predictions')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Generate AI-powered predictions' })
-  @ApiResponse({ status: 201, description: 'Predictions generated successfully' })
+  @ApiResponse({ status: 201, _description: any)
   async generatePredictions(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) predictionDto: PredictionRequestDto,
@@ -983,10 +984,10 @@ export class AIInsightsController {
       predictions: [],
       models: {
         
-        performance: { accuracy: 0, precision: 0, recall: 0, f1Score: 0 },
+        performance: { accuracy: 0, _precision: any, recall: 0, _f1Score: any,
       confidence: 0
     },
-      scenarios: { optimistic: { probability: 0, outcome: {}, factors: [] }, realistic: { probability: 0, outcome: {}, factors: [] }, pessimistic: { probability: 0, outcome: {}, factors: [] } },
+      scenarios: { optimistic: { probability: 0, _outcome: any, factors: [] }, _realistic: any, outcome: {}, _factors: any, pessimistic: { probability: 0, _outcome: any, factors: [] } },
       insights: result.insights: [],
       recommendations,
     };
@@ -995,7 +996,7 @@ export class AIInsightsController {
   @Get('customer-segmentation')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Perform AI-powered customer segmentation analysis' })
-  @ApiResponse({ status: 200, description: 'Customer segmentation analysis completed successfully' })
+  @ApiResponse({ status: 200, _description: any)
   async performCustomerSegmentationAnalysis(
     @Headers('authorization') authorization: string,
   ): Promise<{
@@ -1132,7 +1133,7 @@ export class AIInsightsController {
   @Get('models')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get AI model information' })
-  @ApiResponse({ status: 200, description: 'AI model information retrieved successfully' })
+  @ApiResponse({ status: 200, _description: any)
   async getAIModels(
     @Headers('authorization') authorization: string,
   ): Promise<{
@@ -1240,7 +1241,7 @@ export class AIInsightsController {
     return {
       models: {
         
-        performance: { accuracy: 0, precision: 0, recall: 0, f1Score: 0 },
+        performance: { accuracy: 0, _precision: any, recall: 0, _f1Score: any,
       confidence: 0
     },
       summary,
@@ -1249,7 +1250,7 @@ export class AIInsightsController {
 
   @Get('health')
   @ApiOperation({ summary: 'Check AI insights service health' })
-  @ApiResponse({ status: 200, description: 'Service health status' })
+  @ApiResponse({ status: 200, _description: any)
   
   @Get('health')
   @ApiOperation({ summary: 'Get system health status' })
@@ -1291,7 +1292,7 @@ export class AIInsightsController {
   // ===== PRIVATE HELPER METHODS =====
 
   
-  private async extractUserId(authorization: string): Promise<string> {
+  private async extractUserId(_authorization: any): Promise<string> {
     if (!authorization || !authorization.startsWith('Bearer ')) {
       throw new HttpException('Invalid authorization header', HttpStatus.UNAUTHORIZED);
     }
@@ -1303,7 +1304,7 @@ export class AIInsightsController {
 
   }
 
-  private mapRecommendation(rec: any): RecommendationDto {
+  private mapRecommendation(_rec: any): RecommendationDto {
     return {
       id: rec.id,
       title: rec.title,

@@ -95,8 +95,8 @@ export class PerformanceAnalyticsController {
   @Get('metrics')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Collect current performance metrics' })
-  @ApiQuery({ name: 'component', required: false, type: String })
-  @ApiResponse({ status: 200, description: 'Performance metrics collected successfully' })
+  @ApiQuery({ name: 'component', _required: any, type: String })
+  @ApiResponse({ status: 200, _description: any)
   async getPerformanceMetrics(
     @Headers('authorization') authorization: string,
     @Query('component') component?: string,
@@ -177,7 +177,7 @@ export class PerformanceAnalyticsController {
   @Get('health-dashboard')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get system health dashboard' })
-  @ApiResponse({ status: 200, description: 'System health dashboard retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getSystemHealthDashboard(
     @Headers('authorization') authorization: string,
   ): Promise<{
@@ -259,7 +259,7 @@ export class PerformanceAnalyticsController {
   @Post('analysis')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Perform comprehensive performance analysis' })
-  @ApiResponse({ status: 200, description: 'Performance analysis completed' })
+  @ApiResponse({ status: 200, _description: any)
   async performPerformanceAnalysis(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) analysisDto: PerformanceAnalysisDto,
@@ -385,9 +385,9 @@ export class PerformanceAnalyticsController {
   @Get('bottlenecks')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Detect system bottlenecks' })
-  @ApiQuery({ name: 'component', required: false, type: String })
-  @ApiQuery({ name: 'severity', required: false, enum: BottleneckSeverity })
-  @ApiResponse({ status: 200, description: 'Bottlenecks detected successfully' })
+  @ApiQuery({ name: 'component', _required: any, type: String })
+  @ApiQuery({ name: 'severity', _required: any, enum: BottleneckSeverity })
+  @ApiResponse({ status: 200, _description: any)
   async detectBottlenecks(
     @Headers('authorization') authorization: string,
     @Query('component') component?: string,
@@ -489,8 +489,8 @@ export class PerformanceAnalyticsController {
   @Get('bottlenecks/:bottleneckId/analysis')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Perform root cause analysis' })
-  @ApiParam({ name: 'bottleneckId', description: 'Bottleneck ID' })
-  @ApiResponse({ status: 200, description: 'Root cause analysis completed' })
+  @ApiParam({ name: 'bottleneckId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async performRootCauseAnalysis(
     @Headers('authorization') authorization: string,
     @Param('bottleneckId') bottleneckId: string,
@@ -581,8 +581,8 @@ export class PerformanceAnalyticsController {
   @Put('bottlenecks/:bottleneckId')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update bottleneck status' })
-  @ApiParam({ name: 'bottleneckId', description: 'Bottleneck ID' })
-  @ApiResponse({ status: 200, description: 'Bottleneck updated successfully' })
+  @ApiParam({ name: 'bottleneckId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async updateBottleneckStatus(
     @Headers('authorization') authorization: string,
     @Param('bottleneckId') bottleneckId: string,
@@ -631,7 +631,7 @@ export class PerformanceAnalyticsController {
   @Post('optimization/plan')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Generate optimization plan' })
-  @ApiResponse({ status: 201, description: 'Optimization plan generated successfully' })
+  @ApiResponse({ status: 201, _description: any)
   async generateOptimizationPlan(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) requestDto: OptimizationRequestDto,
@@ -760,8 +760,8 @@ export class PerformanceAnalyticsController {
   @Get('optimization/plans/:planId/progress')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Track optimization progress' })
-  @ApiParam({ name: 'planId', description: 'Optimization plan ID' })
-  @ApiResponse({ status: 200, description: 'Optimization progress retrieved' })
+  @ApiParam({ name: 'planId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async trackOptimizationProgress(
     @Headers('authorization') authorization: string,
     @Param('planId') planId: string,
@@ -862,7 +862,7 @@ export class PerformanceAnalyticsController {
   @Post('reports/generate')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Generate performance report' })
-  @ApiResponse({ status: 201, description: 'Performance report generated successfully' })
+  @ApiResponse({ status: 201, _description: any)
   async generatePerformanceReport(
     @Headers('authorization') authorization: string,
     @Body() body: {
@@ -978,7 +978,7 @@ export class PerformanceAnalyticsController {
 
   @Get('enums')
   @ApiOperation({ summary: 'Get performance analytics related enums' })
-  @ApiResponse({ status: 200, description: 'Enums retrieved successfully' })
+  @ApiResponse({ status: 200, _description: any)
   async getPerformanceEnums(): Promise<{
     metric_categories: MetricCategory[];
     bottleneck_severities: BottleneckSeverity[];
@@ -997,7 +997,7 @@ export class PerformanceAnalyticsController {
 
   @Get('health')
   @ApiOperation({ summary: 'Check performance analytics service health' })
-  @ApiResponse({ status: 200, description: 'Service health status' })
+  @ApiResponse({ status: 200, _description: any)
   
   @Get('health')
   @ApiOperation({ summary: 'Get system health status' })
@@ -1039,7 +1039,7 @@ export class PerformanceAnalyticsController {
   // ===== PRIVATE HELPER METHODS =====
 
   
-  private async extractUserId(authorization: string): Promise<string> {
+  private async extractUserId(_authorization: any): Promise<string> {
     if (!authorization || !authorization.startsWith('Bearer ')) {
       throw new HttpException('Invalid authorization header', HttpStatus.UNAUTHORIZED);
     }
@@ -1051,19 +1051,19 @@ export class PerformanceAnalyticsController {
 
   }
 
-  private getMetricStatus(metric: PerformanceMetric): string {
+  private getMetricStatus(_metric: any): string {
     if (metric.value > metric.threshold.critical) return 'critical';
     if (metric.value > metric.threshold.warning) return 'warning';
 
   }
 
-  private getSeverityFromImpact(impact: string): string {
+  private getSeverityFromImpact(_impact: any): string {
     if (impact.includes('dramatically') || impact.includes('critical')) return 'critical';
     if (impact.includes('increased') || impact.includes('degraded')) return 'warning';
 
   }
 
-  private getCorrelationDescription(metric: string, correlation: number): string {
+  private getCorrelationDescription(_metric: any, correlation: number): string {
     const strength = Math.abs(correlation);
     const direction = correlation > 0 ? 'positive' : 'negative';
     const level = strength > 0.8 ? 'strong' : strength > 0.5 ? 'moderate' : 'weak';

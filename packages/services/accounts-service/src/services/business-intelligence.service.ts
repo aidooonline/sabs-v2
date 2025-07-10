@@ -395,7 +395,7 @@ export class BusinessIntelligenceService {
 
   // ===== PREDICTIVE MODELING =====
 
-  async createPredictiveModel(request: CreateModelRequest): Promise<{
+  async createPredictiveModel(_request: any): Promise<{
     modelId: string;
     trainingStatus: string;
     estimatedTrainingTime: number;
@@ -428,7 +428,7 @@ export class BusinessIntelligenceService {
     setTimeout(() => {
       model.status = ModelStatus.ACTIVE;
       model.performance = this.generateModelPerformance(request.algorithm);
-      this.eventEmitter.emit('bi.model_trained', { modelId, performance: model.performance });
+      this.eventEmitter.emit('bi.model_trained', { modelId, _performance: any);
     }, 5000);
 
     this.eventEmitter.emit('bi.model_created', {
@@ -446,7 +446,7 @@ export class BusinessIntelligenceService {
     };
   }
 
-  async generateForecast(request: ForecastRequest): Promise<ForecastResult> {
+  async generateForecast(_request: any): Promise<ForecastResult> {
     this.logger.log(`Generating forecast: ${request.metric} for ${request.timeHorizon}`);
 
     const forecastId = `forecast_${nanoid(8)}`;
@@ -499,7 +499,7 @@ export class BusinessIntelligenceService {
 
   // ===== CUSTOMER SEGMENTATION =====
 
-  async performCustomerSegmentation(request: SegmentationRequest): Promise<{
+  async performCustomerSegmentation(_request: any): Promise<{
     segments: CustomerSegment[];
     summary: {
       totalSegments: number;
@@ -538,7 +538,7 @@ export class BusinessIntelligenceService {
     };
   }
 
-  async getCustomerSegmentInsights(segmentId: string): Promise<{
+  async getCustomerSegmentInsights(_segmentId: any): Promise<{
     segment: CustomerSegment;
     trends: Array<{
       metric: string;
@@ -619,7 +619,7 @@ export class BusinessIntelligenceService {
 
   // ===== ANOMALY DETECTION =====
 
-  async detectAnomalies(timeRange: { start: Date; end: Date }): Promise<{
+  async detectAnomalies(_timeRange: any): Promise<{
     anomalies: AnomalyDetection[];
     summary: {
       total: number;
@@ -655,7 +655,7 @@ export class BusinessIntelligenceService {
     };
   }
 
-  async investigateAnomaly(anomalyId: string): Promise<{
+  async investigateAnomaly(_anomalyId: any): Promise<{
     anomaly: AnomalyDetection;
     analysis: {
       rootCause: string[];
@@ -712,7 +712,7 @@ export class BusinessIntelligenceService {
 
   // ===== RISK MODELING =====
 
-  async calculateRiskScore(customerId: string, riskType: RiskType): Promise<{
+  async calculateRiskScore(_customerId: any, riskType: RiskType): Promise<{
     score: number;
     grade: string;
     probability: number;
@@ -869,7 +869,7 @@ export class BusinessIntelligenceService {
 
   // ===== PRIVATE HELPER METHODS =====
 
-  private generateModelFeatures(featureNames: string[]): ModelFeature[] {
+  private generateModelFeatures(_featureNames: any): ModelFeature[] {
     return featureNames.map(name => ({
       name,
       type: this.inferFeatureType(name),
@@ -878,7 +878,7 @@ export class BusinessIntelligenceService {
     }));
   }
 
-  private inferFeatureType(featureName: string): 'numeric' | 'categorical' | 'text' | 'datetime' {
+  private inferFeatureType(_featureName: any): 'numeric' | 'categorical' | 'text' | 'datetime' {
     if (featureName.includes('amount') || featureName.includes('count')) return 'numeric';
     if (featureName.includes('date') || featureName.includes('time')) return 'datetime';
     if (featureName.includes('text') || featureName.includes('description')) return 'text';
@@ -895,7 +895,7 @@ export class BusinessIntelligenceService {
     };
   }
 
-  private buildModelConfiguration(config: Partial<ModelConfiguration>): ModelConfiguration {
+  private buildModelConfiguration(_config: any): ModelConfiguration {
     return {
       hyperparameters: config.hyperparameters || {},
       featureSelection: config.featureSelection || [],
@@ -930,7 +930,7 @@ export class BusinessIntelligenceService {
     };
   }
 
-  private generateModelPerformance(algorithm: MLAlgorithm): ModelPerformance {
+  private generateModelPerformance(_algorithm: any): ModelPerformance {
     const baseAccuracy = algorithm === MLAlgorithm.NEURAL_NETWORK ? 0.85 :
                         algorithm === MLAlgorithm.RANDOM_FOREST ? 0.82 :
                         algorithm === MLAlgorithm.GRADIENT_BOOSTING ? 0.84 : 0.78;
@@ -944,7 +944,7 @@ export class BusinessIntelligenceService {
     };
   }
 
-  private generateForecastPredictions(request: ForecastRequest): ForecastPrediction[] {
+  private generateForecastPredictions(_request: any): ForecastPrediction[] {
     const predictions: ForecastPrediction[] = [];
     const baseValue = 1000 + Math.random() * 5000;
     
@@ -970,7 +970,7 @@ export class BusinessIntelligenceService {
     return predictions;
   }
 
-  private calculateConfidenceInterval(predictions: ForecastPrediction[], confidence: number): ConfidenceInterval {
+  private calculateConfidenceInterval(_predictions: any, confidence: number): ConfidenceInterval {
     return {
       level: confidence,
       lowerBound: predictions.map(p => p.lowerBound),
@@ -978,7 +978,7 @@ export class BusinessIntelligenceService {
     };
   }
 
-  private estimateForecastAccuracy(metric: string): ForecastAccuracy {
+  private estimateForecastAccuracy(_metric: any): ForecastAccuracy {
     return {
       mape: 8.5 + Math.random() * 5, // 8.5-13.5%
       rmse: 150 + Math.random() * 100,
@@ -987,7 +987,7 @@ export class BusinessIntelligenceService {
     };
   }
 
-  private getForecastFeatures(metric: string): string[] {
+  private getForecastFeatures(_metric: any): string[] {
     const commonFeatures = ['historical_values', 'day_of_week', 'month', 'seasonality'];
     const metricSpecificFeatures = {
       revenue: ['customer_count', 'transaction_volume', 'marketing_spend'],
@@ -998,28 +998,28 @@ export class BusinessIntelligenceService {
     return [...commonFeatures, ...(metricSpecificFeatures[metric] || [])];
   }
 
-  private generateCustomerSegments(request: SegmentationRequest): CustomerSegment[] {
+  private generateCustomerSegments(_request: any): CustomerSegment[] {
     const segmentTemplates = [
       {
         name: 'High Value Customers',
         description: 'Top 20% customers by lifetime value',
         size: 25000,
         percentage: 20,
-        value: { lifetime: 15000, monthly: 500, profitability: 85, risk: 15, growth: 12 },
+        value: { lifetime: 15000, _monthly: any, profitability: 85, _risk: any, growth: 12 },
       },
       {
         name: 'Digital Natives',
         description: 'Young, tech-savvy customers using mobile primarily',
         size: 37500,
         percentage: 30,
-        value: { lifetime: 8000, monthly: 300, profitability: 70, risk: 25, growth: 25 },
+        value: { lifetime: 8000, _monthly: any, profitability: 70, _risk: any, growth: 25 },
       },
       {
         name: 'Traditional Savers',
         description: 'Conservative customers preferring savings products',
         size: 31250,
         percentage: 25,
-        value: { lifetime: 12000, monthly: 200, profitability: 60, risk: 10, growth: 5 },
+        value: { lifetime: 12000, _monthly: any, profitability: 60, _risk: any, growth: 5 },
       },
     ];
 
@@ -1043,8 +1043,8 @@ export class BusinessIntelligenceService {
     return {
       demographics: {
         averageAge: 25 + Math.random() * 40,
-        genderSplit: { male: 0.45 + Math.random() * 0.1, female: 0.55 + Math.random() * 0.1 },
-        education: { high_school: 0.3, bachelor: 0.5, graduate: 0.2 },
+        genderSplit: { male: 0.45 + Math.random() * 0.1, _female: any) * 0.1 },
+        education: { high_school: 0.3, _bachelor: any, graduate: 0.2 },
       },
       behavior: {
         digitalEngagement: Math.random(),
@@ -1078,7 +1078,7 @@ export class BusinessIntelligenceService {
     };
   }
 
-  private generateSegmentRecommendations(segmentName: string): string[] {
+  private generateSegmentRecommendations(_segmentName: any): string[] {
     const recommendations = {
       'High Value Customers': [
         'Offer premium banking services',
@@ -1100,7 +1100,7 @@ export class BusinessIntelligenceService {
     return recommendations[segmentName] || ['Monitor segment performance', 'Analyze engagement patterns'];
   }
 
-  private analyzeAnomalyPatterns(anomalies: AnomalyDetection[]): Array<{
+  private analyzeAnomalyPatterns(_anomalies: any): Array<{
     type: string;
     frequency: number;
     impact: number;
@@ -1123,7 +1123,7 @@ export class BusinessIntelligenceService {
     }));
   }
 
-  private identifyRootCause(anomaly: AnomalyDetection): string[] {
+  private identifyRootCause(_anomaly: any): string[] {
     const rootCauses = {
       [AnomalyType.STATISTICAL]: ['Data quality issue', 'Measurement error', 'System malfunction'],
       [AnomalyType.BEHAVIORAL]: ['Customer behavior change', 'External event', 'Process change'],
@@ -1134,7 +1134,7 @@ export class BusinessIntelligenceService {
     return rootCauses[anomaly.type] || ['Unknown cause'];
   }
 
-  private findCorrelatedEvents(anomaly: AnomalyDetection): Array<{
+  private findCorrelatedEvents(_anomaly: any): Array<{
     event: string;
     correlation: number;
     timing: string;
@@ -1153,7 +1153,7 @@ export class BusinessIntelligenceService {
     ];
   }
 
-  private generateAnomalyRecommendations(anomaly: AnomalyDetection): Array<{
+  private generateAnomalyRecommendations(_anomaly: any): Array<{
     action: string;
     priority: 'immediate' | 'high' | 'medium' | 'low';
     resources: string[];
@@ -1175,12 +1175,12 @@ export class BusinessIntelligenceService {
     ];
   }
 
-  private computeRiskScore(customerId: string, riskModel: RiskModel): number {
+  private computeRiskScore(_customerId: any, riskModel: RiskModel): number {
     // Mock risk score calculation
     return 600 + Math.random() * 250; // Score between 600-850
   }
 
-  private determineRiskGrade(score: number, riskModel: RiskModel): string {
+  private determineRiskGrade(_score: any, riskModel: RiskModel): string {
     if (score >= 750) return 'A';
     if (score >= 700) return 'B';
     if (score >= 650) return 'C';
@@ -1188,13 +1188,13 @@ export class BusinessIntelligenceService {
 
   }
 
-  private calculateDefaultProbability(score: number, riskType: RiskType): number {
+  private calculateDefaultProbability(_score: any, riskType: RiskType): number {
     // Higher score = lower probability of default
     const baseProbability = Math.max(0.01, (850 - score) / 850 * 0.2);
     return Math.round(baseProbability * 1000) / 1000;
   }
 
-  private analyzeRiskFactors(customerId: string, riskModel: RiskModel): Array<{
+  private analyzeRiskFactors(_customerId: any, riskModel: RiskModel): Array<{
     name: string;
     value: any;
     contribution: number;
@@ -1208,14 +1208,14 @@ export class BusinessIntelligenceService {
     }));
   }
 
-  private mockVariableValue(variable: RiskVariable): any {
+  private mockVariableValue(_variable: any): any {
     if (variable.type === 'numeric') {
       return Math.floor(Math.random() * 1000);
     }
     return ['low', 'medium', 'high'][Math.floor(Math.random() * 3)];
   }
 
-  private generateRiskRecommendations(score: number, grade: string, factors: any[]): string[] {
+  private generateRiskRecommendations(_score: any, grade: string, _factors: any): string[] {
     if (grade === 'A' || grade === 'B') {
       return ['Approve with standard terms', 'Monitor quarterly', 'Offer premium products'];
     }

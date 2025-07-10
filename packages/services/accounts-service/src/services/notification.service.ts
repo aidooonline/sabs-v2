@@ -257,12 +257,12 @@ export class NotificationService {
 
   // Delivery rate limits and costs
   private readonly channelLimits = {
-    sms: { rateLimit: 100, costPerMessage: 0.05 }, // 100 SMS per minute, $0.05 each
-    email: { rateLimit: 1000, costPerMessage: 0.001 }, // 1000 emails per minute, $0.001 each
-    push: { rateLimit: 5000, costPerMessage: 0.0001 }, // 5000 push notifications per minute
-    in_app: { rateLimit: 10000, costPerMessage: 0 }, // Unlimited in-app notifications
-    webhook: { rateLimit: 500, costPerMessage: 0 }, // 500 webhooks per minute
-    whatsapp: { rateLimit: 50, costPerMessage: 0.02 }, // 50 WhatsApp messages per minute
+    sms: { rateLimit: 100, _costPerMessage: any, // 100 SMS per minute, $0.05 each
+    email: { rateLimit: 1000, _costPerMessage: any, // 1000 emails per minute, $0.001 each
+    push: { rateLimit: 5000, _costPerMessage: any, // 5000 push notifications per minute
+    in_app: { rateLimit: 10000, _costPerMessage: any, // Unlimited in-app notifications
+    webhook: { rateLimit: 500, _costPerMessage: any, // 500 webhooks per minute
+    whatsapp: { rateLimit: 50, _costPerMessage: any, // 50 WhatsApp messages per minute
   };
 
   constructor(
@@ -287,7 +287,7 @@ export class NotificationService {
   // ===== EVENT LISTENERS =====
 
   @OnEvent('transaction.completed')
-  async handleTransactionCompleted(event: any): Promise<void> {
+  async handleTransactionCompleted(_event: any): Promise<void> {
     this.logger.log(`Handling transaction completed event: ${event.transactionId}`);
 
     const transaction = await this.transactionRepository.findOne({
@@ -305,7 +305,7 @@ export class NotificationService {
   }
 
   @OnEvent('transaction.failed')
-  async handleTransactionFailed(event: any): Promise<void> {
+  async handleTransactionFailed(_event: any): Promise<void> {
     this.logger.log(`Handling transaction failed event: ${event.transactionId}`);
 
     const transaction = await this.transactionRepository.findOne({
@@ -323,7 +323,7 @@ export class NotificationService {
   }
 
   @OnEvent('transaction.approved')
-  async handleTransactionApproved(event: any): Promise<void> {
+  async handleTransactionApproved(_event: any): Promise<void> {
     this.logger.log(`Handling transaction approved event: ${event.transactionId}`);
 
     const transaction = await this.transactionRepository.findOne({
@@ -337,7 +337,7 @@ export class NotificationService {
   }
 
   @OnEvent('transaction.rejected')
-  async handleTransactionRejected(event: any): Promise<void> {
+  async handleTransactionRejected(_event: any): Promise<void> {
     this.logger.log(`Handling transaction rejected event: ${event.transactionId}`);
 
     const transaction = await this.transactionRepository.findOne({
@@ -351,7 +351,7 @@ export class NotificationService {
   }
 
   @OnEvent('account.created')
-  async handleAccountCreated(event: any): Promise<void> {
+  async handleAccountCreated(_event: any): Promise<void> {
     this.logger.log(`Handling account created event: ${event.accountId}`);
 
     const account = await this.accountRepository.findOne({
@@ -365,7 +365,7 @@ export class NotificationService {
   }
 
   @OnEvent('balance.low')
-  async handleLowBalance(event: any): Promise<void> {
+  async handleLowBalance(_event: any): Promise<void> {
     this.logger.log(`Handling low balance event: ${event.accountId}`);
 
     const account = await this.accountRepository.findOne({
@@ -380,7 +380,7 @@ export class NotificationService {
 
   // ===== CORE NOTIFICATION METHODS =====
 
-  async sendNotification(request: SendNotificationRequest): Promise<string> {
+  async sendNotification(_request: any): Promise<string> {
     this.logger.log(`Sending notification: ${request.type} to ${request.recipientId}`);
 
     // Get recipient preferences
@@ -406,7 +406,7 @@ export class NotificationService {
     return notification.id;
   }
 
-  async sendBulkNotification(request: BulkNotificationRequest): Promise<{
+  async sendBulkNotification(_request: any): Promise<{
     batchId: string;
     totalRecipients: number;
     scheduledCount: number;
@@ -475,7 +475,7 @@ export class NotificationService {
     };
   }
 
-  async getNotificationStatus(notificationId: string): Promise<NotificationRecord | null> {
+  async getNotificationStatus(_notificationId: any): Promise<NotificationRecord | null> {
     return this.notifications.get(notificationId) || null;
   }
 
@@ -525,7 +525,7 @@ export class NotificationService {
 
   // ===== TEMPLATE MANAGEMENT =====
 
-  async createTemplate(template: Partial<NotificationTemplate>): Promise<string> {
+  async createTemplate(_template: any): Promise<string> {
     const templateId = `tpl_${nanoid(8)}`;
     
     const newTemplate: NotificationTemplate = {
@@ -549,7 +549,7 @@ export class NotificationService {
     return templateId;
   }
 
-  async updateTemplate(templateId: string, updates: Partial<NotificationTemplate>): Promise<void> {
+  async updateTemplate(_templateId: any, updates: Partial<NotificationTemplate>): Promise<void> {
     const template = this.templates.get(templateId);
     if (!template) {
       throw new BadRequestException('Template not found');
@@ -567,7 +567,7 @@ export class NotificationService {
     this.logger.log(`Updated notification template: ${templateId}`);
   }
 
-  async getTemplate(templateId: string): Promise<NotificationTemplate | null> {
+  async getTemplate(_templateId: any): Promise<NotificationTemplate | null> {
     return this.templates.get(templateId) || null;
   }
 
@@ -615,7 +615,7 @@ export class NotificationService {
     this.logger.log(`Updated notification preferences for customer: ${customerId}`);
   }
 
-  async getNotificationPreferences(customerId: string): Promise<NotificationPreferences> {
+  async getNotificationPreferences(_customerId: any): Promise<NotificationPreferences> {
     return this.preferences.get(customerId) || this.getDefaultPreferences(customerId);
   }
 
@@ -666,31 +666,31 @@ export class NotificationService {
         averageDeliveryTime: 2.3, // seconds
       },
       byChannel: {
-        [NotificationChannel.SMS]: { sent: 850, delivered: 832, failed: 18, cost: 42.50 },
-        [NotificationChannel.EMAIL]: { sent: 300, delivered: 285, failed: 15, cost: 0.30 },
-        [NotificationChannel.PUSH]: { sent: 100, delivered: 81, failed: 19, cost: 0.01 },
-        [NotificationChannel.IN_APP]: { sent: 0, delivered: 0, failed: 0, cost: 0 },
-        [NotificationChannel.WEBHOOK]: { sent: 0, delivered: 0, failed: 0, cost: 0 },
-        [NotificationChannel.WHATSAPP]: { sent: 0, delivered: 0, failed: 0, cost: 0 },
+        [NotificationChannel.SMS]: { sent: 850, _delivered: any, failed: 18, _cost: any,
+        [NotificationChannel.EMAIL]: { sent: 300, _delivered: any, failed: 15, _cost: any,
+        [NotificationChannel.PUSH]: { sent: 100, _delivered: any, failed: 19, _cost: any,
+        [NotificationChannel.IN_APP]: { sent: 0, _delivered: any, failed: 0, _cost: any,
+        [NotificationChannel.WEBHOOK]: { sent: 0, _delivered: any, failed: 0, _cost: any,
+        [NotificationChannel.WHATSAPP]: { sent: 0, _delivered: any, failed: 0, _cost: any,
       },
       byType: {
-        [NotificationType.TRANSACTION_COMPLETED]: { sent: 650, delivered: 635, failed: 15 },
-        [NotificationType.TRANSACTION_APPROVED]: { sent: 200, delivered: 195, failed: 5 },
-        [NotificationType.BALANCE_LOW]: { sent: 150, delivered: 142, failed: 8 },
-        [NotificationType.SECURITY_ALERT]: { sent: 100, delivered: 98, failed: 2 },
-        [NotificationType.WELCOME]: { sent: 80, delivered: 78, failed: 2 },
+        [NotificationType.TRANSACTION_COMPLETED]: { sent: 650, _delivered: any, failed: 15 },
+        [NotificationType.TRANSACTION_APPROVED]: { sent: 200, _delivered: any, failed: 5 },
+        [NotificationType.BALANCE_LOW]: { sent: 150, _delivered: any, failed: 8 },
+        [NotificationType.SECURITY_ALERT]: { sent: 100, _delivered: any, failed: 2 },
+        [NotificationType.WELCOME]: { sent: 80, _delivered: any, failed: 2 },
         // ... other types with zero values
       } as any,
       trends: [
-        { date: '2024-01-01', sent: 125, delivered: 120, failed: 5 },
-        { date: '2024-01-02', sent: 135, delivered: 128, failed: 7 },
+        { date: '2024-01-01', _sent: any, delivered: 120, _failed: any,
+        { date: '2024-01-02', _sent: any, delivered: 128, _failed: any,
         // ... more trend data
       ],
       topFailureReasons: [
-        { reason: 'Invalid phone number', count: 25, percentage: 48.1 },
-        { reason: 'Network timeout', count: 15, percentage: 28.8 },
-        { reason: 'Rate limit exceeded', count: 8, percentage: 15.4 },
-        { reason: 'Other', count: 4, percentage: 7.7 },
+        { reason: 'Invalid phone number', _count: any, percentage: 48.1 },
+        { reason: 'Network timeout', _count: any, percentage: 28.8 },
+        { reason: 'Rate limit exceeded', _count: any, percentage: 15.4 },
+        { reason: 'Other', _count: any, percentage: 7.7 },
       ],
     };
   }
@@ -728,7 +728,7 @@ export class NotificationService {
     });
   }
 
-  private async sendWelcomeNotification(account: Account): Promise<void> {
+  private async sendWelcomeNotification(_account: any): Promise<void> {
     const data = {
       customerName: account.customer.fullName,
       accountNumber: account.accountNumber,
@@ -745,7 +745,7 @@ export class NotificationService {
     });
   }
 
-  private async sendBalanceAlert(account: Account, balance: number, threshold: number): Promise<void> {
+  private async sendBalanceAlert(_account: any, balance: number, _threshold: any): Promise<void> {
     const data = {
       customerName: account.customer.fullName,
       accountNumber: account.accountNumber,
@@ -763,7 +763,7 @@ export class NotificationService {
     });
   }
 
-  private async createNotificationRecord(request: SendNotificationRequest): Promise<NotificationRecord> {
+  private async createNotificationRecord(_request: any): Promise<NotificationRecord> {
     const notificationId = `ntf_${nanoid(8)}`;
     
     // Get template if specified
@@ -823,7 +823,7 @@ export class NotificationService {
     return notification;
   }
 
-  private async sendToChannel(notification: NotificationRecord, channel: NotificationChannel): Promise<void> {
+  private async sendToChannel(_notification: any, channel: NotificationChannel): Promise<void> {
     this.logger.log(`Sending notification ${notification.id} via ${channel}`);
 
     try {
@@ -926,7 +926,7 @@ export class NotificationService {
     return false; // No channels allowed
   }
 
-  private isInQuietHours(quietHours: NotificationPreferences['quietHours']): boolean {
+  private isInQuietHours(_quietHours: any): boolean {
     const now = new Date();
     const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
     
@@ -934,7 +934,7 @@ export class NotificationService {
     return currentTime >= quietHours.startTime && currentTime <= quietHours.endTime;
   }
 
-  private replaceTemplateVariables(template: string, data: Record<string, any>): string {
+  private replaceTemplateVariables(_template: any, data: Record<string, any>): string {
     let result = template;
     
     Object.entries(data).forEach(([key, value]) => {
@@ -945,7 +945,7 @@ export class NotificationService {
     return result;
   }
 
-  private getDefaultPreferences(customerId: string): NotificationPreferences {
+  private getDefaultPreferences(_customerId: any): NotificationPreferences {
     return {
       customerId,
       smsEnabled: true,
@@ -992,13 +992,13 @@ export class NotificationService {
     this.logger.log('Initialized default notification preferences');
   }
 
-  private delay(ms: number): Promise<void> {
+  private delay(_ms: any): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   // ===== PUBLIC UTILITY METHODS =====
 
-  async markAsRead(notificationId: string): Promise<void> {
+  async markAsRead(_notificationId: any): Promise<void> {
     const notification = this.notifications.get(notificationId);
     if (notification) {
       notification.status = NotificationStatus.READ;
@@ -1008,7 +1008,7 @@ export class NotificationService {
     }
   }
 
-  async cancelNotification(notificationId: string): Promise<void> {
+  async cancelNotification(_notificationId: any): Promise<void> {
     const notification = this.notifications.get(notificationId);
     if (notification && notification.status === NotificationStatus.SCHEDULED) {
       notification.status = NotificationStatus.CANCELLED;
@@ -1017,7 +1017,7 @@ export class NotificationService {
     }
   }
 
-  async retryFailedNotification(notificationId: string): Promise<void> {
+  async retryFailedNotification(_notificationId: any): Promise<void> {
     const notification = this.notifications.get(notificationId);
     if (notification && 
         notification.status === NotificationStatus.FAILED && 
@@ -1033,7 +1033,7 @@ export class NotificationService {
     }
   }
 
-  async getDeliveryReport(notificationId: string): Promise<NotificationDeliveryReport | null> {
+  async getDeliveryReport(_notificationId: any): Promise<NotificationDeliveryReport | null> {
     const notification = this.notifications.get(notificationId);
     if (!notification) {
       return null;
@@ -1053,7 +1053,7 @@ export class NotificationService {
     };
   }
 
-  private calculateNotificationCost(channel: NotificationChannel): number {
+  private calculateNotificationCost(_channel: any): number {
     return this.channelLimits[channel]?.costPerMessage || 0;
   }
 }

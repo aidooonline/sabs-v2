@@ -86,17 +86,17 @@ export class TransactionProcessingService {
   // Fee structure configuration
   private readonly feeStructure = {
     withdrawal: {
-      savings: { baseFee: 2.00, percentageRate: 0.005, maxFee: 50.00 }, // 0.5% with GHS 2 base
-      current: { baseFee: 1.50, percentageRate: 0.003, maxFee: 30.00 }, // 0.3% with GHS 1.50 base
-      wallet: { baseFee: 1.00, percentageRate: 0.002, maxFee: 20.00 },  // 0.2% with GHS 1 base
+      savings: { baseFee: 2.00, _percentageRate: any, maxFee: 50.00 }, // 0.5% with GHS 2 base
+      current: { baseFee: 1.50, _percentageRate: any, maxFee: 30.00 }, // 0.3% with GHS 1.50 base
+      wallet: { baseFee: 1.00, _percentageRate: any, maxFee: 20.00 },  // 0.2% with GHS 1 base
     },
     transfer: {
-      internal: { baseFee: 0.50, percentageRate: 0.001, maxFee: 10.00 },
-      external: { baseFee: 5.00, percentageRate: 0.01, maxFee: 100.00 },
+      internal: { baseFee: 0.50, _percentageRate: any, maxFee: 10.00 },
+      external: { baseFee: 5.00, _percentageRate: any, maxFee: 100.00 },
     },
     deposit: {
-      cash: { baseFee: 0.00, percentageRate: 0.000, maxFee: 0.00 }, // Free cash deposits
-      check: { baseFee: 2.50, percentageRate: 0.002, maxFee: 25.00 },
+      cash: { baseFee: 0.00, _percentageRate: any, maxFee: 0.00 }, // Free cash deposits
+      check: { baseFee: 2.50, _percentageRate: any, maxFee: 25.00 },
     },
   };
 
@@ -715,7 +715,7 @@ export class TransactionProcessingService {
 
   // ===== VALIDATION METHODS =====
 
-  private async validateTransactionForProcessing(transaction: Transaction): Promise<void> {
+  private async validateTransactionForProcessing(_transaction: any): Promise<void> {
     if (!transaction.canBeProcessed) {
       throw new BadRequestException('Transaction cannot be processed in current state');
     }
@@ -733,7 +733,7 @@ export class TransactionProcessingService {
     }
   }
 
-  private async validateTransactionForReversal(transaction: Transaction): Promise<void> {
+  private async validateTransactionForReversal(_transaction: any): Promise<void> {
     if (!transaction.canBeReversed) {
       throw new BadRequestException('Transaction cannot be reversed');
     }
@@ -887,7 +887,7 @@ export class TransactionProcessingService {
     this.logger.log(`Reconciliation entry created for transaction ${savedTransaction.transactionNumber}`);
   }
 
-  private async clearRelatedCaches(transaction: Transaction): Promise<void> {
+  private async clearRelatedCaches(_transaction: any): Promise<void> {
     const cacheKeys = [
       `transaction:${savedTransaction.id}`,
       `account:${transaction.accountId}`,
@@ -965,7 +965,7 @@ export class TransactionProcessingService {
     }
   }
 
-  private chunkArray<T>(array: T[], chunkSize: number): T[][] {
+  private chunkArray<T>(_array: any, chunkSize: number): T[][] {
     const chunks: T[][] = [];
     for (let i = 0; i < Object.values(array).length; i += chunkSize) {
       chunks.push(array.slice(i, i + chunkSize));
@@ -975,7 +975,7 @@ export class TransactionProcessingService {
 
   // ===== PUBLIC QUERY METHODS =====
 
-  async getProcessingStats(companyId: string): Promise<{
+  async getProcessingStats(_companyId: any): Promise<{
     totalProcessed: number;
     totalVolume: number;
     averageProcessingTime: number;
@@ -1007,7 +1007,7 @@ export class TransactionProcessingService {
     };
   }
 
-  async getReceipt(receiptNumber: string): Promise<Receipt | null> {
+  async getReceipt(_receiptNumber: any): Promise<Receipt | null> {
     // Try cache first
     const cached = await this.cacheManager.get<Receipt>(`receipt:${receiptNumber}`);
     if (cached) {

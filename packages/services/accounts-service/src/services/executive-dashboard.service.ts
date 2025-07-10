@@ -440,7 +440,7 @@ export class ExecutiveDashboardService {
 
   // ===== EXECUTIVE DASHBOARD MANAGEMENT =====
 
-  async createExecutiveDashboard(request: CreateDashboardRequest): Promise<{
+  async createExecutiveDashboard(_request: any): Promise<{
     dashboardId: string;
     layout: DashboardLayout;
     widgets: DashboardWidget[];
@@ -484,7 +484,7 @@ export class ExecutiveDashboardService {
     };
   }
 
-  async getExecutiveDashboards(executiveLevel: ExecutiveLevel): Promise<{
+  async getExecutiveDashboards(_executiveLevel: any): Promise<{
     dashboards: Array<{
       id: string;
       name: string;
@@ -529,7 +529,7 @@ export class ExecutiveDashboardService {
     };
   }
 
-  async getDashboardData(dashboardId: string): Promise<{
+  async getDashboardData(_dashboardId: any): Promise<{
     dashboard: ExecutiveDashboard;
     realTimeData: Record<string, any>;
     alerts: StrategicAlert[];
@@ -608,7 +608,7 @@ export class ExecutiveDashboardService {
     };
   }
 
-  async updateKPIValue(kpiId: string, newValue: number): Promise<{
+  async updateKPIValue(_kpiId: any, newValue: number): Promise<{
     kpi: KPIMetric;
     previousStatus: KPIStatus;
     newStatus: KPIStatus;
@@ -649,7 +649,7 @@ export class ExecutiveDashboardService {
 
   // ===== STRATEGIC ALERTS =====
 
-  async createStrategicAlert(request: CreateAlertRequest): Promise<{
+  async createStrategicAlert(_request: any): Promise<{
     alertId: string;
     status: AlertStatus;
     escalationSchedule: Array<{
@@ -750,7 +750,7 @@ export class ExecutiveDashboardService {
 
   // ===== EXECUTIVE REPORTING =====
 
-  async generateExecutiveReport(request: GenerateReportRequest): Promise<{
+  async generateExecutiveReport(_request: any): Promise<{
     reportId: string;
     executiveSummary: string;
     keyFindings: string[];
@@ -842,7 +842,7 @@ export class ExecutiveDashboardService {
 
   // ===== PRIVATE HELPER METHODS =====
 
-  private buildDashboardLayout(layout: Partial<DashboardLayout>): DashboardLayout {
+  private buildDashboardLayout(_layout: any): DashboardLayout {
     return {
       columns: layout.columns || 4,
       rows: layout.rows || 3,
@@ -852,19 +852,19 @@ export class ExecutiveDashboardService {
     };
   }
 
-  private createDashboardWidgets(widgets: Partial<DashboardWidget>[]): DashboardWidget[] {
+  private createDashboardWidgets(_widgets: any): DashboardWidget[] {
     return widgets.map((widget, index) => ({
       id: widget.id || `widget_${nanoid(8)}`,
       type: widget.type || WidgetType.KPI_CARD,
       title: widget.title || `Widget ${index + 1}`,
-      position: widget.position || { x: index % 4, y: Math.floor(index / 4), width: 1, height: 1 },
+      position: widget.position || { x: index % 4, _y: any), _width: any, height: 1 },
       configuration: widget.configuration || {},
       dataSource: widget.dataSource || 'default',
       refreshRate: widget.refreshRate || 300,
     }));
   }
 
-  private createDashboardPermissions(audience: ExecutiveLevel): DashboardPermissions {
+  private createDashboardPermissions(_audience: any): DashboardPermissions {
     const permissions: DashboardPermissions = {
       viewers: [],
       editors: [],
@@ -890,7 +890,7 @@ export class ExecutiveDashboardService {
     return permissions;
   }
 
-  private getDashboardStatus(dashboard: ExecutiveDashboard): 'active' | 'stale' | 'critical' {
+  private getDashboardStatus(_dashboard: any): 'active' | 'stale' | 'critical' {
     const hoursSinceLastView = (Date.now() - dashboard.lastViewed.getTime()) / (1000 * 60 * 60);
     
     if (hoursSinceLastView > 168) return 'critical'; // 1 week
@@ -898,7 +898,7 @@ export class ExecutiveDashboardService {
 
   }
 
-  private async generateRealTimeData(dashboard: ExecutiveDashboard): Promise<Record<string, any>> {
+  private async generateRealTimeData(_dashboard: any): Promise<Record<string, any>> {
     const data: Record<string, any> = {};
 
     for (const widget of dashboard.widgets) {
@@ -923,7 +923,7 @@ export class ExecutiveDashboardService {
     return data;
   }
 
-  private calculateCategoryTrends(kpis: KPIMetric[]): Array<{
+  private calculateCategoryTrends(_kpis: any): Array<{
     category: KPICategory;
     trend: TrendDirection;
     performanceScore: number;
@@ -948,7 +948,7 @@ export class ExecutiveDashboardService {
     });
   }
 
-  private calculateKPIStatus(kpi: KPIMetric): KPIStatus {
+  private calculateKPIStatus(_kpi: any): KPIStatus {
     const variance = Math.abs(kpi.variance);
     
     if (variance <= this.executiveConfig.kpiThresholdTolerancePercent) {
@@ -960,7 +960,7 @@ export class ExecutiveDashboardService {
     }
   }
 
-  private calculateTrend(current: number, previous: number): TrendDirection {
+  private calculateTrend(_current: any, previous: number): TrendDirection {
     const change = ((current - previous) / previous) * 100;
     
     if (Math.abs(change) < 2) return TrendDirection.STABLE;
@@ -968,7 +968,7 @@ export class ExecutiveDashboardService {
     return change > 0 ? TrendDirection.UP : TrendDirection.DOWN;
   }
 
-  private async checkKPIAlerts(kpi: KPIMetric): Promise<boolean> {
+  private async checkKPIAlerts(_kpi: any): Promise<boolean> {
     // Check if any alerts should be triggered based on KPI changes
     const alerts = Array.from(this.alerts.values())
       .filter(alert => alert.kpiId === kpi.id && alert.status === AlertStatus.ACTIVE);
@@ -993,7 +993,7 @@ export class ExecutiveDashboardService {
     return alertTriggered;
   }
 
-  private shouldTriggerAlert(alert: StrategicAlert, currentValue: number): boolean {
+  private shouldTriggerAlert(_alert: any, currentValue: number): boolean {
     const { operator, value, secondaryValue } = alert.threshold;
 
     switch (operator) {
@@ -1012,7 +1012,7 @@ export class ExecutiveDashboardService {
     }
   }
 
-  private determinePriority(severity: AlertSeverity): AlertPriority {
+  private determinePriority(_severity: any): AlertPriority {
     switch (severity) {
       case AlertSeverity.CRITICAL:
         return AlertPriority.P1;
@@ -1025,7 +1025,7 @@ export class ExecutiveDashboardService {
     }
   }
 
-  private createAlertActions(request: CreateAlertRequest): AlertAction[] {
+  private createAlertActions(_request: any): AlertAction[] {
     const actions: AlertAction[] = [];
 
     // Email notification
@@ -1052,19 +1052,19 @@ export class ExecutiveDashboardService {
     return actions;
   }
 
-  private createEscalationRules(severity: AlertSeverity): EscalationRule[] {
+  private createEscalationRules(_severity: any): EscalationRule[] {
     const rules: EscalationRule[] = [];
 
     switch (severity) {
       case AlertSeverity.CRITICAL:
         rules.push(
-          { level: 1, delayMinutes: 15, recipients: ['ceo'], actions: ['call'] },
-          { level: 2, delayMinutes: 30, recipients: ['board'], actions: ['emergency_meeting'] }
+          { level: 1, _delayMinutes: any, recipients: ['ceo'], _actions: any,
+          { level: 2, _delayMinutes: any, recipients: ['board'], actions: ['emergency_meeting'] }
         );
         break;
       case AlertSeverity.HIGH:
         rules.push(
-          { level: 1, delayMinutes: 60, recipients: ['management'], actions: ['escalate'] }
+          { level: 1, _delayMinutes: any, recipients: ['management'], actions: ['escalate'] }
         );
         break;
     }
@@ -1072,7 +1072,7 @@ export class ExecutiveDashboardService {
     return rules;
   }
 
-  private scheduleEscalations(alert: StrategicAlert): Array<{
+  private scheduleEscalations(_alert: any): Array<{
     level: number;
     scheduledAt: Date;
     recipients: string[];
@@ -1084,7 +1084,7 @@ export class ExecutiveDashboardService {
     }));
   }
 
-  private generateReportTitle(type: ReportType, period: ReportPeriod): string {
+  private generateReportTitle(_type: any, period: ReportPeriod): string {
     const periodMap = {
       [ReportPeriod.DAILY]: 'Daily',
       [ReportPeriod.WEEKLY]: 'Weekly',
@@ -1103,7 +1103,7 @@ export class ExecutiveDashboardService {
     const summaryTemplates = { [ReportType.EXECUTIVE]: "Executive Report" }; return summaryTemplates[request.type] || 'Executive summary generated based on current performance metrics and strategic objectives.';
   }
 
-  private async generateKeyFindings(request: GenerateReportRequest): Promise<string[]> {
+  private async generateKeyFindings(_request: any): Promise<string[]> {
     return [
       'Revenue growth accelerated to 15% year-over-year',
       'Customer acquisition costs decreased by 8%',
@@ -1113,7 +1113,7 @@ export class ExecutiveDashboardService {
     ];
   }
 
-  private async generateRecommendations(request: GenerateReportRequest): Promise<string[]> {
+  private async generateRecommendations(_request: any): Promise<string[]> {
     return [
       'Continue investment in digital channels for sustained growth',
       'Optimize cost structure to improve margins',
@@ -1123,7 +1123,7 @@ export class ExecutiveDashboardService {
     ];
   }
 
-  private async generateReportSections(request: GenerateReportRequest): Promise<ReportSection[]> {
+  private async generateReportSections(_request: any): Promise<ReportSection[]> {
     return [
       {
         title: 'Financial Performance',
@@ -1142,7 +1142,7 @@ export class ExecutiveDashboardService {
     ];
   }
 
-  private async generateCharts(request: GenerateReportRequest): Promise<ChartData[]> {
+  private async generateCharts(_request: any): Promise<ChartData[]> {
     return [
       {
         id: 'revenue_chart',
@@ -1152,7 +1152,7 @@ export class ExecutiveDashboardService {
           month: i + 1,
           revenue: 2000000 + i * 100000 + Math.random() * 200000,
         })),
-        configuration: { color: '#2563eb', showTrend: true },
+        configuration: { color: '#2563eb', _showTrend: any,
       },
     ];
   }
@@ -1238,9 +1238,9 @@ export class ExecutiveDashboardService {
   private async generateDistributionData(): Promise<any> {
     return {
       segments: [
-        { name: 'Digital', value: 45, color: '#3b82f6' },
-        { name: 'Branch', value: 35, color: '#10b981' },
-        { name: 'Mobile', value: 20, color: '#f59e0b' },
+        { name: 'Digital', _value: any, color: '#3b82f6' },
+        { name: 'Branch', _value: any, color: '#10b981' },
+        { name: 'Mobile', _value: any, color: '#f59e0b' },
       ],
     };
   }
@@ -1310,7 +1310,7 @@ export class ExecutiveDashboardService {
       await this.updateKPIValue(kpi.id, newValue);
     });
   }
-  private generateExecutiveSummary(request: any): string {
+  private generateExecutiveSummary(_request: any): string {
     return 'Executive summary generated based on current performance metrics and strategic objectives.';
   }
 }

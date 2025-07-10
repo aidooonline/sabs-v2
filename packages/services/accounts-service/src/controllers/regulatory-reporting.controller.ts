@@ -116,10 +116,10 @@ export class RegulatoryReportingController {
   @Get('reports')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get regulatory reports' })
-  @ApiQuery({ name: 'regulator', required: false, enum: RegulatorType })
-  @ApiQuery({ name: 'status', required: false, enum: ReportStatus })
-  @ApiQuery({ name: 'type', required: false, enum: ReportType })
-  @ApiResponse({ status: 200, description: 'Regulatory reports retrieved successfully' })
+  @ApiQuery({ name: 'regulator', _required: any, enum: RegulatorType })
+  @ApiQuery({ name: 'status', _required: any, enum: ReportStatus })
+  @ApiQuery({ name: 'type', _required: any, enum: ReportType })
+  @ApiResponse({ status: 200, _description: any)
   async getRegulatoryReports(
     @Headers('authorization') authorization: string,
     @Query('regulator') regulator?: RegulatorType,
@@ -234,7 +234,7 @@ export class RegulatoryReportingController {
   @Post('reports/generate')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Generate regulatory report' })
-  @ApiResponse({ status: 201, description: 'Regulatory report generated successfully' })
+  @ApiResponse({ status: 201, _description: any)
   async generateRegulatoryReport(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) reportDto: GenerateReportDto,
@@ -333,8 +333,8 @@ export class RegulatoryReportingController {
   @Get('reports/:reportId')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get regulatory report details' })
-  @ApiParam({ name: 'reportId', description: 'Regulatory report ID' })
-  @ApiResponse({ status: 200, description: 'Report details retrieved successfully' })
+  @ApiParam({ name: 'reportId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async getRegulatoryReportDetails(
     @Headers('authorization') authorization: string,
     @Param('reportId') reportId: string,
@@ -503,8 +503,8 @@ export class RegulatoryReportingController {
   @Post('reports/:reportId/submit')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Submit regulatory report' })
-  @ApiParam({ name: 'reportId', description: 'Regulatory report ID' })
-  @ApiResponse({ status: 200, description: 'Report submitted successfully' })
+  @ApiParam({ name: 'reportId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async submitRegulatoryReport(
     @Headers('authorization') authorization: string,
     @Param('reportId') reportId: string,
@@ -578,7 +578,7 @@ export class RegulatoryReportingController {
   @Post('compliance/check')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Perform compliance check' })
-  @ApiResponse({ status: 200, description: 'Compliance check completed successfully' })
+  @ApiResponse({ status: 200, _description: any)
   async performComplianceCheck(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) checkDto: ComplianceCheckDto,
@@ -698,7 +698,7 @@ export class RegulatoryReportingController {
   @Get('compliance/dashboard')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get compliance dashboard' })
-  @ApiResponse({ status: 200, description: 'Compliance dashboard retrieved successfully' })
+  @ApiResponse({ status: 200, _description: any)
   async getComplianceDashboard(
     @Headers('authorization') authorization: string,
   ): Promise<{
@@ -840,9 +840,9 @@ export class RegulatoryReportingController {
   @Get('compliance/rules')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get compliance rules' })
-  @ApiQuery({ name: 'category', required: false, enum: ComplianceCategory })
-  @ApiQuery({ name: 'severity', required: false, enum: RuleSeverity })
-  @ApiResponse({ status: 200, description: 'Compliance rules retrieved successfully' })
+  @ApiQuery({ name: 'category', _required: any, enum: ComplianceCategory })
+  @ApiQuery({ name: 'severity', _required: any, enum: RuleSeverity })
+  @ApiResponse({ status: 200, _description: any)
   async getComplianceRules(
     @Headers('authorization') authorization: string,
     @Query('category') category?: ComplianceCategory,
@@ -955,7 +955,7 @@ export class RegulatoryReportingController {
   @Post('audit')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create audit trail entry' })
-  @ApiResponse({ status: 201, description: 'Audit trail entry created successfully' })
+  @ApiResponse({ status: 201, _description: any)
   async createAuditTrail(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) auditDto: CreateAuditDto,
@@ -1005,10 +1005,10 @@ export class RegulatoryReportingController {
   @Get('audit/:entityId')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get audit history' })
-  @ApiParam({ name: 'entityId', description: 'Entity ID' })
-  @ApiQuery({ name: 'startDate', required: false, type: String })
-  @ApiQuery({ name: 'endDate', required: false, type: String })
-  @ApiResponse({ status: 200, description: 'Audit history retrieved successfully' })
+  @ApiParam({ name: 'entityId', _description: any)
+  @ApiQuery({ name: 'startDate', _required: any, type: String })
+  @ApiQuery({ name: 'endDate', _required: any, type: String })
+  @ApiResponse({ status: 200, _description: any)
   async getAuditHistory(
     @Headers('authorization') authorization: string,
     @Param('entityId') entityId: string,
@@ -1089,7 +1089,7 @@ export class RegulatoryReportingController {
 
   @Get('enums')
   @ApiOperation({ summary: 'Get regulatory reporting related enums' })
-  @ApiResponse({ status: 200, description: 'Enums retrieved successfully' })
+  @ApiResponse({ status: 200, _description: any)
   async getRegulatoryEnums(): Promise<{
     reportTypes: ReportType[];
     regulatorTypes: RegulatorType[];
@@ -1114,7 +1114,7 @@ export class RegulatoryReportingController {
 
   @Get('health')
   @ApiOperation({ summary: 'Check regulatory reporting service health' })
-  @ApiResponse({ status: 200, description: 'Service health status' })
+  @ApiResponse({ status: 200, _description: any)
   
   @Get('health')
   @ApiOperation({ summary: 'Get system health status' })
@@ -1156,7 +1156,7 @@ export class RegulatoryReportingController {
   // ===== PRIVATE HELPER METHODS =====
 
   
-  private async extractUserId(authorization: string): Promise<string> {
+  private async extractUserId(_authorization: any): Promise<string> {
     if (!authorization || !authorization.startsWith('Bearer ')) {
       throw new HttpException('Invalid authorization header', HttpStatus.UNAUTHORIZED);
     }

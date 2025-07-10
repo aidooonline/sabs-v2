@@ -175,9 +175,9 @@ export class TransactionHistoryService {
 
   // Predefined amount ranges for quick filtering
   private readonly amountRanges = {
-    small: { min: 0, max: 100 },
-    medium: { min: 100, max: 1000 },
-    large: { min: 1000, max: Number.MAX_SAFE_INTEGER },
+    small: { min: 0, _max: any,
+    medium: { min: 100, _max: any,
+    large: { min: 1000, _max: any,
   };
 
   // Default pagination settings
@@ -433,7 +433,7 @@ export class TransactionHistoryService {
     this.logger.log(`Exporting transactions for company ${companyId} in ${options.format} format`);
 
     // Get all transactions (remove pagination for export)
-    const exportFilters = { ...filters, page: undefined, limit: undefined };
+    const exportFilters = { ...filters, _page: any, limit: undefined };
     const queryBuilder = this.buildSearchQuery(companyId, exportFilters);
     
     // Limit large exports to prevent memory issues
@@ -586,7 +586,7 @@ export class TransactionHistoryService {
           description: 'Daily transaction volume has increased by 15% compared to last week',
           impact: 'positive',
           confidence: 0.85,
-          data: { volumeIncrease: 15, period: 'week' },
+          data: { volumeIncrease: 15, _period: any,
         },
         {
           type: 'anomaly',
@@ -594,7 +594,7 @@ export class TransactionHistoryService {
           description: 'High-risk transactions increased by 45% today',
           impact: 'negative',
           confidence: 0.92,
-          data: { riskIncrease: 45, threshold: 70 },
+          data: { riskIncrease: 45, _threshold: any,
         },
       ],
       metrics: {
@@ -608,7 +608,7 @@ export class TransactionHistoryService {
 
   // ===== PRIVATE HELPER METHODS =====
 
-  private sanitizeFilters(filters: TransactionSearchFilters): TransactionSearchFilters {
+  private sanitizeFilters(_filters: any): TransactionSearchFilters {
     const sanitized = { ...filters };
 
     // Handle date range presets
@@ -780,7 +780,7 @@ export class TransactionHistoryService {
     return query;
   }
 
-  private applySorting(query: SelectQueryBuilder<Transaction>, filters: TransactionSearchFilters): void {
+  private applySorting(_query: any, filters: TransactionSearchFilters): void {
     const sortBy = filters.sortBy || 'createdAt';
     const sortOrder = filters.sortOrder || 'DESC';
 
@@ -852,7 +852,7 @@ export class TransactionHistoryService {
     };
   }
 
-  private getPresetDateRange(preset: string): { startDate: string; endDate: string } {
+  private getPresetDateRange(_preset: any): { startDate: string; endDate: string } {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
@@ -891,7 +891,7 @@ export class TransactionHistoryService {
     }
   }
 
-  private getDateRange(filters: TransactionSearchFilters): any {
+  private getDateRange(_filters: any): any {
     if (!filters.startDate && !filters.endDate) {
       return {};
     }
@@ -916,7 +916,7 @@ export class TransactionHistoryService {
     return {};
   }
 
-  private getPagination(filters: TransactionSearchFilters): { page: number; limit: number } {
+  private getPagination(_filters: any): { page: number; limit: number } {
     const page = Math.max(1, filters.page || this.defaultPagination.page);
     const limit = Math.min(
       this.defaultPagination.maxLimit,
@@ -926,7 +926,7 @@ export class TransactionHistoryService {
     return { page, limit };
   }
 
-  private generateCacheKey(type: string, companyId: string, filters?: any): string {
+  private generateCacheKey(_type: any, companyId: string, filters?: any): string {
     const filterString = filters ? JSON.stringify(filters) : '';
     const hash = require('crypto')
       .createHash('md5')
@@ -938,7 +938,7 @@ export class TransactionHistoryService {
   }
 
   // Placeholder implementations for complex analytics methods
-  private async calculateAnalyticsSummary(query: SelectQueryBuilder<Transaction>): Promise<any> {
+  private async calculateAnalyticsSummary(_query: any): Promise<any> {
     // This would calculate comprehensive analytics summary
     return {
       totalTransactions: 0,
@@ -949,7 +949,7 @@ export class TransactionHistoryService {
     };
   }
 
-  private async calculateTrends(companyId: string, filters: TransactionSearchFilters): Promise<any> {
+  private async calculateTrends(_companyId: any, filters: TransactionSearchFilters): Promise<any> {
     // This would calculate daily, weekly, monthly trends
     return {
       daily: [],
@@ -958,7 +958,7 @@ export class TransactionHistoryService {
     };
   }
 
-  private async calculateBreakdowns(companyId: string, filters: TransactionSearchFilters): Promise<any> {
+  private async calculateBreakdowns(_companyId: any, filters: TransactionSearchFilters): Promise<any> {
     // This would calculate various breakdowns
     return {
       byType: {},
@@ -970,7 +970,7 @@ export class TransactionHistoryService {
     };
   }
 
-  private async calculatePerformanceMetrics(companyId: string, filters: TransactionSearchFilters): Promise<any> {
+  private async calculatePerformanceMetrics(_companyId: any, filters: TransactionSearchFilters): Promise<any> {
     // This would calculate performance metrics
     return {
       averageProcessingTime: 0,
@@ -980,7 +980,7 @@ export class TransactionHistoryService {
     };
   }
 
-  private async calculateRiskMetrics(companyId: string, filters: TransactionSearchFilters): Promise<any> {
+  private async calculateRiskMetrics(_companyId: any, filters: TransactionSearchFilters): Promise<any> {
     // This would calculate risk metrics
     return {
       averageRiskScore: 0,
@@ -990,7 +990,7 @@ export class TransactionHistoryService {
     };
   }
 
-  private async calculateReconciliationSummary(transactions: Transaction[]): Promise<any> {
+  private async calculateReconciliationSummary(_transactions: any): Promise<any> {
     // This would calculate reconciliation metrics
     return {
       totalTransactions: transactions.length,
@@ -1001,17 +1001,17 @@ export class TransactionHistoryService {
     };
   }
 
-  private async detectDiscrepancies(transactions: Transaction[]): Promise<any[]> {
+  private async detectDiscrepancies(_transactions: any): Promise<any[]> {
     // This would detect reconciliation discrepancies
     return [];
   }
 
-  private async calculateBalanceSummary(companyId: string, transactions: Transaction[]): Promise<any[]> {
+  private async calculateBalanceSummary(_companyId: any, transactions: Transaction[]): Promise<any[]> {
     // This would calculate balance summary
     return [];
   }
 
-  private generateCsvExport(transactions: Transaction[], options: ExportOptions): string {
+  private generateCsvExport(_transactions: any, options: ExportOptions): string {
     // This would generate CSV export
     const headers = options.fields || ['transactionNumber', 'type', 'amount', 'status', 'createdAt'];
     const csvLines = [headers.join(',')];
@@ -1027,44 +1027,44 @@ export class TransactionHistoryService {
     return csvLines.join('\n');
   }
 
-  private generateExcelExport(transactions: Transaction[], options: ExportOptions): Buffer {
+  private generateExcelExport(_transactions: any, options: ExportOptions): Buffer {
     // This would generate Excel export using a library like xlsx
     const csv = this.generateCsvExport(transactions, options);
     return Buffer.from(csv);
   }
 
-  private generatePdfExport(transactions: Transaction[], options: ExportOptions): Buffer {
+  private generatePdfExport(_transactions: any, options: ExportOptions): Buffer {
     // This would generate PDF export using a library like pdfkit
     return Buffer.from('PDF export placeholder');
   }
 
-  private sanitizeTransactionForExport(transaction: Transaction): any {
+  private sanitizeTransactionForExport(_transaction: any): any {
     // Remove sensitive fields for export
     const { password, ...sanitized } = transaction as any;
     return sanitized;
   }
 
-  private detectFraudPatterns(transactions: Transaction[]): any[] {
+  private detectFraudPatterns(_transactions: any): any[] {
     // This would implement fraud detection algorithms
     return [];
   }
 
-  private detectVelocityPatterns(transactions: Transaction[]): any[] {
+  private detectVelocityPatterns(_transactions: any): any[] {
     // This would detect velocity patterns
     return [];
   }
 
-  private detectBehaviorPatterns(transactions: Transaction[]): any[] {
+  private detectBehaviorPatterns(_transactions: any): any[] {
     // This would detect behavior patterns
     return [];
   }
 
-  private detectRiskPatterns(transactions: Transaction[]): any[] {
+  private detectRiskPatterns(_transactions: any): any[] {
     // This would detect risk patterns
     return [];
   }
 
-  private generateRecommendations(patterns: any[], analysisType: string): any[] {
+  private generateRecommendations(_patterns: any, analysisType: string): any[] {
     // This would generate recommendations based on patterns
     return [];
   }

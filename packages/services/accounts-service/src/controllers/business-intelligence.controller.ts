@@ -157,10 +157,10 @@ export class BusinessIntelligenceController {
   @Get('models')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get predictive models' })
-  @ApiQuery({ name: 'type', required: false, enum: ModelType })
-  @ApiQuery({ name: 'category', required: false, enum: ModelCategory })
-  @ApiQuery({ name: 'status', required: false, enum: ModelStatus })
-  @ApiResponse({ status: 200, description: 'Models retrieved successfully' })
+  @ApiQuery({ name: 'type', _required: any, enum: ModelType })
+  @ApiQuery({ name: 'category', _required: any, enum: ModelCategory })
+  @ApiQuery({ name: 'status', _required: any, enum: ModelStatus })
+  @ApiResponse({ status: 200, _description: any)
   async getPredictiveModels(
     @Headers('authorization') authorization: string,
     @Query('type') type?: ModelType,
@@ -280,8 +280,8 @@ export class BusinessIntelligenceController {
   @Post('models')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create new predictive model' })
-  @ApiResponse({ status: 201, description: 'Model created successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid model configuration' })
+  @ApiResponse({ status: 201, _description: any)
+  @ApiResponse({ status: 400, _description: any)
   async createPredictiveModel(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) modelDto: CreateModelDto,
@@ -320,8 +320,8 @@ export class BusinessIntelligenceController {
   @Get('models/:modelId')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get model details and performance' })
-  @ApiParam({ name: 'modelId', description: 'Model ID' })
-  @ApiResponse({ status: 200, description: 'Model details retrieved' })
+  @ApiParam({ name: 'modelId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async getModelDetails(
     @Headers('authorization') authorization: string,
     @Param('modelId') modelId: string,
@@ -391,10 +391,10 @@ export class BusinessIntelligenceController {
         confusionMatrix: [[850, 45], [32, 573]],
       },
       featureImportance: [
-        { feature: 'credit_score', importance: 0.35, description: 'Customer credit score' },
-        { feature: 'debt_to_income', importance: 0.28, description: 'Debt to income ratio' },
-        { feature: 'payment_history', importance: 0.22, description: 'Historical payment behavior' },
-        { feature: 'account_age', importance: 0.15, description: 'Age of customer relationship' },
+        { feature: 'credit_score', _importance: any, description: 'Customer credit score' },
+        { feature: 'debt_to_income', _importance: any, description: 'Debt to income ratio' },
+        { feature: 'payment_history', _importance: any, description: 'Historical payment behavior' },
+        { feature: 'account_age', _importance: any, description: 'Age of customer relationship' },
       ],
     };
 
@@ -424,7 +424,7 @@ export class BusinessIntelligenceController {
   @Post('forecasts')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Generate business forecast' })
-  @ApiResponse({ status: 201, description: 'Forecast generated successfully' })
+  @ApiResponse({ status: 201, _description: any)
   async generateForecast(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) forecastDto: ForecastDto,
@@ -462,9 +462,9 @@ export class BusinessIntelligenceController {
   @Get('forecasts')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get recent forecasts' })
-  @ApiQuery({ name: 'metric', required: false, type: String })
-  @ApiQuery({ name: 'timeHorizon', required: false, enum: TimeHorizon })
-  @ApiResponse({ status: 200, description: 'Forecasts retrieved successfully' })
+  @ApiQuery({ name: 'metric', _required: any, type: String })
+  @ApiQuery({ name: 'timeHorizon', _required: any, enum: TimeHorizon })
+  @ApiResponse({ status: 200, _description: any)
   async getForecasts(
     @Headers('authorization') authorization: string,
     @Query('metric') metric?: string,
@@ -545,7 +545,7 @@ export class BusinessIntelligenceController {
   @Post('segmentation')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Perform customer segmentation analysis' })
-  @ApiResponse({ status: 201, description: 'Segmentation completed successfully' })
+  @ApiResponse({ status: 201, _description: any)
   async performCustomerSegmentation(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) segmentationDto: SegmentationDto,
@@ -625,7 +625,7 @@ export class BusinessIntelligenceController {
   @Get('segments')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get customer segments' })
-  @ApiResponse({ status: 200, description: 'Customer segments retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getCustomerSegments(
     @Headers('authorization') authorization: string,
   ): Promise<{
@@ -693,8 +693,8 @@ export class BusinessIntelligenceController {
   @Get('segments/:segmentId/insights')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get detailed segment insights' })
-  @ApiParam({ name: 'segmentId', description: 'Segment ID' })
-  @ApiResponse({ status: 200, description: 'Segment insights retrieved' })
+  @ApiParam({ name: 'segmentId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async getSegmentInsights(
     @Headers('authorization') authorization: string,
     @Param('segmentId') segmentId: string,
@@ -769,11 +769,11 @@ export class BusinessIntelligenceController {
   @Get('anomalies')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get detected anomalies' })
-  @ApiQuery({ name: 'severity', required: false, enum: AnomalySeverity })
-  @ApiQuery({ name: 'category', required: false, enum: AnomalyCategory })
-  @ApiQuery({ name: 'status', required: false, enum: AnomalyStatus })
-  @ApiQuery({ name: 'days', required: false, type: Number })
-  @ApiResponse({ status: 200, description: 'Anomalies retrieved successfully' })
+  @ApiQuery({ name: 'severity', _required: any, enum: AnomalySeverity })
+  @ApiQuery({ name: 'category', _required: any, enum: AnomalyCategory })
+  @ApiQuery({ name: 'status', _required: any, enum: AnomalyStatus })
+  @ApiQuery({ name: 'days', _required: any, type: Number })
+  @ApiResponse({ status: 200, _description: any)
   async getAnomalies(
     @Headers('authorization') authorization: string,
     @Query('severity') severity?: AnomalySeverity,
@@ -852,8 +852,8 @@ export class BusinessIntelligenceController {
   @Post('anomalies/:anomalyId/investigate')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Investigate specific anomaly' })
-  @ApiParam({ name: 'anomalyId', description: 'Anomaly ID' })
-  @ApiResponse({ status: 200, description: 'Anomaly investigation completed' })
+  @ApiParam({ name: 'anomalyId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async investigateAnomaly(
     @Headers('authorization') authorization: string,
     @Param('anomalyId') anomalyId: string,
@@ -956,7 +956,7 @@ export class BusinessIntelligenceController {
   @Post('risk-assessment')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Calculate customer risk score' })
-  @ApiResponse({ status: 200, description: 'Risk assessment completed' })
+  @ApiResponse({ status: 200, _description: any)
   async calculateRiskScore(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) riskDto: RiskAssessmentDto,
@@ -1023,7 +1023,7 @@ export class BusinessIntelligenceController {
   @Get('risk-models')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get available risk models' })
-  @ApiResponse({ status: 200, description: 'Risk models retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getRiskModels(
     @Headers('authorization') authorization: string,
   ): Promise<{
@@ -1089,7 +1089,7 @@ export class BusinessIntelligenceController {
     return {
       models: {
         
-        performance: { accuracy: 0, precision: 0, recall: 0, f1Score: 0 },
+        performance: { accuracy: 0, _precision: any, recall: 0, _f1Score: any,
       confidence: 0
     },
       performance,
@@ -1101,7 +1101,7 @@ export class BusinessIntelligenceController {
   @Get('market-intelligence')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get market intelligence insights' })
-  @ApiResponse({ status: 200, description: 'Market intelligence retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getMarketIntelligence(
     @Headers('authorization') authorization: string,
   ): Promise<{
@@ -1186,7 +1186,7 @@ export class BusinessIntelligenceController {
 
   @Get('enums')
   @ApiOperation({ summary: 'Get business intelligence related enums' })
-  @ApiResponse({ status: 200, description: 'Enums retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getBIEnums(): Promise<{
     modelTypes: ModelType[];
     modelCategories: ModelCategory[];
@@ -1215,7 +1215,7 @@ export class BusinessIntelligenceController {
 
   @Get('health')
   @ApiOperation({ summary: 'Check business intelligence service health' })
-  @ApiResponse({ status: 200, description: 'Service health status' })
+  @ApiResponse({ status: 200, _description: any)
   
   @Get('health')
   @ApiOperation({ summary: 'Get system health status' })
@@ -1257,7 +1257,7 @@ export class BusinessIntelligenceController {
   // ===== PRIVATE HELPER METHODS =====
 
   
-  private async extractUserId(authorization: string): Promise<string> {
+  private async extractUserId(_authorization: any): Promise<string> {
     if (!authorization || !authorization.startsWith('Bearer ')) {
       throw new HttpException('Invalid authorization header', HttpStatus.UNAUTHORIZED);
     }

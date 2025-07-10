@@ -8,7 +8,7 @@ import { TenantGuard } from '../../../identity-service/src/auth/guards/tenant.gu
 import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
 // Mock @Roles decorator to fix signature issues
 function Roles(...roles: any[]) {
-  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+  return function (_target: any, propertyName: string, _descriptor: any) {
     // Mock implementation
     return descriptor;
   };
@@ -83,10 +83,10 @@ export class ApprovalController {
     summary: 'Create approval workflow',
     description: 'Create a new approval workflow for a transaction requiring approval'
   })
-  @ApiParam({ name: 'transactionId', description: 'Transaction ID requiring approval' })
-  @ApiResponse({ status: 201, description: 'Workflow created successfully', type: ApprovalWorkflowResponseDto })
-  @ApiResponse({ status: 400, description: 'Invalid request' })
-  @ApiResponse({ status: 404, description: 'Transaction not found' })
+  @ApiParam({ name: 'transactionId', _description: any)
+  @ApiResponse({ status: 201, _description: any, type: ApprovalWorkflowResponseDto })
+  @ApiResponse({ status: 400, _description: any)
+  @ApiResponse({ status: 404, _description: any)
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async createApprovalWorkflow(
     @Param('transactionId', ParseUUIDPipe) transactionId: string,
@@ -106,9 +106,9 @@ export class ApprovalController {
     summary: 'Get approval workflow',
     description: 'Retrieve detailed information about a specific approval workflow'
   })
-  @ApiParam({ name: 'workflowId', description: 'Workflow ID' })
-  @ApiResponse({ status: 200, description: 'Workflow details retrieved', type: ApprovalWorkflowResponseDto })
-  @ApiResponse({ status: 404, description: 'Workflow not found' })
+  @ApiParam({ name: 'workflowId', _description: any)
+  @ApiResponse({ status: 200, _description: any, type: ApprovalWorkflowResponseDto })
+  @ApiResponse({ status: 404, _description: any)
   @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
@@ -123,7 +123,7 @@ export class ApprovalController {
     summary: 'List approval workflows',
     description: 'Retrieve paginated list of approval workflows with filtering and sorting options'
   })
-  @ApiResponse({ status: 200, description: 'Workflows retrieved successfully', type: ApprovalWorkflowListResponseDto })
+  @ApiResponse({ status: 200, _description: any, type: ApprovalWorkflowListResponseDto })
   @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getWorkflows(
     @Query() query: ApprovalWorkflowQueryDto,
@@ -146,11 +146,11 @@ export class ApprovalController {
     summary: 'Assign workflow',
     description: 'Assign an approval workflow to a specific user or queue'
   })
-  @ApiParam({ name: 'workflowId', description: 'Workflow ID' })
+  @ApiParam({ name: 'workflowId', _description: any)
   @ApiBody({ type: AssignWorkflowDto })
-  @ApiResponse({ status: 200, description: 'Workflow assigned successfully', type: ApprovalWorkflowResponseDto })
-  @ApiResponse({ status: 400, description: 'Invalid assignment request' })
-  @ApiResponse({ status: 403, description: 'Insufficient permissions' })
+  @ApiResponse({ status: 200, _description: any, type: ApprovalWorkflowResponseDto })
+  @ApiResponse({ status: 400, _description: any)
+  @ApiResponse({ status: 403, _description: any)
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async assignWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
@@ -172,10 +172,10 @@ export class ApprovalController {
     summary: 'Reassign workflow',
     description: 'Reassign an approval workflow to a different user'
   })
-  @ApiParam({ name: 'workflowId', description: 'Workflow ID' })
+  @ApiParam({ name: 'workflowId', _description: any)
   @ApiBody({ type: ReassignWorkflowDto })
-  @ApiResponse({ status: 200, description: 'Workflow reassigned successfully', type: ApprovalWorkflowResponseDto })
-  @ApiResponse({ status: 400, description: 'Invalid reassignment request' })
+  @ApiResponse({ status: 200, _description: any, type: ApprovalWorkflowResponseDto })
+  @ApiResponse({ status: 400, _description: any)
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async reassignWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
@@ -197,10 +197,10 @@ export class ApprovalController {
     summary: 'Start workflow review',
     description: 'Start reviewing an assigned approval workflow'
   })
-  @ApiParam({ name: 'workflowId', description: 'Workflow ID' })
+  @ApiParam({ name: 'workflowId', _description: any)
   @ApiBody({ type: StartReviewDto })
-  @ApiResponse({ status: 200, description: 'Review started successfully', type: ApprovalWorkflowResponseDto })
-  @ApiResponse({ status: 400, description: 'Review cannot be started' })
+  @ApiResponse({ status: 200, _description: any, type: ApprovalWorkflowResponseDto })
+  @ApiResponse({ status: 400, _description: any)
   @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async startReview(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
@@ -224,11 +224,11 @@ export class ApprovalController {
     summary: 'Approve workflow',
     description: 'Approve an approval workflow after review'
   })
-  @ApiParam({ name: 'workflowId', description: 'Workflow ID' })
+  @ApiParam({ name: 'workflowId', _description: any)
   @ApiBody({ type: ApprovalDecisionDto })
-  @ApiResponse({ status: 200, description: 'Workflow approved successfully', type: ApprovalWorkflowResponseDto })
-  @ApiResponse({ status: 400, description: 'Cannot approve workflow' })
-  @ApiResponse({ status: 403, description: 'Insufficient approval authority' })
+  @ApiResponse({ status: 200, _description: any, type: ApprovalWorkflowResponseDto })
+  @ApiResponse({ status: 400, _description: any)
+  @ApiResponse({ status: 403, _description: any)
   @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async approveWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
@@ -239,7 +239,7 @@ export class ApprovalController {
 
     // Add audit information
     const clientIp = (req as any).ip || req.connection.remoteAddress || 'unknown';
-    // In a real implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: "Q1-Q4 2024" }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } }, you would add this to the audit trail
+    // In a real implementation: { roadmap: { phases: [], _dependencies: any, milestones: [] }, _resourcePlan: any, budget: 0, _timeline: any, riskAssessment: { risks: [], _mitigation: any, probability: 0, _impact: any, you would add this to the audit trail
 
     return await this.approvalService.approveWorkflow(
       user.companyId,
@@ -254,11 +254,11 @@ export class ApprovalController {
     summary: 'Reject workflow',
     description: 'Reject an approval workflow with reason'
   })
-  @ApiParam({ name: 'workflowId', description: 'Workflow ID' })
+  @ApiParam({ name: 'workflowId', _description: any)
   @ApiBody({ type: RejectionDecisionDto })
-  @ApiResponse({ status: 200, description: 'Workflow rejected successfully', type: ApprovalWorkflowResponseDto })
-  @ApiResponse({ status: 400, description: 'Cannot reject workflow' })
-  @ApiResponse({ status: 403, description: 'Insufficient rejection authority' })
+  @ApiResponse({ status: 200, _description: any, type: ApprovalWorkflowResponseDto })
+  @ApiResponse({ status: 400, _description: any)
+  @ApiResponse({ status: 403, _description: any)
   @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async rejectWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
@@ -269,7 +269,7 @@ export class ApprovalController {
 
     // Add audit information
     const clientIp = (req as any).ip || req.connection.remoteAddress || 'unknown';
-    // In a real implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: "Q1-Q4 2024" }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } }, you would add this to the audit trail
+    // In a real implementation: { roadmap: { phases: [], _dependencies: any, milestones: [] }, _resourcePlan: any, budget: 0, _timeline: any, riskAssessment: { risks: [], _mitigation: any, probability: 0, _impact: any, you would add this to the audit trail
 
     return await this.approvalService.rejectWorkflow(
       user.companyId,
@@ -284,10 +284,10 @@ export class ApprovalController {
     summary: 'Escalate workflow',
     description: 'Escalate an approval workflow to higher authority'
   })
-  @ApiParam({ name: 'workflowId', description: 'Workflow ID' })
+  @ApiParam({ name: 'workflowId', _description: any)
   @ApiBody({ type: EscalationDto })
-  @ApiResponse({ status: 200, description: 'Workflow escalated successfully', type: ApprovalWorkflowResponseDto })
-  @ApiResponse({ status: 400, description: 'Cannot escalate workflow' })
+  @ApiResponse({ status: 200, _description: any, type: ApprovalWorkflowResponseDto })
+  @ApiResponse({ status: 400, _description: any)
   @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async escalateWorkflow(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
@@ -312,8 +312,8 @@ export class ApprovalController {
     description: 'Approve multiple workflows in a single operation'
   })
   @ApiBody({ type: BulkApprovalDto })
-  @ApiResponse({ status: 200, description: 'Bulk approval completed', type: BulkActionResultDto })
-  @ApiResponse({ status: 400, description: 'Invalid bulk approval request' })
+  @ApiResponse({ status: 200, _description: any, type: BulkActionResultDto })
+  @ApiResponse({ status: 400, _description: any)
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async bulkApproveWorkflows(
     @Body() bulkDto: BulkApprovalDto,
@@ -334,8 +334,8 @@ export class ApprovalController {
     description: 'Reject multiple workflows in a single operation'
   })
   @ApiBody({ type: BulkRejectionDto })
-  @ApiResponse({ status: 200, description: 'Bulk rejection completed', type: BulkActionResultDto })
-  @ApiResponse({ status: 400, description: 'Invalid bulk rejection request' })
+  @ApiResponse({ status: 200, _description: any, type: BulkActionResultDto })
+  @ApiResponse({ status: 400, _description: any)
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async bulkRejectWorkflows(
     @Body() bulkDto: BulkRejectionDto,
@@ -357,10 +357,10 @@ export class ApprovalController {
     summary: 'Add comment to workflow',
     description: 'Add a comment or note to an approval workflow'
   })
-  @ApiParam({ name: 'workflowId', description: 'Workflow ID' })
+  @ApiParam({ name: 'workflowId', _description: any)
   @ApiBody({ type: AddCommentDto })
-  @ApiResponse({ status: 201, description: 'Comment added successfully' })
-  @ApiResponse({ status: 404, description: 'Workflow not found' })
+  @ApiResponse({ status: 201, _description: any)
+  @ApiResponse({ status: 404, _description: any)
   @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async addComment(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
@@ -384,10 +384,10 @@ export class ApprovalController {
     summary: 'Update workflow priority',
     description: 'Update the priority level of an approval workflow'
   })
-  @ApiParam({ name: 'workflowId', description: 'Workflow ID' })
+  @ApiParam({ name: 'workflowId', _description: any)
   @ApiBody({ type: UpdatePriorityDto })
-  @ApiResponse({ status: 200, description: 'Priority updated successfully', type: ApprovalWorkflowResponseDto })
-  @ApiResponse({ status: 404, description: 'Workflow not found' })
+  @ApiResponse({ status: 200, _description: any, type: ApprovalWorkflowResponseDto })
+  @ApiResponse({ status: 404, _description: any)
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async updatePriority(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
@@ -409,10 +409,10 @@ export class ApprovalController {
     summary: 'Extend workflow SLA',
     description: 'Extend the SLA deadline for an approval workflow'
   })
-  @ApiParam({ name: 'workflowId', description: 'Workflow ID' })
+  @ApiParam({ name: 'workflowId', _description: any)
   @ApiBody({ type: ExtendSLADto })
-  @ApiResponse({ status: 200, description: 'SLA extended successfully', type: ApprovalWorkflowResponseDto })
-  @ApiResponse({ status: 404, description: 'Workflow not found' })
+  @ApiResponse({ status: 200, _description: any, type: ApprovalWorkflowResponseDto })
+  @ApiResponse({ status: 404, _description: any)
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async extendSLA(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
@@ -436,7 +436,7 @@ export class ApprovalController {
     summary: 'Get approval dashboard statistics',
     description: 'Retrieve comprehensive approval workflow statistics and analytics'
   })
-  @ApiResponse({ status: 200, description: 'Dashboard statistics retrieved', type: ApprovalDashboardStatsDto })
+  @ApiResponse({ status: 200, _description: any, type: ApprovalDashboardStatsDto })
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getDashboardStats(
     @CurrentUser() user: JwtPayload,
@@ -451,7 +451,7 @@ export class ApprovalController {
     summary: 'Get my approval queue',
     description: 'Retrieve workflows assigned to current user or their role queue'
   })
-  @ApiResponse({ status: 200, description: 'Personal queue retrieved', type: ApprovalWorkflowListResponseDto })
+  @ApiResponse({ status: 200, _description: any, type: ApprovalWorkflowListResponseDto })
   @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getMyQueue(
     @Query() query: ApprovalWorkflowQueryDto,
@@ -472,7 +472,7 @@ export class ApprovalController {
     summary: 'Get overdue workflows',
     description: 'Retrieve all workflows that have exceeded their SLA deadline'
   })
-  @ApiResponse({ status: 200, description: 'Overdue workflows retrieved', type: ApprovalWorkflowListResponseDto })
+  @ApiResponse({ status: 200, _description: any, type: ApprovalWorkflowListResponseDto })
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getOverdueWorkflows(
     @Query() query: ApprovalWorkflowQueryDto,
@@ -493,7 +493,7 @@ export class ApprovalController {
     summary: 'Get escalated workflows',
     description: 'Retrieve all workflows that have been escalated'
   })
-  @ApiResponse({ status: 200, description: 'Escalated workflows retrieved', type: ApprovalWorkflowListResponseDto })
+  @ApiResponse({ status: 200, _description: any, type: ApprovalWorkflowListResponseDto })
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getEscalatedWorkflows(
     @Query() query: ApprovalWorkflowQueryDto,
@@ -514,7 +514,7 @@ export class ApprovalController {
     summary: 'Get high priority workflows',
     description: 'Retrieve all high priority workflows requiring immediate attention'
   })
-  @ApiResponse({ status: 200, description: 'High priority workflows retrieved', type: ApprovalWorkflowListResponseDto })
+  @ApiResponse({ status: 200, _description: any, type: ApprovalWorkflowListResponseDto })
   @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getHighPriorityWorkflows(
     @Query() query: ApprovalWorkflowQueryDto,
@@ -542,9 +542,9 @@ export class ApprovalController {
     summary: 'Cancel workflow',
     description: 'Cancel an approval workflow (admin only)'
   })
-  @ApiParam({ name: 'workflowId', description: 'Workflow ID' })
-  @ApiResponse({ status: 204, description: 'Workflow cancelled successfully' })
-  @ApiResponse({ status: 404, description: 'Workflow not found' })
+  @ApiParam({ name: 'workflowId', _description: any)
+  @ApiResponse({ status: 204, _description: any)
+  @ApiResponse({ status: 404, _description: any)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Roles(UserRole.SUPER_ADMIN)
   async cancelWorkflow(
@@ -563,9 +563,9 @@ export class ApprovalController {
     summary: 'Get workflow audit trail',
     description: 'Retrieve complete audit trail for a workflow (admin only)'
   })
-  @ApiParam({ name: 'workflowId', description: 'Workflow ID' })
-  @ApiResponse({ status: 200, description: 'Audit trail retrieved' })
-  @ApiResponse({ status: 404, description: 'Workflow not found' })
+  @ApiParam({ name: 'workflowId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
+  @ApiResponse({ status: 404, _description: any)
   @Roles(UserRole.SUPER_ADMIN)
   async getWorkflowAuditTrail(
     @Param('workflowId', ParseUUIDPipe) workflowId: string,
@@ -587,7 +587,7 @@ export class ApprovalController {
     summary: 'Health check',
     description: 'Check approval service health status'
   })
-  @ApiResponse({ status: 200, description: 'Service is healthy' })
+  @ApiResponse({ status: 200, _description: any)
   async healthCheck(): Promise<{ status: string; timestamp: string }> {
     return {
       status: 'healthy',

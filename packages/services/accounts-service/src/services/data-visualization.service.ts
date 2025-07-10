@@ -266,7 +266,7 @@ export class DataVisualizationService {
 
   // ===== VISUALIZATION MANAGEMENT =====
 
-  async createVisualization(request: CreateVisualizationRequest): Promise<{
+  async createVisualization(_request: any): Promise<{
     visualizationId: string;
     configuration: VisualizationConfig;
     dataPreview: any[];
@@ -314,7 +314,7 @@ export class DataVisualizationService {
     };
   }
 
-  async renderVisualization(visualizationId: string, options?: {
+  async renderVisualization(_visualizationId: any, options?: {
     width?: number;
     height?: number;
     theme?: string;
@@ -421,7 +421,7 @@ export class DataVisualizationService {
 
   // ===== INTERACTIVE REPORTING =====
 
-  async createInteractiveReport(request: CreateReportRequest): Promise<{
+  async createInteractiveReport(_request: any): Promise<{
     reportId: string;
     layout: ReportLayout;
     sections: ReportSection[];
@@ -466,7 +466,7 @@ export class DataVisualizationService {
     };
   }
 
-  async renderInteractiveReport(reportId: string, filters?: Record<string, any>): Promise<{
+  async renderInteractiveReport(_reportId: any, filters?: Record<string, any>): Promise<{
     report: InteractiveReport;
     renderedSections: Array<{
       id: string;
@@ -546,7 +546,7 @@ export class DataVisualizationService {
 
   // ===== SELF-SERVICE ANALYTICS =====
 
-  async generateVisualizationSuggestions(dataSourceId: string): Promise<{
+  async generateVisualizationSuggestions(_dataSourceId: any): Promise<{
     suggestions: Array<{
       chartType: ChartType;
       reasoning: string;
@@ -571,7 +571,7 @@ export class DataVisualizationService {
         sampleConfig: {
           dimensions: ['date'],
           measures: ['revenue'],
-          aggregations: [{ field: 'revenue', function: 'sum' as const }],
+          aggregations: [{ field: 'revenue', _function: any,
         },
       },
       {
@@ -581,7 +581,7 @@ export class DataVisualizationService {
         sampleConfig: {
           dimensions: ['category'],
           measures: ['count'],
-          aggregations: [{ field: 'id', function: 'count' as const }],
+          aggregations: [{ field: 'id', _function: any,
         },
       },
     ];
@@ -608,7 +608,7 @@ export class DataVisualizationService {
     };
   }
 
-  async exportVisualization(visualizationId: string, format: string, options?: {
+  async exportVisualization(_visualizationId: any, format: string, options?: {
     width?: number;
     height?: number;
     quality?: number;
@@ -635,7 +635,7 @@ export class DataVisualizationService {
 
   // ===== PRIVATE HELPER METHODS =====
 
-  private async getDataSource(dataSourceId: string): Promise<DataSource> {
+  private async getDataSource(_dataSourceId: any): Promise<DataSource> {
     return {
       id: dataSourceId,
       name: 'Sample Data Source',
@@ -652,11 +652,11 @@ export class DataVisualizationService {
     };
   }
 
-  private buildVisualizationConfig(config: Partial<VisualizationConfig>): VisualizationConfig {
+  private buildVisualizationConfig(_config: any): VisualizationConfig {
     return {
       dimensions: config.dimensions || ['date'],
       measures: config.measures || ['amount'],
-      aggregations: config.aggregations || [{ field: 'amount', function: 'sum' }],
+      aggregations: config.aggregations || [{ field: 'amount', _function: any,
       sorting: config.sorting || [],
       filtering: config.filtering || [],
       grouping: config.grouping || [],
@@ -743,7 +743,7 @@ export class DataVisualizationService {
     };
   }
 
-  private async generateDataPreview(visualization: Visualization): Promise<any[]> {
+  private async generateDataPreview(_visualization: any): Promise<any[]> {
     // Mock data preview
     return Array.from({ length: 10 }, (_, i) => ({
       date: new Date(Date.now() - i * 24 * 60 * 60 * 1000),
@@ -752,13 +752,13 @@ export class DataVisualizationService {
     }));
   }
 
-  private estimateRenderTime(visualization: Visualization): number {
+  private estimateRenderTime(_visualization: any): number {
     const baseTime = 50; // Base render time in ms
     const complexityMultiplier = visualization.type === VisualizationType.CUSTOM ? 2 : 1;
     return baseTime * complexityMultiplier + Math.random() * 100;
   }
 
-  private async fetchVisualizationData(visualization: Visualization): Promise<any[]> {
+  private async fetchVisualizationData(_visualization: any): Promise<any[]> {
     // Mock data fetching
     const dataPoints = 100 + Math.floor(Math.random() * 1000);
     return Array.from({ length: dataPoints }, (_, i) => ({
@@ -768,7 +768,7 @@ export class DataVisualizationService {
     }));
   }
 
-  private generateChartSpec(visualization: Visualization, data: any[], options?: any): any {
+  private generateChartSpec(_visualization: any, data: any[], options?: any): any {
     return {
       type: visualization.chartType,
       data: {
@@ -790,7 +790,7 @@ export class DataVisualizationService {
     };
   }
 
-  private buildRenderOptions(visualization: Visualization, options?: any): any {
+  private buildRenderOptions(_visualization: any, options?: any): any {
     return {
       width: options?.width || 800,
       height: options?.height || 400,
@@ -800,7 +800,7 @@ export class DataVisualizationService {
     };
   }
 
-  private generateCatalogSummary(visualizations: Visualization[]): any {
+  private generateCatalogSummary(_visualizations: any): any {
     const byType = {} as Record<VisualizationType, number>;
     const byCategory = {} as Record<VisualizationCategory, number>;
 
@@ -829,14 +829,14 @@ export class DataVisualizationService {
       rows: layout?.rows || 3,
       responsive: layout?.responsive !== false,
       breakpoints: layout?.breakpoints || [
-        { width: 768, columns: 1 },
-        { width: 1024, columns: 2 },
-        { width: 1440, columns: 3 },
+        { width: 768, _columns: any,
+        { width: 1024, _columns: any,
+        { width: 1440, _columns: any,
       ],
     };
   }
 
-  private async createReportSections(visualizationIds: string[]): Promise<ReportSection[]> {
+  private async createReportSections(_visualizationIds: any): Promise<ReportSection[]> {
     return visualizationIds.map((vizId, index) => ({
       id: `section_${index}`,
       title: `Visualization ${index + 1}`,
@@ -875,13 +875,13 @@ export class DataVisualizationService {
     };
   }
 
-  private estimateReportLoadTime(report: InteractiveReport): number {
+  private estimateReportLoadTime(_report: any): number {
     const baseTime = 200; // Base load time in ms
     const visualizationCount = Object.values(report.visualizations).length;
     return baseTime + (visualizationCount * 100) + Math.random() * 200;
   }
 
-  private async renderReportSections(report: InteractiveReport, filters?: Record<string, any>): Promise<any[]> {
+  private async renderReportSections(_report: any, filters?: Record<string, any>): Promise<any[]> {
     return report.sections.map(section => ({
       id: section.id,
       title: section.title,
@@ -890,7 +890,7 @@ export class DataVisualizationService {
     }));
   }
 
-  private renderSectionContent(section: ReportSection, filters?: Record<string, any>): any {
+  private renderSectionContent(_section: any, filters?: Record<string, any>): any {
     if (section.type === 'visualization') {
       return {
         type: 'chart',
@@ -904,7 +904,7 @@ export class DataVisualizationService {
     return section.content;
   }
 
-  private async generateDrillDownPaths(report: InteractiveReport): Promise<string[]> {
+  private async generateDrillDownPaths(_report: any): Promise<string[]> {
     return [
       'Year → Quarter → Month',
       'Product → Category → Subcategory',
@@ -919,17 +919,17 @@ export class DataVisualizationService {
         name: 'Chart.js',
         version: '4.4.0',
         chartTypes: [
-          { type: ChartType.LINE, capabilities: [LibraryCapability.RESPONSIVE, LibraryCapability.ANIMATED] },
-          { type: ChartType.BAR, capabilities: [LibraryCapability.RESPONSIVE, 'stacked'] },
-          { type: ChartType.PIE, capabilities: [LibraryCapability.RESPONSIVE, 'doughnut'] },
+          { type: ChartType.LINE, _capabilities: any, LibraryCapability.ANIMATED] },
+          { type: ChartType.BAR, _capabilities: any, 'stacked'] },
+          { type: ChartType.PIE, _capabilities: any, 'doughnut'] },
         ],
         capabilities: [LibraryCapability.RESPONSIVE, LibraryCapability.ANIMATED, LibraryCapability.INTERACTIVE],
         themes: [
-          { name: 'default', colors: ['#2563eb', '#10b981', '#f59e0b'] },
-          { name: 'dark', colors: ['#3b82f6', '#06d6a0', '#ffd23f'] },
+          { name: 'default', _colors: any, '#10b981', '#f59e0b'] },
+          { name: 'dark', _colors: any, '#06d6a0', '#ffd23f'] },
         ],
         customizations: [],
-        performance: { averageRenderTime: 45, maxDataPoints: 10000 },
+        performance: { averageRenderTime: 45, _maxDataPoints: any,
       },
     ];
 

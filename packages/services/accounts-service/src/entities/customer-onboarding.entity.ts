@@ -56,13 +56,13 @@ export class CustomerOnboarding {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'onboarding_number', length: 20, unique: true })
+  @Column({ name: 'onboarding_number', _length: any, unique: true })
   onboardingNumber: string;
 
   @Column({ name: 'company_id' })
   companyId: string;
 
-  @Column({ name: 'customer_id', nullable: true })
+  @Column({ name: 'customer_id', _nullable: any)
   customerId: string; // Null until customer is created
 
   // Onboarding Process Information
@@ -82,32 +82,32 @@ export class CustomerOnboarding {
   })
   channel: OnboardingChannel;
 
-  @Column({ name: 'started_at', type: 'timestamp' })
+  @Column({ name: 'started_at', _type: any)
   startedAt: Date;
 
-  @Column({ name: 'completed_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'completed_at', _type: any, nullable: true })
   completedAt: Date;
 
-  @Column({ name: 'expires_at', type: 'timestamp' })
+  @Column({ name: 'expires_at', _type: any)
   expiresAt: Date;
 
   // Agent Information
   @Column({ name: 'agent_id' })
   agentId: string; // User ID of the agent
 
-  @Column({ name: 'agent_name', length: 200 })
+  @Column({ name: 'agent_name', _length: any)
   agentName: string;
 
-  @Column({ name: 'agent_phone', length: 20 })
+  @Column({ name: 'agent_phone', _length: any)
   agentPhone: string;
 
-  @Column({ name: 'agent_location', type: 'point', nullable: true })
+  @Column({ name: 'agent_location', _type: any, nullable: true })
   agentLocation: string; // GPS coordinates
 
-  @Column({ name: 'agent_ip', length: 45, nullable: true })
+  @Column({ name: 'agent_ip', _length: any, nullable: true })
   agentIp: string;
 
-  @Column({ name: 'agent_device_info', type: 'json', nullable: true })
+  @Column({ name: 'agent_device_info', _type: any, nullable: true })
   agentDeviceInfo: Record<string, any>;
 
   // Current Step and Progress
@@ -119,21 +119,21 @@ export class CustomerOnboarding {
   })
   currentStep: OnboardingStep;
 
-  @Column({ name: 'completed_steps', type: 'json', default: '[]' })
+  @Column({ name: 'completed_steps', _type: any, default: '[]' })
   completedSteps: OnboardingStep[];
 
-  @Column({ name: 'progress_percentage', default: 0 })
+  @Column({ name: 'progress_percentage', _default: any)
   progressPercentage: number; // 0-100
 
   // Customer Information (collected during onboarding)
-  @Column({ name: 'customer_data', type: 'json', nullable: true })
+  @Column({ name: 'customer_data', _type: any, nullable: true })
   customerData: Record<string, any>;
 
-  @Column({ name: 'account_preferences', type: 'json', nullable: true })
+  @Column({ name: 'account_preferences', _type: any, nullable: true })
   accountPreferences: Record<string, any>;
 
   // Document Collection
-  @Column({ name: 'collected_documents', type: 'json', default: '[]' })
+  @Column({ name: 'collected_documents', _type: any, default: '[]' })
   collectedDocuments: Array<{
     type: DocumentType;
     url: string;
@@ -145,56 +145,56 @@ export class CustomerOnboarding {
     rejectionReason?: string;
   }>;
 
-  @Column({ name: 'biometric_data', type: 'json', nullable: true })
+  @Column({ name: 'biometric_data', _type: any, nullable: true })
   biometricData: Record<string, any>;
 
   // Verification and Approval
-  @Column({ name: 'verification_required', default: true })
+  @Column({ name: 'verification_required', _default: any)
   verificationRequired: boolean;
 
-  @Column({ name: 'verified_by', nullable: true })
+  @Column({ name: 'verified_by', _nullable: any)
   verifiedBy: string; // User ID who verified
 
-  @Column({ name: 'verified_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'verified_at', _type: any, nullable: true })
   verifiedAt: Date;
 
-  @Column({ name: 'verification_notes', type: 'text', nullable: true })
+  @Column({ name: 'verification_notes', _type: any, nullable: true })
   verificationNotes: string;
 
-  @Column({ name: 'rejection_reason', type: 'text', nullable: true })
+  @Column({ name: 'rejection_reason', _type: any, nullable: true })
   rejectionReason: string;
 
-  @Column({ name: 'rejected_by', nullable: true })
+  @Column({ name: 'rejected_by', _nullable: any)
   rejectedBy: string; // User ID who rejected
 
-  @Column({ name: 'rejected_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'rejected_at', _type: any, nullable: true })
   rejectedAt: Date;
 
   // Risk Assessment
-  @Column({ name: 'risk_score', default: 0 })
+  @Column({ name: 'risk_score', _default: any)
   riskScore: number; // 0-100
 
-  @Column({ name: 'risk_factors', type: 'json', nullable: true })
+  @Column({ name: 'risk_factors', _type: any, nullable: true })
   riskFactors: Array<{
     factor: string;
     score: number;
     description: string;
   }>;
 
-  @Column({ name: 'aml_check_required', default: false })
+  @Column({ name: 'aml_check_required', _default: any)
   amlCheckRequired: boolean;
 
-  @Column({ name: 'aml_check_completed', default: false })
+  @Column({ name: 'aml_check_completed', _default: any)
   amlCheckCompleted: boolean;
 
-  @Column({ name: 'aml_check_result', nullable: true })
+  @Column({ name: 'aml_check_result', _nullable: any)
   amlCheckResult: string; // CLEAR, REVIEW, BLOCKED
 
   // Compliance and Audit
-  @Column({ name: 'kyc_level', default: 1 })
+  @Column({ name: 'kyc_level', _default: any)
   kycLevel: number; // 1: Basic, 2: Enhanced, 3: Full
 
-  @Column({ name: 'compliance_flags', type: 'json', nullable: true })
+  @Column({ name: 'compliance_flags', _type: any, nullable: true })
   complianceFlags: Array<{
     flag: string;
     severity: string;
@@ -202,7 +202,7 @@ export class CustomerOnboarding {
     raisedAt: string;
   }>;
 
-  @Column({ name: 'audit_trail', type: 'json', default: '[]' })
+  @Column({ name: 'audit_trail', _type: any, default: '[]' })
   auditTrail: Array<{
     action: string;
     performedBy: string;
@@ -213,13 +213,13 @@ export class CustomerOnboarding {
   }>;
 
   // Workflow and Automation
-  @Column({ name: 'workflow_id', nullable: true })
+  @Column({ name: 'workflow_id', _nullable: any)
   workflowId: string;
 
-  @Column({ name: 'automation_rules', type: 'json', nullable: true })
+  @Column({ name: 'automation_rules', _type: any, nullable: true })
   automationRules: Record<string, any>;
 
-  @Column({ name: 'notifications_sent', type: 'json', default: '[]' })
+  @Column({ name: 'notifications_sent', _type: any, default: '[]' })
   notificationsSent: Array<{
     type: string;
     recipient: string;
@@ -228,33 +228,33 @@ export class CustomerOnboarding {
   }>;
 
   // Quality Assurance
-  @Column({ name: 'qa_required', default: false })
+  @Column({ name: 'qa_required', _default: any)
   qaRequired: boolean;
 
-  @Column({ name: 'qa_completed', default: false })
+  @Column({ name: 'qa_completed', _default: any)
   qaCompleted: boolean;
 
-  @Column({ name: 'qa_score', nullable: true })
+  @Column({ name: 'qa_score', _nullable: any)
   qaScore: number; // 0-100
 
-  @Column({ name: 'qa_notes', type: 'text', nullable: true })
+  @Column({ name: 'qa_notes', _type: any, nullable: true })
   qaNotes: string;
 
-  @Column({ name: 'qa_reviewed_by', nullable: true })
+  @Column({ name: 'qa_reviewed_by', _nullable: any)
   qaReviewedBy: string;
 
-  @Column({ name: 'qa_reviewed_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'qa_reviewed_at', _type: any, nullable: true })
   qaReviewedAt: Date;
 
   // Customer Feedback
-  @Column({ name: 'customer_feedback', type: 'json', nullable: true })
+  @Column({ name: 'customer_feedback', _type: any, nullable: true })
   customerFeedback: {
     rating: number; // 1-5
     comments: string;
     submittedAt: string;
   };
 
-  @Column({ name: 'agent_feedback', type: 'json', nullable: true })
+  @Column({ name: 'agent_feedback', _type: any, nullable: true })
   agentFeedback: {
     difficulty: number; // 1-5
     comments: string;
@@ -262,23 +262,23 @@ export class CustomerOnboarding {
   };
 
   // Performance Metrics
-  @Column({ name: 'total_time_minutes', nullable: true })
+  @Column({ name: 'total_time_minutes', _nullable: any)
   totalTimeMinutes: number;
 
-  @Column({ name: 'active_time_minutes', nullable: true })
+  @Column({ name: 'active_time_minutes', _nullable: any)
   activeTimeMinutes: number;
 
-  @Column({ name: 'idle_time_minutes', nullable: true })
+  @Column({ name: 'idle_time_minutes', _nullable: any)
   idleTimeMinutes: number;
 
-  @Column({ name: 'step_durations', type: 'json', nullable: true })
+  @Column({ name: 'step_durations', _type: any, nullable: true })
   stepDurations: Record<OnboardingStep, number>;
 
   // Additional Metadata
-  @Column({ type: 'json', nullable: true })
+  @Column({ type: 'json', _nullable: any)
   metadata: Record<string, any>;
 
-  @Column({ name: 'notes', type: 'text', nullable: true })
+  @Column({ name: 'notes', _type: any, nullable: true })
   notes: string;
 
   @CreateDateColumn({ name: 'created_at' })
@@ -375,7 +375,7 @@ export class CustomerOnboarding {
   }
 
   // Business logic methods
-  start(agentId: string, agentName: string, agentPhone: string, location?: string): void {
+  start(_agentId: any, agentName: string, _agentPhone: any, location?: string): void {
     this.status = OnboardingStatus.STARTED;
     this.agentId = agentId;
     this.agentName = agentName;
@@ -396,7 +396,7 @@ export class CustomerOnboarding {
     this.progressPercentage = Math.round((completed / totalSteps) * 100);
   }
 
-  completeStep(step: OnboardingStep, data?: Record<string, any>): boolean {
+  completeStep(_step: any, data?: Record<string, any>): boolean {
     if (!this.completedSteps.includes(step)) {
       this.completedSteps.push(step);
     }
@@ -416,7 +416,7 @@ export class CustomerOnboarding {
     return true;
   }
 
-  addDocument(doc, {
+  addDocument(doc: {
     type: DocumentType;
     url: string;
     fileName: string;
@@ -432,7 +432,7 @@ export class CustomerOnboarding {
     this.addAuditEntry('DOCUMENT_UPLOADED', this.agentId, { documentType: doc.type });
   }
 
-  verifyDocument(type: DocumentType, verified: boolean, rejectionReason?: string): void {
+  verifyDocument(_type: any, verified: boolean, rejectionReason?: string): void {
     const doc = this.collectedDocuments.find(d => d.type === type);
     if (doc) {
       doc.verified = verified;
@@ -459,7 +459,7 @@ export class CustomerOnboarding {
     return true;
   }
 
-  approve(verifiedBy: string, notes?: string): void {
+  approve(_verifiedBy: any, notes?: string): void {
     this.status = OnboardingStatus.COMPLETED;
     this.verifiedBy = verifiedBy;
     this.verifiedAt = new Date();
@@ -469,7 +469,7 @@ export class CustomerOnboarding {
     this.addAuditEntry('ONBOARDING_APPROVED', verifiedBy, { notes });
   }
 
-  reject(rejectedBy: string, reason: string): void {
+  reject(_rejectedBy: any, reason: string): void {
     this.status = OnboardingStatus.REJECTED;
     this.rejectedBy = rejectedBy;
     this.rejectedAt = new Date();
@@ -492,7 +492,7 @@ export class CustomerOnboarding {
     }
   }
 
-  updateRiskScore(score: number, factors?: Array<{ factor: string; score: number; description: string }>): void {
+  updateRiskScore(_score: any, factors?: Array<{ factor: string; score: number; description: string }>): void {
     this.riskScore = Math.max(0, Math.min(100, score));
     if (factors) {
       this.riskFactors = factors;
@@ -501,7 +501,7 @@ export class CustomerOnboarding {
     this.addAuditEntry('RISK_SCORE_UPDATED', this.agentId, { score, factors });
   }
 
-  addComplianceFlag(flag: string, severity: string, description: string): void {
+  addComplianceFlag(_flag: any, severity: string, _description: any): void {
     if (!this.complianceFlags) {
       this.complianceFlags = [];
     }
@@ -516,14 +516,14 @@ export class CustomerOnboarding {
     this.addAuditEntry('COMPLIANCE_FLAG_ADDED', this.agentId, { flag, severity, description });
   }
 
-  clearComplianceFlag(flag: string): void {
+  clearComplianceFlag(_flag: any): void {
     if (this.complianceFlags) {
       this.complianceFlags = this.complianceFlags.filter(f => f.flag !== flag);
       this.addAuditEntry('COMPLIANCE_FLAG_CLEARED', this.agentId, { flag });
     }
   }
 
-  addAuditEntry(action: string, performedBy: string, details?: Record<string, any>): void {
+  addAuditEntry(_action: any, performedBy: string, details?: Record<string, any>): void {
     this.auditTrail.push({
       action,
       performedBy,
@@ -534,7 +534,7 @@ export class CustomerOnboarding {
     });
   }
 
-  sendNotification(type: string, recipient: string): void {
+  sendNotification(_type: any, recipient: string): void {
     this.notificationsSent.push({
       type,
       recipient,
@@ -543,12 +543,12 @@ export class CustomerOnboarding {
     });
   }
 
-  updateCustomerData(data: Record<string, any>): void {
+  updateCustomerData(_data: any, any>): void {
     this.customerData = { ...this.customerData, ...data };
     this.addAuditEntry('CUSTOMER_DATA_UPDATED', this.agentId, { updatedFields: Object.keys(data) });
   }
 
-  setKycLevel(level: number): void {
+  setKycLevel(_level: any): void {
     this.kycLevel = Math.max(1, Math.min(3, level));
     this.addAuditEntry('KYC_LEVEL_UPDATED', this.agentId, { level });
   }
@@ -558,7 +558,7 @@ export class CustomerOnboarding {
     this.addAuditEntry('AML_CHECK_REQUIRED', this.agentId);
   }
 
-  completeAmlCheck(result: string): void {
+  completeAmlCheck(_result: any): void {
     this.amlCheckCompleted = true;
     this.amlCheckResult = result;
     this.addAuditEntry('AML_CHECK_COMPLETED', this.agentId, { result });
@@ -573,7 +573,7 @@ export class CustomerOnboarding {
   }
 
   // Static factory methods
-  static createInitial(data: {
+  static create(data: {
     companyId: string;
     agentId: string;
     agentName: string;

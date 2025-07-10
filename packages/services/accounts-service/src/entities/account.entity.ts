@@ -37,7 +37,7 @@ export class Account {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'account_number', length: 20, unique: true })
+  @Column({ name: 'account_number', _length: any, unique: true })
   accountNumber: string;
 
   @Column({ name: 'company_id' })
@@ -55,10 +55,10 @@ export class Account {
   })
   accountType: AccountType;
 
-  @Column({ name: 'account_name', length: 200 })
+  @Column({ name: 'account_name', _length: any)
   accountName: string;
 
-  @Column({ name: 'account_description', type: 'text', nullable: true })
+  @Column({ name: 'account_description', _type: any, nullable: true })
   accountDescription: string;
 
   // Status and State
@@ -70,10 +70,10 @@ export class Account {
   })
   status: AccountStatus;
 
-  @Column({ name: 'is_primary', default: false })
+  @Column({ name: 'is_primary', _default: any)
   isPrimary: boolean;
 
-  @Column({ name: 'is_joint_account', default: false })
+  @Column({ name: 'is_joint_account', _default: any)
   isJointAccount: boolean;
 
   // Balance Information
@@ -204,23 +204,23 @@ export class Account {
   })
   maintenanceFee: number;
 
-  @Column({ name: 'last_interest_calculation', type: 'timestamp', nullable: true })
+  @Column({ name: 'last_interest_calculation', _type: any, nullable: true })
   lastInterestCalculation: Date;
 
-  @Column({ name: 'last_maintenance_fee', type: 'timestamp', nullable: true })
+  @Column({ name: 'last_maintenance_fee', _type: any, nullable: true })
   lastMaintenanceFee: Date;
 
   // Account Opening Information
-  @Column({ name: 'opened_date', type: 'date' })
+  @Column({ name: 'opened_date', _type: any)
   openedDate: Date;
 
   @Column({ name: 'created_by' })
   createdBy: string; // Agent User ID who created the account
 
-  @Column({ name: 'opening_location', type: 'point', nullable: true })
+  @Column({ name: 'opening_location', _type: any, nullable: true })
   openingLocation: string; // GPS coordinates
 
-  @Column({ name: 'opening_ip', length: 45, nullable: true })
+  @Column({ name: 'opening_ip', _length: any, nullable: true })
   openingIp: string;
 
   @Column({ 
@@ -233,75 +233,75 @@ export class Account {
   openingBalance: number;
 
   // Account Closure Information
-  @Column({ name: 'closed_date', type: 'date', nullable: true })
+  @Column({ name: 'closed_date', _type: any, nullable: true })
   closedDate: Date;
 
-  @Column({ name: 'closed_by', nullable: true })
+  @Column({ name: 'closed_by', _nullable: any)
   closedBy: string; // User ID who closed the account
 
-  @Column({ name: 'closure_reason', type: 'text', nullable: true })
+  @Column({ name: 'closure_reason', _type: any, nullable: true })
   closureReason: string;
 
   // Product and Scheme Information
-  @Column({ name: 'product_code', length: 20, nullable: true })
+  @Column({ name: 'product_code', _length: any, nullable: true })
   productCode: string;
 
-  @Column({ name: 'scheme_code', length: 20, nullable: true })
+  @Column({ name: 'scheme_code', _length: any, nullable: true })
   schemeCode: string;
 
-  @Column({ name: 'branch_code', length: 10, nullable: true })
+  @Column({ name: 'branch_code', _length: any, nullable: true })
   branchCode: string;
 
   // Risk and Compliance
-  @Column({ name: 'risk_rating', default: 1 })
+  @Column({ name: 'risk_rating', _default: any)
   riskRating: number; // 1-5 (1: Low, 5: High)
 
-  @Column({ name: 'aml_status', length: 20, default: 'CLEAR' })
+  @Column({ name: 'aml_status', _length: any, default: 'CLEAR' })
   amlStatus: string; // CLEAR, SUSPICIOUS, FLAGGED, BLOCKED
 
-  @Column({ name: 'kyc_status', length: 20, default: 'PENDING' })
+  @Column({ name: 'kyc_status', _length: any, default: 'PENDING' })
   kycStatus: string; // PENDING, VERIFIED, REJECTED
 
-  @Column({ name: 'sanctions_checked', default: false })
+  @Column({ name: 'sanctions_checked', _default: any)
   sanctionsChecked: boolean;
 
-  @Column({ name: 'last_sanctions_check', type: 'timestamp', nullable: true })
+  @Column({ name: 'last_sanctions_check', _type: any, nullable: true })
   lastSanctionsCheck: Date;
 
   // Operational Information
-  @Column({ name: 'dormant_date', type: 'date', nullable: true })
+  @Column({ name: 'dormant_date', _type: any, nullable: true })
   dormantDate: Date;
 
-  @Column({ name: 'last_transaction_date', type: 'timestamp', nullable: true })
+  @Column({ name: 'last_transaction_date', _type: any, nullable: true })
   lastTransactionDate: Date;
 
-  @Column({ name: 'statement_frequency', length: 20, default: 'MONTHLY' })
+  @Column({ name: 'statement_frequency', _length: any, default: 'MONTHLY' })
   statementFrequency: string; // DAILY, WEEKLY, MONTHLY, QUARTERLY
 
-  @Column({ name: 'last_statement_date', type: 'date', nullable: true })
+  @Column({ name: 'last_statement_date', _type: any, nullable: true })
   lastStatementDate: Date;
 
   // Notifications and Preferences
-  @Column({ name: 'sms_alerts', default: true })
+  @Column({ name: 'sms_alerts', _default: any)
   smsAlerts: boolean;
 
-  @Column({ name: 'email_alerts', default: false })
+  @Column({ name: 'email_alerts', _default: any)
   emailAlerts: boolean;
 
-  @Column({ name: 'transaction_alerts', default: true })
+  @Column({ name: 'transaction_alerts', _default: any)
   transactionAlerts: boolean;
 
-  @Column({ name: 'balance_alerts', default: false })
+  @Column({ name: 'balance_alerts', _default: any)
   balanceAlerts: boolean;
 
-  @Column({ name: 'low_balance_threshold', type: 'decimal', precision: 15, scale: 2, default: 0 })
+  @Column({ name: 'low_balance_threshold', _type: any, precision: 15, _scale: any, default: 0 })
   lowBalanceThreshold: number;
 
   // Additional Information
-  @Column({ type: 'json', nullable: true })
+  @Column({ type: 'json', _nullable: any)
   metadata: Record<string, any>;
 
-  @Column({ name: 'notes', type: 'text', nullable: true })
+  @Column({ name: 'notes', _type: any, nullable: true })
   notes: string;
 
   @CreateDateColumn({ name: 'created_at' })
@@ -390,7 +390,7 @@ export class Account {
   }
 
   // Business logic methods
-  credit(amount: number, description?: string): boolean {
+  credit(_amount: any, description?: string): boolean {
     if (amount <= 0) return false;
     
     this.currentBalance += amount;
@@ -402,7 +402,7 @@ export class Account {
     return true;
   }
 
-  debit(amount: number, description?: string): boolean {
+  debit(_amount: any, description?: string): boolean {
     if (amount <= 0) return false;
     if (!this.canWithdraw) return false;
     if (this.effectiveBalance < amount && this.currentBalance - amount < -this.overdraftLimit) {
@@ -418,7 +418,7 @@ export class Account {
     return true;
   }
 
-  hold(amount: number, reference?: string): boolean {
+  hold(_amount: any, reference?: string): boolean {
     if (amount <= 0) return false;
     if (this.availableBalance < amount) return false;
     
@@ -429,7 +429,7 @@ export class Account {
     return true;
   }
 
-  releaseHold(amount: number, reference?: string): boolean {
+  releaseHold(_amount: any, reference?: string): boolean {
     if (amount <= 0) return false;
     if (this.holdAmount < amount) return false;
     
@@ -472,7 +472,7 @@ export class Account {
     this.updatedAt = new Date();
   }
 
-  close(closedBy: string, reason?: string): boolean {
+  close(_closedBy: any, reason?: string): boolean {
     if (this.currentBalance !== 0) {
       return false; // Cannot close account with balance
     }
@@ -518,7 +518,7 @@ export class Account {
     this.updatedAt = new Date();
   }
 
-  updateInterestRate(rate: number): void {
+  updateInterestRate(_rate: any): void {
     this.interestRate = Math.max(0, rate);
     this.updatedAt = new Date();
   }
@@ -551,7 +551,7 @@ export class Account {
     return true;
   }
 
-  updateKycStatus(status: string, verifiedBy?: string): void {
+  updateKycStatus(_status: any, verifiedBy?: string): void {
     this.kycStatus = status;
     this.updatedAt = new Date();
     
@@ -560,7 +560,7 @@ export class Account {
     }
   }
 
-  updateAmlStatus(status: string, checkedBy?: string): void {
+  updateAmlStatus(_status: any, checkedBy?: string): void {
     this.amlStatus = status;
     this.updatedAt = new Date();
     

@@ -5,58 +5,58 @@ import { TransactionType, TransactionChannel, TransactionPriority, Authenticatio
 
 // Base Transaction DTOs
 export class CreateWithdrawalRequestDto {
-  @ApiProperty({ description: 'Customer ID', example: 'uuid-string' })
+  @ApiProperty({ description: 'Customer ID', _example: any)
   @IsString()
   customerId: string;
 
-  @ApiProperty({ description: 'Account ID', example: 'uuid-string' })
+  @ApiProperty({ description: 'Account ID', _example: any)
   @IsString()
   accountId: string;
 
-  @ApiProperty({ description: 'Withdrawal amount', example: 500.00, minimum: 1 })
+  @ApiProperty({ description: 'Withdrawal amount', _example: any, minimum: 1 })
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(1)
   amount: number;
 
-  @ApiPropertyOptional({ description: 'Currency code', example: 'GHS', default: 'GHS' })
+  @ApiPropertyOptional({ description: 'Currency code', _example: any, default: 'GHS' })
   @IsString()
   @IsOptional()
   @Length(3, 3)
   currency?: string = 'GHS';
 
-  @ApiProperty({ description: 'Transaction description', example: 'Cash withdrawal at agent location' })
+  @ApiProperty({ description: 'Transaction description', _example: any)
   @IsString()
   @Length(5, 500)
   description: string;
 
-  @ApiPropertyOptional({ description: 'Transaction channel', enum: TransactionChannel, example: TransactionChannel.AGENT_MOBILE })
+  @ApiPropertyOptional({ description: 'Transaction channel', _enum: any, example: TransactionChannel.AGENT_MOBILE })
   @IsEnum(TransactionChannel)
   @IsOptional()
   channel?: TransactionChannel = TransactionChannel.AGENT_MOBILE;
 
-  @ApiPropertyOptional({ description: 'External reference', example: 'REF123456789' })
+  @ApiPropertyOptional({ description: 'External reference', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 100)
   reference?: string;
 
-  @ApiPropertyOptional({ description: 'Agent GPS location (lat,lng)', example: '5.6037,-0.1870' })
+  @ApiPropertyOptional({ description: 'Agent GPS location (lat,lng)', _example: any,-0.1870' })
   @IsString()
   @IsOptional()
   @Matches(/^-?\d+\.?\d*,-?\d+\.?\d*$/, { message: 'Location must be in format "latitude,longitude"' })
   location?: string;
 
-  @ApiPropertyOptional({ description: 'Customer is physically present', example: true })
+  @ApiPropertyOptional({ description: 'Customer is physically present', _example: any)
   @IsBoolean()
   @IsOptional()
   customerPresent?: boolean = true;
 
-  @ApiPropertyOptional({ description: 'Transaction priority', enum: TransactionPriority, example: TransactionPriority.NORMAL })
+  @ApiPropertyOptional({ description: 'Transaction priority', _enum: any, example: TransactionPriority.NORMAL })
   @IsEnum(TransactionPriority)
   @IsOptional()
   priority?: TransactionPriority = TransactionPriority.NORMAL;
 
-  @ApiPropertyOptional({ description: 'Additional notes', example: 'Customer requested smaller denominations' })
+  @ApiPropertyOptional({ description: 'Additional notes', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 1000)
@@ -64,21 +64,21 @@ export class CreateWithdrawalRequestDto {
 }
 
 export class CustomerVerificationDto {
-  @ApiProperty({ description: 'Verification method', enum: AuthenticationMethod, example: AuthenticationMethod.PIN })
+  @ApiProperty({ description: 'Verification method', _enum: any, example: AuthenticationMethod.PIN })
   @IsEnum(AuthenticationMethod)
   method: AuthenticationMethod;
 
-  @ApiPropertyOptional({ description: 'PIN verification result', example: true })
+  @ApiPropertyOptional({ description: 'PIN verification result', _example: any)
   @IsBoolean()
   @IsOptional()
   pinVerified?: boolean;
 
-  @ApiPropertyOptional({ description: 'OTP verification result', example: true })
+  @ApiPropertyOptional({ description: 'OTP verification result', _example: any)
   @IsBoolean()
   @IsOptional()
   otpVerified?: boolean;
 
-  @ApiPropertyOptional({ description: 'Biometric verification result', example: true })
+  @ApiPropertyOptional({ description: 'Biometric verification result', _example: any)
   @IsBoolean()
   @IsOptional()
   biometricVerified?: boolean;
@@ -100,25 +100,25 @@ export class CustomerVerificationDto {
 }
 
 export class ApproveTransactionDto {
-  @ApiPropertyOptional({ description: 'Approval notes', example: 'Transaction verified and approved after customer identity confirmation' })
+  @ApiPropertyOptional({ description: 'Approval notes', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 1000)
   notes?: string;
 
-  @ApiPropertyOptional({ description: 'Bypass additional checks', example: false })
+  @ApiPropertyOptional({ description: 'Bypass additional checks', _example: any)
   @IsBoolean()
   @IsOptional()
   bypassChecks?: boolean = false;
 }
 
 export class RejectTransactionDto {
-  @ApiProperty({ description: 'Rejection reason', example: 'Insufficient customer verification documents' })
+  @ApiProperty({ description: 'Rejection reason', _example: any)
   @IsString()
   @Length(10, 1000)
   reason: string;
 
-  @ApiPropertyOptional({ description: 'Allow resubmission?', example: true })
+  @ApiPropertyOptional({ description: 'Allow resubmission?', _example: any)
   @IsBoolean()
   @IsOptional()
   allowResubmission?: boolean = true;
@@ -129,49 +129,49 @@ export class RejectTransactionDto {
 }
 
 export class ProcessTransactionDto {
-  @ApiPropertyOptional({ description: 'Processing notes', example: 'Cash dispensed to customer' })
+  @ApiPropertyOptional({ description: 'Processing notes', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 500)
   processingNotes?: string;
 
-  @ApiPropertyOptional({ description: 'Force processing despite warnings', example: false })
+  @ApiPropertyOptional({ description: 'Force processing despite warnings', _example: any)
   @IsBoolean()
   @IsOptional()
   forceProcess?: boolean = false;
 }
 
 export class CancelTransactionDto {
-  @ApiProperty({ description: 'Cancellation reason', example: 'Customer changed mind' })
+  @ApiProperty({ description: 'Cancellation reason', _example: any)
   @IsString()
   @Length(5, 500)
   reason: string;
 
-  @ApiPropertyOptional({ description: 'Refund fees?', example: true })
+  @ApiPropertyOptional({ description: 'Refund fees?', _example: any)
   @IsBoolean()
   @IsOptional()
   refundFees?: boolean = true;
 }
 
 export class ReverseTransactionDto {
-  @ApiProperty({ description: 'Reversal reason', example: 'Duplicate transaction processed in error' })
+  @ApiProperty({ description: 'Reversal reason', _example: any)
   @IsString()
   @Length(10, 1000)
   reason: string;
 
-  @ApiPropertyOptional({ description: 'Reversal type', example: 'FULL' })
+  @ApiPropertyOptional({ description: 'Reversal type', _example: any)
   @IsString()
   @IsOptional()
   reversalType?: string = 'FULL';
 
-  @ApiPropertyOptional({ description: 'Administrative override', example: false })
+  @ApiPropertyOptional({ description: 'Administrative override', _example: any)
   @IsBoolean()
   @IsOptional()
   adminOverride?: boolean = false;
 }
 
 export class UpdateTransactionStatusDto {
-  @ApiPropertyOptional({ description: 'Status change reason', example: 'System maintenance hold' })
+  @ApiPropertyOptional({ description: 'Status change reason', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 500)
@@ -183,25 +183,25 @@ export class UpdateTransactionStatusDto {
 }
 
 export class HoldManagementDto {
-  @ApiProperty({ description: 'Hold amount', example: 500.00, minimum: 0 })
+  @ApiProperty({ description: 'Hold amount', _example: any, minimum: 0 })
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   holdAmount: number;
 
-  @ApiPropertyOptional({ description: 'Hold expiry in minutes', example: 30, minimum: 1, maximum: 1440 })
+  @ApiPropertyOptional({ description: 'Hold expiry in minutes', _example: any, minimum: 1, _maximum: any)
   @IsNumber()
   @Min(1)
   @Max(1440) // Max 24 hours
   @IsOptional()
   expiryMinutes?: number = 30;
 
-  @ApiPropertyOptional({ description: 'Hold reference', example: 'AGENT-HOLD-001' })
+  @ApiPropertyOptional({ description: 'Hold reference', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 100)
   holdReference?: string;
 
-  @ApiPropertyOptional({ description: 'Hold reason', example: 'Pending customer verification' })
+  @ApiPropertyOptional({ description: 'Hold reason', _example: any)
   @IsString()
   @IsOptional()
   @Length(1, 200)
@@ -210,55 +210,55 @@ export class HoldManagementDto {
 
 // Response DTOs
 export class TransactionResponseDto {
-  @ApiProperty({ description: 'Transaction ID', example: 'uuid-string' })
+  @ApiProperty({ description: 'Transaction ID', _example: any)
   id: string;
 
-  @ApiProperty({ description: 'Transaction number', example: 'TXN1234567890' })
+  @ApiProperty({ description: 'Transaction number', _example: any)
   transactionNumber: string;
 
-  @ApiProperty({ description: 'Company ID', example: 'uuid-string' })
+  @ApiProperty({ description: 'Company ID', _example: any)
   companyId: string;
 
-  @ApiProperty({ description: 'Customer ID', example: 'uuid-string' })
+  @ApiProperty({ description: 'Customer ID', _example: any)
   customerId: string;
 
-  @ApiProperty({ description: 'Account ID', example: 'uuid-string' })
+  @ApiProperty({ description: 'Account ID', _example: any)
   accountId: string;
 
-  @ApiProperty({ description: 'Transaction type', enum: TransactionType })
+  @ApiProperty({ description: 'Transaction type', _enum: any)
   type: TransactionType;
 
-  @ApiProperty({ description: 'Transaction status', example: 'pending' })
+  @ApiProperty({ description: 'Transaction status', _example: any)
   status: string;
 
-  @ApiProperty({ description: 'Transaction channel', enum: TransactionChannel })
+  @ApiProperty({ description: 'Transaction channel', _enum: any)
   channel: TransactionChannel;
 
-  @ApiProperty({ description: 'Transaction priority', enum: TransactionPriority })
+  @ApiProperty({ description: 'Transaction priority', _enum: any)
   priority: TransactionPriority;
 
-  @ApiProperty({ description: 'Transaction amount', example: 500.00 })
+  @ApiProperty({ description: 'Transaction amount', _example: any)
   amount: number;
 
-  @ApiProperty({ description: 'Currency', example: 'GHS' })
+  @ApiProperty({ description: 'Currency', _example: any)
   currency: string;
 
-  @ApiProperty({ description: 'Fee amount', example: 5.00 })
+  @ApiProperty({ description: 'Fee amount', _example: any)
   feeAmount: number;
 
-  @ApiProperty({ description: 'Total amount (including fees)', example: 505.00 })
+  @ApiProperty({ description: 'Total amount (including fees)', _example: any)
   totalAmount: number;
 
-  @ApiProperty({ description: 'Account balance before transaction', example: 1500.00 })
+  @ApiProperty({ description: 'Account balance before transaction', _example: any)
   accountBalanceBefore: number;
 
-  @ApiPropertyOptional({ description: 'Account balance after transaction', example: 995.00 })
+  @ApiPropertyOptional({ description: 'Account balance after transaction', _example: any)
   accountBalanceAfter?: number;
 
-  @ApiProperty({ description: 'Available balance before transaction', example: 1500.00 })
+  @ApiProperty({ description: 'Available balance before transaction', _example: any)
   availableBalanceBefore: number;
 
-  @ApiPropertyOptional({ description: 'Available balance after transaction', example: 995.00 })
+  @ApiPropertyOptional({ description: 'Available balance after transaction', _example: any)
   availableBalanceAfter?: number;
 
   @ApiProperty({ description: 'Transaction description' })
@@ -389,10 +389,10 @@ export class TransactionResponseDto {
     originalTransactionId?: string;
   };
 
-  @ApiProperty({ description: 'Creation timestamp', example: '2024-01-15T10:30:00Z' })
+  @ApiProperty({ description: 'Creation timestamp', _example: any)
   createdAt: string;
 
-  @ApiProperty({ description: 'Last update timestamp', example: '2024-01-15T10:35:00Z' })
+  @ApiProperty({ description: 'Last update timestamp', _example: any)
   updatedAt: string;
 
   @ApiPropertyOptional({ description: 'Additional metadata' })
@@ -403,60 +403,60 @@ export class TransactionResponseDto {
 }
 
 export class TransactionListResponseDto {
-  @ApiProperty({ description: 'List of transactions', type: [TransactionResponseDto] })
+  @ApiProperty({ description: 'List of transactions', _type: any)
   transactions: TransactionResponseDto[];
 
-  @ApiProperty({ description: 'Total count', example: 250 })
+  @ApiProperty({ description: 'Total count', _example: any)
   total: number;
 
-  @ApiProperty({ description: 'Current page', example: 1 })
+  @ApiProperty({ description: 'Current page', _example: any)
   page: number;
 
-  @ApiProperty({ description: 'Items per page', example: 20 })
+  @ApiProperty({ description: 'Items per page', _example: any)
   limit: number;
 
-  @ApiProperty({ description: 'Total pages', example: 13 })
+  @ApiProperty({ description: 'Total pages', _example: any)
   totalPages: number;
 }
 
 export class TransactionStatsResponseDto {
-  @ApiProperty({ description: 'Total transactions', example: 1250 })
+  @ApiProperty({ description: 'Total transactions', _example: any)
   total: number;
 
-  @ApiProperty({ description: 'Pending transactions', example: 45 })
+  @ApiProperty({ description: 'Pending transactions', _example: any)
   pending: number;
 
-  @ApiProperty({ description: 'Approved transactions', example: 1100 })
+  @ApiProperty({ description: 'Approved transactions', _example: any)
   approved: number;
 
-  @ApiProperty({ description: 'Completed transactions', example: 1050 })
+  @ApiProperty({ description: 'Completed transactions', _example: any)
   completed: number;
 
-  @ApiProperty({ description: 'Rejected transactions', example: 25 })
+  @ApiProperty({ description: 'Rejected transactions', _example: any)
   rejected: number;
 
-  @ApiProperty({ description: 'Failed transactions', example: 15 })
+  @ApiProperty({ description: 'Failed transactions', _example: any)
   failed: number;
 
-  @ApiProperty({ description: 'Cancelled transactions', example: 10 })
+  @ApiProperty({ description: 'Cancelled transactions', _example: any)
   cancelled: number;
 
-  @ApiProperty({ description: 'Reversed transactions', example: 5 })
+  @ApiProperty({ description: 'Reversed transactions', _example: any)
   reversed: number;
 
-  @ApiProperty({ description: 'Total volume', example: 567500.00 })
+  @ApiProperty({ description: 'Total volume', _example: any)
   totalVolume: number;
 
-  @ApiProperty({ description: 'Average transaction amount', example: 454.00 })
+  @ApiProperty({ description: 'Average transaction amount', _example: any)
   averageAmount: number;
 
-  @ApiProperty({ description: 'Success rate percentage', example: 92.5 })
+  @ApiProperty({ description: 'Success rate percentage', _example: any)
   successRate: number;
 
-  @ApiProperty({ description: 'Average processing time in milliseconds', example: 2500 })
+  @ApiProperty({ description: 'Average processing time in milliseconds', _example: any)
   averageProcessingTime: number;
 
-  @ApiProperty({ description: 'Average risk score', example: 35.5 })
+  @ApiProperty({ description: 'Average risk score', _example: any)
   averageRiskScore: number;
 
   @ApiProperty({ description: 'Statistics by transaction type' })
@@ -500,43 +500,43 @@ export class TransactionStatsResponseDto {
 }
 
 export class BalanceInquiryResponseDto {
-  @ApiProperty({ description: 'Account ID', example: 'uuid-string' })
+  @ApiProperty({ description: 'Account ID', _example: any)
   accountId: string;
 
-  @ApiProperty({ description: 'Account number', example: 'ACC1234567890' })
+  @ApiProperty({ description: 'Account number', _example: any)
   accountNumber: string;
 
-  @ApiProperty({ description: 'Current balance', example: 1500.00 })
+  @ApiProperty({ description: 'Current balance', _example: any)
   currentBalance: number;
 
-  @ApiProperty({ description: 'Available balance', example: 1450.00 })
+  @ApiProperty({ description: 'Available balance', _example: any)
   availableBalance: number;
 
-  @ApiProperty({ description: 'Ledger balance', example: 1500.00 })
+  @ApiProperty({ description: 'Ledger balance', _example: any)
   ledgerBalance: number;
 
-  @ApiProperty({ description: 'Pending credits', example: 0.00 })
+  @ApiProperty({ description: 'Pending credits', _example: any)
   pendingCredits: number;
 
-  @ApiProperty({ description: 'Pending debits', example: 50.00 })
+  @ApiProperty({ description: 'Pending debits', _example: any)
   pendingDebits: number;
 
-  @ApiProperty({ description: 'Hold amount', example: 50.00 })
+  @ApiProperty({ description: 'Hold amount', _example: any)
   holdAmount: number;
 
-  @ApiProperty({ description: 'Currency', example: 'GHS' })
+  @ApiProperty({ description: 'Currency', _example: any)
   currency: string;
 
-  @ApiProperty({ description: 'Account status', example: 'active' })
+  @ApiProperty({ description: 'Account status', _example: any)
   accountStatus: string;
 
-  @ApiProperty({ description: 'Can transact', example: true })
+  @ApiProperty({ description: 'Can transact', _example: any)
   canTransact: boolean;
 
-  @ApiProperty({ description: 'Daily withdrawal limit', example: 2000.00 })
+  @ApiProperty({ description: 'Daily withdrawal limit', _example: any)
   dailyWithdrawalLimit: number;
 
-  @ApiProperty({ description: 'Remaining daily limit', example: 1500.00 })
+  @ApiProperty({ description: 'Remaining daily limit', _example: any)
   remainingDailyLimit: number;
 
   @ApiProperty({ description: 'Transaction limits' })
@@ -548,16 +548,16 @@ export class BalanceInquiryResponseDto {
     remainingMonthly: number;
   };
 
-  @ApiProperty({ description: 'Last transaction date', example: '2024-01-15T10:30:00Z' })
+  @ApiProperty({ description: 'Last transaction date', _example: any)
   lastTransactionDate?: string;
 
-  @ApiProperty({ description: 'Balance as of timestamp', example: '2024-01-15T10:30:00Z' })
+  @ApiProperty({ description: 'Balance as of timestamp', _example: any)
   asOfDate: string;
 }
 
 // Query DTOs
 export class TransactionQueryDto {
-  @ApiPropertyOptional({ description: 'Filter by transaction type', enum: TransactionType })
+  @ApiPropertyOptional({ description: 'Filter by transaction type', _enum: any)
   @IsEnum(TransactionType)
   @IsOptional()
   type?: TransactionType;
@@ -582,19 +582,19 @@ export class TransactionQueryDto {
   @IsOptional()
   agentId?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by channel', enum: TransactionChannel })
+  @ApiPropertyOptional({ description: 'Filter by channel', _enum: any)
   @IsEnum(TransactionChannel)
   @IsOptional()
   channel?: TransactionChannel;
 
-  @ApiPropertyOptional({ description: 'Filter by minimum amount', minimum: 0 })
+  @ApiPropertyOptional({ description: 'Filter by minimum amount', _minimum: any)
   @IsNumber()
   @Min(0)
   @IsOptional()
   @Transform(({ value }) => parseFloat(value))
   minAmount?: number;
 
-  @ApiPropertyOptional({ description: 'Filter by maximum amount', minimum: 0 })
+  @ApiPropertyOptional({ description: 'Filter by maximum amount', _minimum: any)
   @IsNumber()
   @Min(0)
   @IsOptional()
@@ -617,32 +617,32 @@ export class TransactionQueryDto {
   @Length(2, 100)
   search?: string;
 
-  @ApiPropertyOptional({ description: 'Show only high-risk transactions', example: false })
+  @ApiPropertyOptional({ description: 'Show only high-risk transactions', _example: any)
   @IsBoolean()
   @IsOptional()
   @Transform(({ value }) => value === 'true')
   highRiskOnly?: boolean;
 
-  @ApiPropertyOptional({ description: 'Show only pending approval', example: false })
+  @ApiPropertyOptional({ description: 'Show only pending approval', _example: any)
   @IsBoolean()
   @IsOptional()
   @Transform(({ value }) => value === 'true')
   pendingApproval?: boolean;
 
-  @ApiPropertyOptional({ description: 'Show only with holds', example: false })
+  @ApiPropertyOptional({ description: 'Show only with holds', _example: any)
   @IsBoolean()
   @IsOptional()
   @Transform(({ value }) => value === 'true')
   withHolds?: boolean;
 
-  @ApiPropertyOptional({ description: 'Page number', example: 1, minimum: 1 })
+  @ApiPropertyOptional({ description: 'Page number', _example: any, minimum: 1 })
   @IsNumber()
   @Min(1)
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
   page?: number = 1;
 
-  @ApiPropertyOptional({ description: 'Items per page', example: 20, minimum: 1, maximum: 100 })
+  @ApiPropertyOptional({ description: 'Items per page', _example: any, minimum: 1, _maximum: any)
   @IsNumber()
   @Min(1)
   @Max(100)
@@ -650,12 +650,12 @@ export class TransactionQueryDto {
   @Transform(({ value }) => parseInt(value, 10))
   limit?: number = 20;
 
-  @ApiPropertyOptional({ description: 'Sort by field', example: 'createdAt' })
+  @ApiPropertyOptional({ description: 'Sort by field', _example: any)
   @IsString()
   @IsOptional()
   sortBy?: string = 'createdAt';
 
-  @ApiPropertyOptional({ description: 'Sort order', example: 'DESC' })
+  @ApiPropertyOptional({ description: 'Sort order', _example: any)
   @IsString()
   @IsOptional()
   @Matches(/^(ASC|DESC)$/i)
@@ -663,12 +663,12 @@ export class TransactionQueryDto {
 }
 
 export class BulkTransactionActionDto {
-  @ApiProperty({ description: 'Transaction IDs to process', type: [String] })
+  @ApiProperty({ description: 'Transaction IDs to process', _type: any)
   @IsArray()
   @IsString({ each: true })
   transactionIds: string[];
 
-  @ApiProperty({ description: 'Action to perform', example: 'approve' })
+  @ApiProperty({ description: 'Action to perform', _example: any)
   @IsString()
   @Length(1, 50)
   action: string;
@@ -685,7 +685,7 @@ export class BulkTransactionActionDto {
 }
 
 export class TransactionReceiptDto {
-  @ApiProperty({ description: 'Receipt number', example: 'RCP1234567890' })
+  @ApiProperty({ description: 'Receipt number', _example: any)
   receiptNumber: string;
 
   @ApiProperty({ description: 'Transaction details for receipt' })

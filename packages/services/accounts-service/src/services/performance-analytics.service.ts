@@ -266,10 +266,10 @@ export class PerformanceAnalyticsService {
     metric_retention_days: 30,
     analysis_interval_minutes: 5,
     alert_thresholds: {
-      cpu: { warning: 70, critical: 85 },
-      memory: { warning: 80, critical: 90 },
-      response_time: { warning: 1000, critical: 3000 }, // ms
-      error_rate: { warning: 1, critical: 5 }, // percentage
+      cpu: { warning: 70, _critical: any,
+      memory: { warning: 80, _critical: any,
+      response_time: { warning: 1000, _critical: any, // ms
+      error_rate: { warning: 1, _critical: any, // percentage
     },
     optimization_budget_limits: {
       small: 10000,
@@ -430,7 +430,7 @@ export class PerformanceAnalyticsService {
     };
   }
 
-  async performRootCauseAnalysis(bottleneckId: string): Promise<{
+  async performRootCauseAnalysis(_bottleneckId: any): Promise<{
     bottleneck: SystemBottleneck;
     detailed_analysis: {
       timeline: Array<{
@@ -516,7 +516,7 @@ export class PerformanceAnalyticsService {
 
   // ===== OPTIMIZATION RECOMMENDATIONS =====
 
-  async generateOptimizationPlan(request: OptimizationRequest): Promise<{
+  async generateOptimizationPlan(_request: any): Promise<{
     plan_id: string;
     recommendations: OptimizationRecommendation[];
     implementation_roadmap: {
@@ -616,7 +616,7 @@ export class PerformanceAnalyticsService {
     };
   }
 
-  async trackOptimizationProgress(planId: string): Promise<{
+  async trackOptimizationProgress(_planId: any): Promise<{
     plan: any;
     progress: {
       overall_completion: number;
@@ -704,7 +704,7 @@ export class PerformanceAnalyticsService {
     ];
 
     return {
-      plan: { id: planId, name: 'Performance Optimization Plan' },
+      plan: { id: planId, _name: any,
       progress,
       impact_metrics,
       next_actions,
@@ -713,7 +713,7 @@ export class PerformanceAnalyticsService {
 
   // ===== PERFORMANCE REPORTING =====
 
-  async generatePerformanceReport(period: TimePeriod): Promise<{
+  async generatePerformanceReport(_period: any): Promise<{
     report: PerformanceReport;
     insights: Array<{
       category: string;
@@ -800,7 +800,7 @@ export class PerformanceAnalyticsService {
         type: MetricType.GAUGE,
         value: 45.2 + Math.random() * 20,
         unit: 'percent',
-        threshold: { warning: 70, critical: 85, target: 50 },
+        threshold: { warning: 70, _critical: any, target: 50 },
         timestamp: new Date(),
         source: 'system_monitor',
         tags: ['cpu', UserRole.SYSTEM],
@@ -819,7 +819,7 @@ export class PerformanceAnalyticsService {
         type: MetricType.GAUGE,
         value: 62.8 + Math.random() * 15,
         unit: 'percent',
-        threshold: { warning: 80, critical: 90, target: 60 },
+        threshold: { warning: 80, _critical: any, target: 60 },
         timestamp: new Date(),
         source: 'system_monitor',
         tags: ['memory', UserRole.SYSTEM],
@@ -838,7 +838,7 @@ export class PerformanceAnalyticsService {
         type: MetricType.HISTOGRAM,
         value: 145 + Math.random() * 100,
         unit: 'milliseconds',
-        threshold: { warning: 1000, critical: 3000, target: 200 },
+        threshold: { warning: 1000, _critical: any, target: 200 },
         timestamp: new Date(),
         source: 'api_gateway',
         tags: ['api', 'response_time'],
@@ -854,7 +854,7 @@ export class PerformanceAnalyticsService {
     return baseMetrics;
   }
 
-  private generatePerformanceSummary(metrics: PerformanceMetric[]): PerformanceSummary {
+  private generatePerformanceSummary(_metrics: any): PerformanceSummary {
     return {
       overall_score: 87.5 + Math.random() * 10,
       availability: 99.85 + Math.random() * 0.1,
@@ -870,7 +870,7 @@ export class PerformanceAnalyticsService {
     };
   }
 
-  private detectPerformanceAlerts(metrics: PerformanceMetric[]): Array<{
+  private detectPerformanceAlerts(_metrics: any): Array<{
     type: string;
     message: string;
     severity: string;
@@ -896,7 +896,7 @@ export class PerformanceAnalyticsService {
     return alerts;
   }
 
-  private getComponentStatus(score: number): string {
+  private getComponentStatus(_score: any): string {
     if (score >= 90) return 'healthy';
     if (score >= 70) return 'warning';
 
@@ -955,7 +955,7 @@ export class PerformanceAnalyticsService {
     ];
   }
 
-  private analyzeBottleneckPatterns(bottlenecks: SystemBottleneck[]): any {
+  private analyzeBottleneckPatterns(_bottlenecks: any): any {
     const by_severity = {} as Record<BottleneckSeverity, number>;
     const by_category = {} as Record<BottleneckCategory, number>;
 
@@ -975,7 +975,7 @@ export class PerformanceAnalyticsService {
     };
   }
 
-  private generateImmediateActions(bottlenecks: SystemBottleneck[]): Array<{
+  private generateImmediateActions(_bottlenecks: any): Array<{
     bottleneck_id: string;
     action: string;
     urgency: string;
@@ -989,7 +989,7 @@ export class PerformanceAnalyticsService {
       }));
   }
 
-  private async generateOptimizationRecommendations(bottleneck: SystemBottleneck): Promise<OptimizationRecommendation[]> {
+  private async generateOptimizationRecommendations(_bottleneck: any): Promise<OptimizationRecommendation[]> {
     return [
       {
         id: `rec_${nanoid(8)}`,
@@ -1045,25 +1045,25 @@ export class PerformanceAnalyticsService {
     ];
   }
 
-  private async createOptimizationRecommendations(request: OptimizationRequest): Promise<OptimizationRecommendation[]> {
+  private async createOptimizationRecommendations(_request: any): Promise<OptimizationRecommendation[]> {
     // Generate recommendations based on the request
     const recommendations = await this.generateOptimizationRecommendations({} as SystemBottleneck);
     return recommendations.slice(0, 8); // Return top 8 recommendations
   }
 
-  private async getMetricsForPeriod(period: TimePeriod): Promise<PerformanceMetric[]> {
+  private async getMetricsForPeriod(_period: any): Promise<PerformanceMetric[]> {
     return Array.from(this.metrics.values()).filter(
       m => m.timestamp >= period.start && m.timestamp <= period.end
     );
   }
 
-  private async getBottlenecksForPeriod(period: TimePeriod): Promise<SystemBottleneck[]> {
+  private async getBottlenecksForPeriod(_period: any): Promise<SystemBottleneck[]> {
     return Array.from(this.bottlenecks.values()).filter(
       b => b.detectedAt >= period.start && b.detectedAt <= period.end
     );
   }
 
-  private async getRecommendationsForPeriod(period: TimePeriod): Promise<OptimizationRecommendation[]> {
+  private async getRecommendationsForPeriod(_period: any): Promise<OptimizationRecommendation[]> {
     return Array.from(this.recommendations.values());
   }
 

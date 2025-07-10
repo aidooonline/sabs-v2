@@ -137,10 +137,10 @@ export class DataVisualizationController {
   @Get('visualizations')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get visualization catalog' })
-  @ApiQuery({ name: 'type', required: false, enum: VisualizationType })
-  @ApiQuery({ name: 'category', required: false, enum: VisualizationCategory })
-  @ApiQuery({ name: 'tags', required: false, type: String })
-  @ApiResponse({ status: 200, description: 'Visualizations retrieved successfully' })
+  @ApiQuery({ name: 'type', _required: any, enum: VisualizationType })
+  @ApiQuery({ name: 'category', _required: any, enum: VisualizationCategory })
+  @ApiQuery({ name: 'tags', _required: any, type: String })
+  @ApiResponse({ status: 200, _description: any)
   async getVisualizationCatalog(
     @Headers('authorization') authorization: string,
     @Query('type') type?: VisualizationType,
@@ -228,8 +228,8 @@ export class DataVisualizationController {
   @Post('visualizations')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create new visualization' })
-  @ApiResponse({ status: 201, description: 'Visualization created successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid visualization configuration' })
+  @ApiResponse({ status: 201, _description: any)
+  @ApiResponse({ status: 400, _description: any)
   async createVisualization(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) vizDto: CreateVisualizationDto,
@@ -297,12 +297,12 @@ export class DataVisualizationController {
   @Get('visualizations/:visualizationId')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Render visualization' })
-  @ApiParam({ name: 'visualizationId', description: 'Visualization ID' })
-  @ApiQuery({ name: 'width', required: false, type: Number })
-  @ApiQuery({ name: 'height', required: false, type: Number })
-  @ApiQuery({ name: 'theme', required: false, type: String })
-  @ApiQuery({ name: LibraryCapability.INTERACTIVE, required: false, type: Boolean })
-  @ApiResponse({ status: 200, description: 'Visualization rendered successfully' })
+  @ApiParam({ name: 'visualizationId', _description: any)
+  @ApiQuery({ name: 'width', _required: any, type: Number })
+  @ApiQuery({ name: 'height', _required: any, type: Number })
+  @ApiQuery({ name: 'theme', _required: any, type: String })
+  @ApiQuery({ name: LibraryCapability.INTERACTIVE, _required: any, type: Boolean })
+  @ApiResponse({ status: 200, _description: any)
   async renderVisualization(
     @Headers('authorization') authorization: string,
     @Param('visualizationId') visualizationId: string,
@@ -384,8 +384,8 @@ export class DataVisualizationController {
   @Post('visualizations/:visualizationId/export')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Export visualization' })
-  @ApiParam({ name: 'visualizationId', description: 'Visualization ID' })
-  @ApiResponse({ status: 200, description: 'Export initiated successfully' })
+  @ApiParam({ name: 'visualizationId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async exportVisualization(
     @Headers('authorization') authorization: string,
     @Param('visualizationId') visualizationId: string,
@@ -423,9 +423,9 @@ export class DataVisualizationController {
   @Get('reports')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get interactive reports' })
-  @ApiQuery({ name: 'type', required: false, enum: ReportType })
-  @ApiQuery({ name: 'status', required: false, enum: ReportStatus })
-  @ApiResponse({ status: 200, description: 'Reports retrieved successfully' })
+  @ApiQuery({ name: 'type', _required: any, enum: ReportType })
+  @ApiQuery({ name: 'status', _required: any, enum: ReportStatus })
+  @ApiResponse({ status: 200, _description: any)
   async getInteractiveReports(
     @Headers('authorization') authorization: string,
     @Query('type') type?: ReportType,
@@ -530,7 +530,7 @@ export class DataVisualizationController {
   @Post('reports')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create interactive report' })
-  @ApiResponse({ status: 201, description: 'Report created successfully' })
+  @ApiResponse({ status: 201, _description: any)
   async createInteractiveReport(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) reportDto: CreateReportDto,
@@ -589,9 +589,9 @@ export class DataVisualizationController {
   @Get('reports/:reportId')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Render interactive report' })
-  @ApiParam({ name: 'reportId', description: 'Report ID' })
-  @ApiQuery({ name: 'filters', required: false, type: String })
-  @ApiResponse({ status: 200, description: 'Report rendered successfully' })
+  @ApiParam({ name: 'reportId', _description: any)
+  @ApiQuery({ name: 'filters', _required: any, type: String })
+  @ApiResponse({ status: 200, _description: any)
   async renderInteractiveReport(
     @Headers('authorization') authorization: string,
     @Param('reportId') reportId: string,
@@ -651,7 +651,7 @@ export class DataVisualizationController {
   @Get('chart-libraries')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get available chart libraries' })
-  @ApiResponse({ status: 200, description: 'Chart libraries retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getChartLibraries(
     @Headers('authorization') authorization: string,
   ): Promise<{
@@ -730,7 +730,7 @@ export class DataVisualizationController {
   @Post('suggestions')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get visualization suggestions' })
-  @ApiResponse({ status: 200, description: 'Suggestions generated successfully' })
+  @ApiResponse({ status: 200, _description: any)
   async getVisualizationSuggestions(
     @Headers('authorization') authorization: string,
     @Body() body: { dataSourceId: string; sampleData?: any[] },
@@ -793,8 +793,8 @@ export class DataVisualizationController {
   @Get('analytics')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get visualization analytics' })
-  @ApiQuery({ name: 'period', required: false, type: String })
-  @ApiResponse({ status: 200, description: 'Analytics retrieved successfully' })
+  @ApiQuery({ name: 'period', _required: any, type: String })
+  @ApiResponse({ status: 200, _description: any)
   async getVisualizationAnalytics(
     @Headers('authorization') authorization: string,
     @Query('period') period: string = '30d',
@@ -914,7 +914,7 @@ export class DataVisualizationController {
 
   @Get('enums')
   @ApiOperation({ summary: 'Get visualization related enums' })
-  @ApiResponse({ status: 200, description: 'Enums retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getVisualizationEnums(): Promise<{
     visualizationTypes: VisualizationType[];
     visualizationCategories: VisualizationCategory[];
@@ -935,7 +935,7 @@ export class DataVisualizationController {
 
   @Get('health')
   @ApiOperation({ summary: 'Check data visualization service health' })
-  @ApiResponse({ status: 200, description: 'Service health status' })
+  @ApiResponse({ status: 200, _description: any)
   
   @Get('health')
   @ApiOperation({ summary: 'Get system health status' })
@@ -977,7 +977,7 @@ export class DataVisualizationController {
   // ===== PRIVATE HELPER METHODS =====
 
   
-  private async extractUserId(authorization: string): Promise<string> {
+  private async extractUserId(_authorization: any): Promise<string> {
     if (!authorization || !authorization.startsWith('Bearer ')) {
       throw new HttpException('Invalid authorization header', HttpStatus.UNAUTHORIZED);
     }
@@ -989,7 +989,7 @@ export class DataVisualizationController {
 
   }
 
-  private groupByField<T extends Record<string, any>>(items: T[], field: keyof T): Record<string, number> {
+  private groupByField<T extends Record<string, any>>(_items: any, field: keyof T): Record<string, number> {
     return Object.values(items).reduce((acc, item) => {
       const key = item[field] as string;
       acc[key] = (acc[key] || 0) + 1;

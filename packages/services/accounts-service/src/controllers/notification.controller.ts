@@ -1,16 +1,4 @@
-import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
 import {
-import { JwtAuthGuard } from '../../../identity-service/src/auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../identity-service/src/auth/guards/roles.guard';
-import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
-// Mock @Roles decorator to fix signature issues
-function Roles(...roles: any[]) {
-  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
-    // Mock implementation
-    return descriptor;
-  };
-}
-
   Controller,
   Get,
   Post,
@@ -26,6 +14,7 @@ function Roles(...roles: any[]) {
   NotFoundException,
   Logger,
 } from '@nestjs/common';
+import {
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -33,9 +22,8 @@ function Roles(...roles: any[]) {
   ApiParam,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-
-
-
+import { getErrorMessage, getErrorStack, getErrorStatus, UserRole, ReportType, LibraryCapability } from '@sabs/common';
+import {
   NotificationService,
   NotificationType,
   NotificationChannel,
@@ -48,6 +36,23 @@ function Roles(...roles: any[]) {
   NotificationPreferences,
   NotificationDeliveryReport,
 } from '../services/notification.service';
+
+// Mock guards and decorators
+class JwtAuthGuard {}
+class RolesGuard {}
+function CurrentUser() {
+  return function (_target: any, propertyName: string | symbol | undefined, _parameterIndex: any) {
+    // Mock implementation
+  };
+}
+
+// Mock @Roles decorator to fix signature issues
+function Roles(...roles: any[]) {
+  return function (_target: any, propertyName: string, _descriptor: any) {
+    // Mock implementation
+    return descriptor;
+  };
+}
 
 // ===== DTOs =====
 
@@ -251,8 +256,8 @@ export class NotificationController {
   @Post('send')
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Send a notification' })
-  @ApiResponse({ status: 201, description: 'Notification sent successfully', type: String })
-  @ApiResponse({ status: 400, description: 'Invalid request data' })
+  @ApiResponse({ status: 201, _description: any, type: String })
+  @ApiResponse({ status: 400, _description: any)
   async sendNotification(
     @Body(ValidationPipe) sendNotificationDto: SendNotificationDto,
     @CurrentUser() user: any,
@@ -279,8 +284,8 @@ export class NotificationController {
   @Post('send-bulk')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Send bulk notifications' })
-  @ApiResponse({ status: 201, description: 'Bulk notification sent successfully', type: BulkNotificationResponseDto })
-  @ApiResponse({ status: 400, description: 'Invalid request data' })
+  @ApiResponse({ status: 201, _description: any, type: BulkNotificationResponseDto })
+  @ApiResponse({ status: 400, _description: any)
   async sendBulkNotification(
     @Body(ValidationPipe) bulkNotificationDto: BulkNotificationDto,
     @CurrentUser() user: any,
@@ -299,9 +304,9 @@ export class NotificationController {
   @Get(':notificationId/status')
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get notification status' })
-  @ApiParam({ name: 'notificationId', description: 'Notification ID' })
-  @ApiResponse({ status: 200, description: 'Notification status retrieved', type: NotificationResponseDto })
-  @ApiResponse({ status: 404, description: 'Notification not found' })
+  @ApiParam({ name: 'notificationId', _description: any)
+  @ApiResponse({ status: 200, _description: any, type: NotificationResponseDto })
+  @ApiResponse({ status: 404, _description: any)
   async getNotificationStatus(
     @Param('notificationId') notificationId: string,
   ): Promise<NotificationResponseDto> {
@@ -317,14 +322,14 @@ export class NotificationController {
   @Get('history/:recipientId')
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get notification history for a recipient' })
-  @ApiParam({ name: 'recipientId', description: 'Recipient ID' })
-  @ApiQuery({ name: 'type', required: false, enum: NotificationType })
-  @ApiQuery({ name: 'channel', required: false, enum: NotificationChannel })
-  @ApiQuery({ name: 'status', required: false, enum: NotificationStatus })
-  @ApiQuery({ name: 'startDate', required: false, type: String })
-  @ApiQuery({ name: 'endDate', required: false, type: String })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiResponse({ status: 200, description: 'Notification history retrieved', type: [NotificationResponseDto] })
+  @ApiParam({ name: 'recipientId', _description: any)
+  @ApiQuery({ name: 'type', _required: any, enum: NotificationType })
+  @ApiQuery({ name: 'channel', _required: any, enum: NotificationChannel })
+  @ApiQuery({ name: 'status', _required: any, enum: NotificationStatus })
+  @ApiQuery({ name: 'startDate', _required: any, type: String })
+  @ApiQuery({ name: 'endDate', _required: any, type: String })
+  @ApiQuery({ name: 'limit', _required: any, type: Number })
+  @ApiResponse({ status: 200, _description: any, type: [NotificationResponseDto] })
   async getNotificationHistory(
     @Param('recipientId') recipientId: string,
     @Query() query: NotificationHistoryQueryDto,
@@ -345,8 +350,8 @@ export class NotificationController {
   @Post(':notificationId/mark-read')
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Mark notification as read' })
-  @ApiParam({ name: 'notificationId', description: 'Notification ID' })
-  @ApiResponse({ status: 200, description: 'Notification marked as read' })
+  @ApiParam({ name: 'notificationId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async markAsRead(
     @Param('notificationId') notificationId: string,
   ): Promise<{ message: string }> {
@@ -357,8 +362,8 @@ export class NotificationController {
   @Post(':notificationId/cancel')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Cancel scheduled notification' })
-  @ApiParam({ name: 'notificationId', description: 'Notification ID' })
-  @ApiResponse({ status: 200, description: 'Notification cancelled' })
+  @ApiParam({ name: 'notificationId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async cancelNotification(
     @Param('notificationId') notificationId: string,
   ): Promise<{ message: string }> {
@@ -369,8 +374,8 @@ export class NotificationController {
   @Post(':notificationId/retry')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Retry failed notification' })
-  @ApiParam({ name: 'notificationId', description: 'Notification ID' })
-  @ApiResponse({ status: 200, description: 'Notification retry initiated' })
+  @ApiParam({ name: 'notificationId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async retryNotification(
     @Param('notificationId') notificationId: string,
   ): Promise<{ message: string }> {
@@ -381,9 +386,9 @@ export class NotificationController {
   @Get(':notificationId/delivery-report')
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get notification delivery report' })
-  @ApiParam({ name: 'notificationId', description: 'Notification ID' })
-  @ApiResponse({ status: 200, description: 'Delivery report retrieved', type: DeliveryReportResponseDto })
-  @ApiResponse({ status: 404, description: 'Notification not found' })
+  @ApiParam({ name: 'notificationId', _description: any)
+  @ApiResponse({ status: 200, _description: any, type: DeliveryReportResponseDto })
+  @ApiResponse({ status: 404, _description: any)
   async getDeliveryReport(
     @Param('notificationId') notificationId: string,
   ): Promise<DeliveryReportResponseDto> {
@@ -401,7 +406,7 @@ export class NotificationController {
   @Post('templates')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create notification template' })
-  @ApiResponse({ status: 201, description: 'Template created successfully', type: String })
+  @ApiResponse({ status: 201, _description: any, type: String })
   async createTemplate(
     @Body(ValidationPipe) createTemplateDto: CreateTemplateDto,
     @CurrentUser() user: any,
@@ -419,11 +424,11 @@ export class NotificationController {
   @Get('templates')
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get notification templates' })
-  @ApiQuery({ name: 'type', required: false, enum: NotificationType })
-  @ApiQuery({ name: 'channel', required: false, enum: NotificationChannel })
-  @ApiQuery({ name: 'language', required: false, type: String })
-  @ApiQuery({ name: 'active', required: false, type: Boolean })
-  @ApiResponse({ status: 200, description: 'Templates retrieved', type: [TemplateResponseDto] })
+  @ApiQuery({ name: 'type', _required: any, enum: NotificationType })
+  @ApiQuery({ name: 'channel', _required: any, enum: NotificationChannel })
+  @ApiQuery({ name: 'language', _required: any, type: String })
+  @ApiQuery({ name: 'active', _required: any, type: Boolean })
+  @ApiResponse({ status: 200, _description: any, type: [TemplateResponseDto] })
   async getTemplates(
     @Query() query: TemplateFiltersQueryDto,
   ): Promise<TemplateResponseDto[]> {
@@ -441,9 +446,9 @@ export class NotificationController {
   @Get('templates/:templateId')
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get notification template by ID' })
-  @ApiParam({ name: 'templateId', description: 'Template ID' })
-  @ApiResponse({ status: 200, description: 'Template retrieved', type: TemplateResponseDto })
-  @ApiResponse({ status: 404, description: 'Template not found' })
+  @ApiParam({ name: 'templateId', _description: any)
+  @ApiResponse({ status: 200, _description: any, type: TemplateResponseDto })
+  @ApiResponse({ status: 404, _description: any)
   async getTemplate(
     @Param('templateId') templateId: string,
   ): Promise<TemplateResponseDto> {
@@ -459,9 +464,9 @@ export class NotificationController {
   @Put('templates/:templateId')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update notification template' })
-  @ApiParam({ name: 'templateId', description: 'Template ID' })
-  @ApiResponse({ status: 200, description: 'Template updated successfully' })
-  @ApiResponse({ status: 404, description: 'Template not found' })
+  @ApiParam({ name: 'templateId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
+  @ApiResponse({ status: 404, _description: any)
   async updateTemplate(
     @Param('templateId') templateId: string,
     @Body(ValidationPipe) updateTemplateDto: UpdateTemplateDto,
@@ -485,8 +490,8 @@ export class NotificationController {
   @Get('preferences/:customerId')
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get notification preferences for customer' })
-  @ApiParam({ name: 'customerId', description: 'Customer ID' })
-  @ApiResponse({ status: 200, description: 'Preferences retrieved' })
+  @ApiParam({ name: 'customerId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async getNotificationPreferences(
     @Param('customerId') customerId: string,
   ): Promise<NotificationPreferences> {
@@ -496,8 +501,8 @@ export class NotificationController {
   @Put('preferences/:customerId')
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Update notification preferences for customer' })
-  @ApiParam({ name: 'customerId', description: 'Customer ID' })
-  @ApiResponse({ status: 200, description: 'Preferences updated successfully' })
+  @ApiParam({ name: 'customerId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async updateNotificationPreferences(
     @Param('customerId') customerId: string,
     @Body(ValidationPipe) updatePreferencesDto: UpdatePreferencesDto,
@@ -515,9 +520,9 @@ export class NotificationController {
   @Get('analytics')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get notification analytics' })
-  @ApiQuery({ name: 'startDate', required: true, type: String })
-  @ApiQuery({ name: 'endDate', required: true, type: String })
-  @ApiResponse({ status: 200, description: 'Analytics retrieved' })
+  @ApiQuery({ name: 'startDate', _required: any, type: String })
+  @ApiQuery({ name: 'endDate', _required: any, type: String })
+  @ApiResponse({ status: 200, _description: any)
   async getNotificationAnalytics(
     @Query() query: NotificationAnalyticsQueryDto,
     @CurrentUser() user: any,
@@ -542,7 +547,7 @@ export class NotificationController {
   @Get('dashboard')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get notification dashboard data' })
-  @ApiResponse({ status: 200, description: 'Dashboard data retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getNotificationDashboard(
     @CurrentUser() user: any,
   ): Promise<{
@@ -611,7 +616,7 @@ export class NotificationController {
 
   @Get('health')
   @ApiOperation({ summary: 'Check notification service health' })
-  @ApiResponse({ status: 200, description: 'Service health status' })
+  @ApiResponse({ status: 200, _description: any)
   
   @Get('health')
   @ApiOperation({ summary: 'Get system health status' })
@@ -654,7 +659,7 @@ export class NotificationController {
 
   @Get('types')
   @ApiOperation({ summary: 'Get available notification types' })
-  @ApiResponse({ status: 200, description: 'Notification types retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getNotificationTypes(): Promise<{
     types: NotificationType[];
     channels: NotificationChannel[];
@@ -671,7 +676,7 @@ export class NotificationController {
 
   // ===== PRIVATE HELPER METHODS =====
 
-  private mapNotificationToResponse(notification: NotificationRecord): NotificationResponseDto {
+  private mapNotificationToResponse(_notification: any): NotificationResponseDto {
     return {
       id: notification.id,
       type: notification.type,
@@ -695,7 +700,7 @@ export class NotificationController {
     };
   }
 
-  private mapTemplateToResponse(template: NotificationTemplate): TemplateResponseDto {
+  private mapTemplateToResponse(_template: any): TemplateResponseDto {
     return {
       id: template.id,
       name: template.name,

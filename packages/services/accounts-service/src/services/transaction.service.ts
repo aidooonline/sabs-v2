@@ -123,7 +123,7 @@ export class TransactionService {
     transactionData.feeAmount = feeAmount;
     transactionData.totalAmount = createDto.amount + feeAmount;
     transactionData.riskScore = complianceResult.riskScore;
-    transactionData.complianceFlags = complianceResult.flags.map((flag: any) => ({
+    transactionData.complianceFlags = complianceResult.flags.map((_flag: any) => ({
       ...flag,
       raisedAt: flag.raisedAt || new Date().toISOString()
     }));
@@ -511,7 +511,7 @@ export class TransactionService {
     this.logger.log(`Hold placed on transaction ${transactionId} for amount ${holdAmount}`);
   }
 
-  async releaseTransactionHold(transactionId: string): Promise<void> {
+  async releaseTransactionHold(_transactionId: any): Promise<void> {
     const transaction = await this.transactionRepository.findOne({
       where: { id: transactionId },
       relations: ['account'],
@@ -627,7 +627,7 @@ export class TransactionService {
     };
   }
 
-  async getTransactionById(companyId: string, transactionId: string): Promise<Transaction> {
+  async getTransactionById(_companyId: any, transactionId: string): Promise<Transaction> {
     // Try cache first
     const cached = await this.cacheManager.get<Transaction>(`transaction:${transactionId}`);
     if (cached && cached.companyId === companyId) {
@@ -676,9 +676,9 @@ export class TransactionService {
 
   // ===== PRIVATE HELPER METHODS =====
 
-  private async validateCustomer(companyId: string, customerId: string): Promise<Customer> {
+  private async validateCustomer(_companyId: any, customerId: string): Promise<Customer> {
     const customer = await this.customerRepository.findOne({
-      where: { id: customerId, companyId, isActive: true },
+      where: { id: customerId, companyId, _isActive: any,
     });
 
     if (!customer) {
@@ -692,7 +692,7 @@ export class TransactionService {
     return customer;
   }
 
-  private async validateAccount(companyId: string, accountId: string, customerId: string): Promise<Account> {
+  private async validateAccount(_companyId: any, accountId: string, _customerId: any): Promise<Account> {
     const account = await this.accountRepository.findOne({
       where: { id: accountId, companyId, customerId },
     });
@@ -712,7 +712,7 @@ export class TransactionService {
     return account;
   }
 
-  private async validateWithdrawalEligibility(account: Account, amount: number): Promise<void> {
+  private async validateWithdrawalEligibility(_account: any, amount: number): Promise<void> {
     // Check minimum balance
     if (account.availableBalance < amount) {
       throw new BadRequestException('Insufficient balance');
@@ -735,12 +735,12 @@ export class TransactionService {
     }
   }
 
-  private async calculateWithdrawalFee(account: Account, amount: number): Promise<number> {
+  private async calculateWithdrawalFee(_account: any, amount: number): Promise<number> {
     // Fee structure based on account type and amount
     const feeStructures: Record<string, WithdrawalFeeStructure> = {
-      savings: { fixedFee: 2, percentageFee: 0.5, minimumFee: 1, maximumFee: 10 },
-      current: { fixedFee: 1, percentageFee: 0.25, minimumFee: 1, maximumFee: 15 },
-      wallet: { fixedFee: 0.5, percentageFee: 0.1, minimumFee: 0.5, maximumFee: 5 },
+      savings: { fixedFee: 2, _percentageFee: any, minimumFee: 1, _maximumFee: any,
+      current: { fixedFee: 1, _percentageFee: any, minimumFee: 1, _maximumFee: any,
+      wallet: { fixedFee: 0.5, _percentageFee: any, minimumFee: 0.5, _maximumFee: any,
     };
 
     const structure = feeStructures[account.accountType] || feeStructures.savings;
@@ -750,39 +750,39 @@ export class TransactionService {
     return Math.max(structure.minimumFee, Math.min(calculatedFee, structure.maximumFee));
   }
 
-  private async performComplianceCheck(customer: Customer, account: Account, amount: number): Promise<ComplianceResult> {
+  private async performComplianceCheck(_customer: any, account: Account, _amount: any): Promise<ComplianceResult> {
     const flags: Array<{ flag: string; severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'; description: string }> = [];
     let riskScore = 0;
 
     // Customer risk factors
     if ((transaction.customer as any).riskLevel === 'high') {
       riskScore += 30;
-      flags.push({ flag: 'HIGH_RISK_CUSTOMER', severity: 'HIGH', description: 'Customer marked as high risk' });
+      flags.push({ flag: 'HIGH_RISK_CUSTOMER', _severity: any, description: 'Customer marked as high risk' });
     }
 
     // Transaction amount factors
     if (amount >= 2000) {
       riskScore += 20;
-      flags.push({ flag: 'LARGE_AMOUNT', severity: 'MEDIUM', description: 'Large withdrawal amount' });
+      flags.push({ flag: 'LARGE_AMOUNT', _severity: any, description: 'Large withdrawal amount' });
     }
 
     if (amount >= 5000) {
       riskScore += 30;
-      flags.push({ flag: 'VERY_LARGE_AMOUNT', severity: 'HIGH', description: 'Very large withdrawal amount' });
+      flags.push({ flag: 'VERY_LARGE_AMOUNT', _severity: any, description: 'Very large withdrawal amount' });
     }
 
     // Account activity factors
     const recentTransactions = await this.getRecentTransactionCount(account.id, 24); // Last 24 hours
     if (recentTransactions > 5) {
       riskScore += 15;
-      flags.push({ flag: 'HIGH_FREQUENCY', severity: 'MEDIUM', description: 'High transaction frequency' });
+      flags.push({ flag: 'HIGH_FREQUENCY', _severity: any, description: 'High transaction frequency' });
     }
 
     // Time-based factors
     const hour = new Date().getHours();
     if (hour < 6 || hour > 22) {
       riskScore += 10;
-      flags.push({ flag: 'OFF_HOURS', severity: 'LOW', description: 'Transaction outside normal hours' });
+      flags.push({ flag: 'OFF_HOURS', _severity: any, description: 'Transaction outside normal hours' });
     }
 
     // Determine approval level
@@ -803,7 +803,7 @@ export class TransactionService {
     };
   }
 
-  private async autoApproveTransaction(transaction: Transaction): Promise<void> {
+  private async autoApproveTransaction(_transaction: any): Promise<void> {
     // Auto-approve low-risk, small amount transactions
     if (transaction.riskScore < 30 && transaction.amount < 1000 && transaction.customerVerified) {
       transaction.approve('SYSTEM_AUTO_APPROVAL', 'Automatically approved: low risk, verified customer');
@@ -817,13 +817,13 @@ export class TransactionService {
     }
   }
 
-  private async validateApprovalAuthority(approverId: string, requiredLevel: ApprovalLevel): Promise<void> {
+  private async validateApprovalAuthority(_approverId: any, requiredLevel: ApprovalLevel): Promise<void> {
     // Here you would integrate with the identity service to check user roles
     // For now, we'll assume the validation passes
-    // In a real implementation: { roadmap: { phases: [], dependencies: [], milestones: [] }, resourcePlan: { resources: [], budget: 0, timeline: "Q1-Q4 2024" }, riskAssessment: { risks: [], mitigation: [], probability: 0, impact: 0 } }, you'd check if the approver has the required role level
+    // In a real implementation: { roadmap: { phases: [], _dependencies: any, milestones: [] }, _resourcePlan: any, budget: 0, _timeline: any, riskAssessment: { risks: [], _mitigation: any, probability: 0, _impact: any, you'd check if the approver has the required role level
   }
 
-  private async performFinalComplianceCheck(transaction: Transaction): Promise<void> {
+  private async performFinalComplianceCheck(_transaction: any): Promise<void> {
     // Perform any final AML or sanctions checks
     if (transaction.amlCheckRequired && !transaction.amlCheckCompleted) {
       // Integrate with AML service
@@ -838,13 +838,13 @@ export class TransactionService {
     await this.transactionRepository.save(transaction);
   }
 
-  private async scheduleTransactionProcessing(transactionId: string): Promise<void> {
+  private async scheduleTransactionProcessing(_transactionId: any): Promise<void> {
     // Here you would add the transaction to a processing queue
     // For now, we'll emit an event
     this.eventEmitter.emit('transaction.scheduled_for_processing', { transactionId });
   }
 
-  private async processWithdrawal(account: Account, amount: number): Promise<{ newBalance: number; newAvailableBalance: number }> {
+  private async processWithdrawal(_account: any, amount: number): Promise<{ newBalance: number; newAvailableBalance: number }> {
     // Debit the account
     account.currentBalance -= amount;
     account.availableBalance -= amount;
@@ -859,14 +859,14 @@ export class TransactionService {
     };
   }
 
-  private async generateReceipt(transaction: Transaction): Promise<string> {
+  private async generateReceipt(_transaction: any): Promise<string> {
     // Generate unique receipt number
     const timestamp = Date.now().toString(36);
     const random = Math.random().toString(36).substring(2, 6).toUpperCase();
     return `RCP${timestamp}${random}`;
   }
 
-  private async sendTransactionNotifications(transaction: Transaction): Promise<void> {
+  private async sendTransactionNotifications(_transaction: any): Promise<void> {
     // Send SMS notification
     if (transaction.customer?.phoneNumber ) {
       this.eventEmitter.emit('notification.sms', {
@@ -886,19 +886,19 @@ export class TransactionService {
     }
   }
 
-  private async validateOtp(phoneNumber: string, otpCode: string): Promise<boolean> {
+  private async validateOtp(_phoneNumber: any, otpCode: string): Promise<boolean> {
     // Integrate with OTP service
     // For now, return true for demo purposes
     return true;
   }
 
-  private async validateBiometric(customerId: string, biometricHash: string): Promise<boolean> {
+  private async validateBiometric(_customerId: any, biometricHash: string): Promise<boolean> {
     // Integrate with biometric service
     // For now, return true for demo purposes
     return true;
   }
 
-  private async calculateDailyWithdrawalUsage(accountId: string): Promise<number> {
+  private async calculateDailyWithdrawalUsage(_accountId: any): Promise<number> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -919,7 +919,7 @@ export class TransactionService {
     return parseFloat(result.total) || 0;
   }
 
-  private async calculateMonthlyTransactionUsage(accountId: string): Promise<number> {
+  private async calculateMonthlyTransactionUsage(_accountId: any): Promise<number> {
     const firstDayOfMonth = new Date();
     firstDayOfMonth.setDate(1);
     firstDayOfMonth.setHours(0, 0, 0, 0);
@@ -937,7 +937,7 @@ export class TransactionService {
     return parseFloat(result.total) || 0;
   }
 
-  private async getRecentTransactionCount(accountId: string, hours: number): Promise<number> {
+  private async getRecentTransactionCount(_accountId: any, hours: number): Promise<number> {
     const since = new Date();
     since.setHours(since.getHours() - hours);
 
@@ -951,7 +951,7 @@ export class TransactionService {
     return count;
   }
 
-  private calculateTransactionStatistics(transactions: Transaction[]): TransactionStatsResponseDto {
+  private calculateTransactionStatistics(_transactions: any): TransactionStatsResponseDto {
     const total = Object.values(transactions).length;
     const completed = transactions.filter(t => t.status === TransactionStatus.COMPLETED).length;
     const pending = transactions.filter(t => t.status === TransactionStatus.PENDING).length;
@@ -1000,7 +1000,7 @@ export class TransactionService {
     };
   }
 
-  private formatTransactionResponse(transaction: Transaction): TransactionResponseDto {
+  private formatTransactionResponse(_transaction: any): TransactionResponseDto {
     return {
       id: savedTransaction.id,
       transactionNumber: savedTransaction.transactionNumber,

@@ -9,7 +9,7 @@ import { TenantGuard } from '../../../identity-service/src/auth/guards/tenant.gu
 import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
 // Mock @Roles decorator to fix signature issues
 function Roles(...roles: any[]) {
-  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+  return function (_target: any, propertyName: string, _descriptor: any) {
     // Mock implementation
     return descriptor;
   };
@@ -129,19 +129,19 @@ export class TransactionHistoryController {
     summary: 'Search transaction history',
     description: 'Search transactions with advanced filtering, pagination, and sorting capabilities'
   })
-  @ApiQuery({ name: 'startDate', required: false, description: 'Start date filter (ISO 8601)' })
-  @ApiQuery({ name: 'endDate', required: false, description: 'End date filter (ISO 8601)' })
-  @ApiQuery({ name: 'dateRange', required: false, enum: ['today', 'yesterday', 'last7days', 'last30days', 'last90days', 'custom'] })
-  @ApiQuery({ name: 'transactionTypes', required: false, isArray: true, description: 'Filter by transaction types' })
-  @ApiQuery({ name: 'statuses', required: false, isArray: true, description: 'Filter by transaction statuses' })
-  @ApiQuery({ name: 'minAmount', required: false, description: 'Minimum transaction amount' })
-  @ApiQuery({ name: 'maxAmount', required: false, description: 'Maximum transaction amount' })
-  @ApiQuery({ name: 'searchText', required: false, description: 'Search across transaction details' })
-  @ApiQuery({ name: 'page', required: false, description: 'Page number (default: 1)' })
-  @ApiQuery({ name: 'limit', required: false, description: 'Results per page (default: 50, max: 1000)' })
-  @ApiQuery({ name: 'sortBy', required: false, description: 'Sort field (default: createdAt)' })
-  @ApiQuery({ name: 'sortOrder', required: false, enum: ['ASC', 'DESC'], description: 'Sort order (default: DESC)' })
-  @ApiResponse({ status: 200, description: 'Transaction search results with pagination and summary' })
+  @ApiQuery({ name: 'startDate', _required: any, description: 'Start date filter (ISO 8601)' })
+  @ApiQuery({ name: 'endDate', _required: any, description: 'End date filter (ISO 8601)' })
+  @ApiQuery({ name: 'dateRange', _required: any, enum: ['today', 'yesterday', 'last7days', 'last30days', 'last90days', 'custom'] })
+  @ApiQuery({ name: 'transactionTypes', _required: any, isArray: true, _description: any)
+  @ApiQuery({ name: 'statuses', _required: any, isArray: true, _description: any)
+  @ApiQuery({ name: 'minAmount', _required: any, description: 'Minimum transaction amount' })
+  @ApiQuery({ name: 'maxAmount', _required: any, description: 'Maximum transaction amount' })
+  @ApiQuery({ name: 'searchText', _required: any, description: 'Search across transaction details' })
+  @ApiQuery({ name: 'page', _required: any, description: 'Page number (_default: any)' })
+  @ApiQuery({ name: 'limit', _required: any, description: 'Results per page (_default: any, max: 1000)' })
+  @ApiQuery({ name: 'sortBy', _required: any, description: 'Sort field (_default: any)' })
+  @ApiQuery({ name: 'sortOrder', _required: any, enum: ['ASC', 'DESC'], _description: any)' })
+  @ApiResponse({ status: 200, _description: any)
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async searchTransactions(
     @Query() searchParams: TransactionSearchDto,
@@ -157,9 +157,9 @@ export class TransactionHistoryController {
     summary: 'Get transaction details',
     description: 'Retrieve detailed information for a specific transaction'
   })
-  @ApiParam({ name: 'transactionId', description: 'Transaction ID' })
-  @ApiResponse({ status: 200, description: 'Transaction details retrieved' })
-  @ApiResponse({ status: 404, description: 'Transaction not found' })
+  @ApiParam({ name: 'transactionId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
+  @ApiResponse({ status: 404, _description: any)
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionById(
     @Param('transactionId', ParseUUIDPipe) transactionId: string,
@@ -175,8 +175,8 @@ export class TransactionHistoryController {
     summary: 'Get account transaction history',
     description: 'Retrieve transaction history for a specific account'
   })
-  @ApiParam({ name: 'accountId', description: 'Account ID' })
-  @ApiResponse({ status: 200, description: 'Account transaction history retrieved' })
+  @ApiParam({ name: 'accountId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getAccountTransactions(
     @Param('accountId', ParseUUIDPipe) accountId: string,
@@ -193,8 +193,8 @@ export class TransactionHistoryController {
     summary: 'Get customer transaction history',
     description: 'Retrieve transaction history for a specific customer'
   })
-  @ApiParam({ name: 'customerId', description: 'Customer ID' })
-  @ApiResponse({ status: 200, description: 'Customer transaction history retrieved' })
+  @ApiParam({ name: 'customerId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getCustomerTransactions(
     @Param('customerId', ParseUUIDPipe) customerId: string,
@@ -213,10 +213,10 @@ export class TransactionHistoryController {
     summary: 'Get transaction analytics',
     description: 'Retrieve comprehensive transaction analytics including trends, breakdowns, and performance metrics'
   })
-  @ApiQuery({ name: 'startDate', required: false })
-  @ApiQuery({ name: 'endDate', required: false })
-  @ApiQuery({ name: 'groupBy', required: false, enum: ['day', 'week', 'month'] })
-  @ApiResponse({ status: 200, description: 'Transaction analytics retrieved' })
+  @ApiQuery({ name: 'startDate', _required: any)
+  @ApiQuery({ name: 'endDate', _required: any)
+  @ApiQuery({ name: 'groupBy', _required: any, enum: ['day', 'week', 'month'] })
+  @ApiResponse({ status: 200, _description: any)
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionAnalytics(
     @Query() filters: Partial<TransactionSearchDto>,
@@ -232,9 +232,9 @@ export class TransactionHistoryController {
     summary: 'Get reconciliation report',
     description: 'Generate reconciliation report with discrepancies and balance summaries'
   })
-  @ApiQuery({ name: 'startDate', required: false, description: 'Report start date' })
-  @ApiQuery({ name: 'endDate', required: false, description: 'Report end date' })
-  @ApiResponse({ status: 200, description: 'Reconciliation report generated' })
+  @ApiQuery({ name: 'startDate', _required: any, description: 'Report start date' })
+  @ApiQuery({ name: 'endDate', _required: any, description: 'Report end date' })
+  @ApiResponse({ status: 200, _description: any)
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getReconciliationReport(
     @Query('startDate') startDate?: string,
@@ -251,8 +251,8 @@ export class TransactionHistoryController {
     summary: 'Get transaction insights',
     description: 'Get AI-powered insights and recommendations based on transaction patterns'
   })
-  @ApiQuery({ name: 'timeRange', required: false, enum: ['daily', 'weekly', 'monthly'] })
-  @ApiResponse({ status: 200, description: 'Transaction insights generated' })
+  @ApiQuery({ name: 'timeRange', _required: any, enum: ['daily', 'weekly', 'monthly'] })
+  @ApiResponse({ status: 200, _description: any)
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionInsights(
     @Query('timeRange') timeRange: 'daily' | 'weekly' | 'monthly' = 'weekly', @CurrentUser() user: JwtPayload,
@@ -285,7 +285,7 @@ export class TransactionHistoryController {
     description: 'Detect fraud, velocity, behavior, or risk patterns in transaction data'
   })
   @ApiBody({ type: PatternAnalysisDto })
-  @ApiResponse({ status: 200, description: 'Patterns detected and recommendations generated' })
+  @ApiResponse({ status: 200, _description: any)
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async detectTransactionPatterns(
     @Body() analysisDto: PatternAnalysisDto,
@@ -333,13 +333,13 @@ export class TransactionHistoryController {
     schema: {
       type: 'object',
       properties: {
-        filters: { type: 'object', description: 'Search filters to apply' },
+        filters: { type: 'object', _description: any,
         options: { type: 'object', description: 'Export format and options' }
       },
       required: ['options']
     }
   })
-  @ApiResponse({ status: 200, description: 'Export file generated and downloaded' })
+  @ApiResponse({ status: 200, _description: any)
   @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async exportTransactions(
     @Body() exportRequest: {
@@ -384,7 +384,7 @@ export class TransactionHistoryController {
     summary: 'Get export templates',
     description: 'Get available export templates and field configurations'
   })
-  @ApiResponse({ status: 200, description: 'Export templates retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   @Roles(UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getExportTemplates(
     @CurrentUser() user: JwtPayload,
@@ -439,20 +439,20 @@ export class TransactionHistoryController {
         },
       ],
       fields: [
-        { key: 'transactionNumber', label: 'Transaction Number', type: 'string', description: 'Unique transaction identifier' },
-        { key: 'type', label: 'Transaction Type', type: 'string', description: 'Type of transaction (withdrawal, deposit, etc.)' },
-        { key: 'amount', label: 'Amount', type: 'number', description: 'Transaction amount' },
-        { key: 'feeAmount', label: 'Fee Amount', type: 'number', description: 'Transaction fees' },
-        { key: 'totalAmount', label: 'Total Amount', type: 'number', description: 'Amount + fees' },
-        { key: 'status', label: 'Status', type: 'string', description: 'Current transaction status' },
-        { key: 'createdAt', label: 'Created Date', type: 'date', description: 'Transaction creation date' },
-        { key: 'completedAt', label: 'Completed Date', type: 'date', description: 'Transaction completion date' },
-        { key: 'customerName', label: 'Customer Name', type: 'string', description: 'Customer full name' },
-        { key: 'accountNumber', label: 'Account Number', type: 'string', description: 'Account number' },
-        { key: 'agentName', label: 'Agent Name', type: 'string', description: 'Processing agent name' },
-        { key: 'riskScore', label: 'Risk Score', type: 'number', description: 'Transaction risk assessment' },
-        { key: 'reference', label: 'Reference', type: 'string', description: 'Transaction reference' },
-        { key: 'notes', label: 'Notes', type: 'string', description: 'Transaction notes' },
+        { key: 'transactionNumber', _label: any, type: 'string', _description: any,
+        { key: 'type', _label: any, type: 'string', _description: any, deposit, etc.)' },
+        { key: 'amount', _label: any, type: 'number', _description: any,
+        { key: 'feeAmount', _label: any, type: 'number', _description: any,
+        { key: 'totalAmount', _label: any, type: 'number', _description: any,
+        { key: 'status', _label: any, type: 'string', _description: any,
+        { key: 'createdAt', _label: any, type: 'date', _description: any,
+        { key: 'completedAt', _label: any, type: 'date', _description: any,
+        { key: 'customerName', _label: any, type: 'string', _description: any,
+        { key: 'accountNumber', _label: any, type: 'string', _description: any,
+        { key: 'agentName', _label: any, type: 'string', _description: any,
+        { key: 'riskScore', _label: any, type: 'number', _description: any,
+        { key: 'reference', _label: any, type: 'string', _description: any,
+        { key: 'notes', _label: any, type: 'string', _description: any,
       ],
       templates: [
         {
@@ -491,8 +491,8 @@ export class TransactionHistoryController {
     summary: 'Get transaction dashboard data',
     description: 'Get summary data for transaction management dashboard'
   })
-  @ApiQuery({ name: 'period', required: false, enum: ['today', 'week', 'month'], description: 'Dashboard period' })
-  @ApiResponse({ status: 200, description: 'Dashboard data retrieved' })
+  @ApiQuery({ name: 'period', _required: any, enum: ['today', 'week', 'month'], _description: any)
+  @ApiResponse({ status: 200, _description: any)
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getDashboardData(
     @Query('period') period: 'today' | 'week' | 'month' = 'today', @CurrentUser() user: JwtPayload,
@@ -544,14 +544,14 @@ export class TransactionHistoryController {
       charts: {
         transactionsByHour: [],
         transactionsByType: [
-          { type: 'WITHDRAWAL', count: 856, percentage: 68.8 },
-          { type: 'DEPOSIT', count: 298, percentage: 23.9 },
-          { type: 'TRANSFER', count: 91, percentage: 7.3 },
+          { type: 'WITHDRAWAL', _count: any, percentage: 68.8 },
+          { type: 'DEPOSIT', _count: any, percentage: 23.9 },
+          { type: 'TRANSFER', _count: any, percentage: 7.3 },
         ],
         transactionsByStatus: [
-          { status: 'COMPLETED', count: 1198, percentage: 96.2 },
-          { status: 'PENDING', count: 23, percentage: 1.8 },
-          { status: 'FAILED', count: 24, percentage: 2.0 },
+          { status: 'COMPLETED', _count: any, percentage: 96.2 },
+          { status: 'PENDING', _count: any, percentage: 1.8 },
+          { status: 'FAILED', _count: any, percentage: 2.0 },
         ],
         topAgents: [],
       },
@@ -576,9 +576,9 @@ export class TransactionHistoryController {
     summary: 'Get transaction summary',
     description: 'Get quick transaction summary with key metrics'
   })
-  @ApiQuery({ name: 'groupBy', required: false, enum: ['day', 'week', 'month'] })
-  @ApiQuery({ name: 'compare', required: false, description: 'Compare with previous period' })
-  @ApiResponse({ status: 200, description: 'Transaction summary retrieved' })
+  @ApiQuery({ name: 'groupBy', _required: any, enum: ['day', 'week', 'month'] })
+  @ApiQuery({ name: 'compare', _required: any, description: 'Compare with previous period' })
+  @ApiResponse({ status: 200, _description: any)
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN)
   async getTransactionSummary(
     @Query('groupBy') groupBy: 'day' | 'week' | 'month' = 'day', @CurrentUser() user: JwtPayload,
@@ -646,7 +646,7 @@ export class TransactionHistoryController {
     summary: 'History service health check',
     description: 'Check the health status of transaction history service'
   })
-  @ApiResponse({ status: 200, description: 'Service is healthy' })
+  @ApiResponse({ status: 200, _description: any)
   async healthCheck(): Promise<{
     status: string;
     timestamp: string;

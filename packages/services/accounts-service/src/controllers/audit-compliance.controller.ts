@@ -5,7 +5,7 @@ import { RolesGuard } from '../../../identity-service/src/auth/guards/roles.guar
 import { CurrentUser } from '../../../identity-service/src/auth/decorators/current-user.decorator';
 // Mock @Roles decorator to fix signature issues
 function Roles(...roles: any[]) {
-  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+  return function (_target: any, propertyName: string, _descriptor: any) {
     // Mock implementation
     return descriptor;
   };
@@ -287,8 +287,8 @@ export class AuditComplianceController {
   @Post('audit/log')
   @Roles(UserRole.FIELD_AGENT, UserRole.CLERK, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.SYSTEM)
   @ApiOperation({ summary: 'Log an audit event' })
-  @ApiResponse({ status: 201, description: 'Audit event logged successfully', type: String })
-  @ApiResponse({ status: 400, description: 'Invalid request data' })
+  @ApiResponse({ status: 201, _description: any, type: String })
+  @ApiResponse({ status: 400, _description: any)
   async logAuditEvent(
     @Body(ValidationPipe) logAuditEventDto: LogAuditEventDto,
     @CurrentUser() user: any,
@@ -316,19 +316,19 @@ export class AuditComplianceController {
   @Get('audit/search')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Search audit logs' })
-  @ApiQuery({ name: 'eventTypes', required: false, type: [String] })
-  @ApiQuery({ name: 'actions', required: false, type: [String] })
-  @ApiQuery({ name: 'entityTypes', required: false, type: [String] })
-  @ApiQuery({ name: 'userIds', required: false, type: [String] })
-  @ApiQuery({ name: 'userRoles', required: false, type: [String] })
-  @ApiQuery({ name: 'startDate', required: false, type: String })
-  @ApiQuery({ name: 'endDate', required: false, type: String })
-  @ApiQuery({ name: 'riskScoreMin', required: false, type: Number })
-  @ApiQuery({ name: 'riskScoreMax', required: false, type: Number })
-  @ApiQuery({ name: 'complianceFlags', required: false, type: [String] })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiQuery({ name: 'offset', required: false, type: Number })
-  @ApiResponse({ status: 200, description: 'Audit logs retrieved', type: [AuditLogResponseDto] })
+  @ApiQuery({ name: 'eventTypes', _required: any, type: [String] })
+  @ApiQuery({ name: 'actions', _required: any, type: [String] })
+  @ApiQuery({ name: 'entityTypes', _required: any, type: [String] })
+  @ApiQuery({ name: 'userIds', _required: any, type: [String] })
+  @ApiQuery({ name: 'userRoles', _required: any, type: [String] })
+  @ApiQuery({ name: 'startDate', _required: any, type: String })
+  @ApiQuery({ name: 'endDate', _required: any, type: String })
+  @ApiQuery({ name: 'riskScoreMin', _required: any, type: Number })
+  @ApiQuery({ name: 'riskScoreMax', _required: any, type: Number })
+  @ApiQuery({ name: 'complianceFlags', _required: any, type: [String] })
+  @ApiQuery({ name: 'limit', _required: any, type: Number })
+  @ApiQuery({ name: 'offset', _required: any, type: Number })
+  @ApiResponse({ status: 200, _description: any, type: [AuditLogResponseDto] })
   async searchAuditLogs(
     @Query() query: AuditSearchDto,
   ): Promise<{
@@ -363,9 +363,9 @@ export class AuditComplianceController {
   @Get('audit/:auditId')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Get audit log by ID' })
-  @ApiParam({ name: 'auditId', description: 'Audit log ID' })
-  @ApiResponse({ status: 200, description: 'Audit log retrieved', type: AuditLogResponseDto })
-  @ApiResponse({ status: 404, description: 'Audit log not found' })
+  @ApiParam({ name: 'auditId', _description: any)
+  @ApiResponse({ status: 200, _description: any, type: AuditLogResponseDto })
+  @ApiResponse({ status: 404, _description: any)
   async getAuditLog(
     @Param('auditId') auditId: string,
   ): Promise<AuditLogResponseDto> {
@@ -383,9 +383,9 @@ export class AuditComplianceController {
   @Post('compliance/check/:entityType/:entityId')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.SYSTEM)
   @ApiOperation({ summary: 'Run compliance checks for an entity' })
-  @ApiParam({ name: 'entityType', description: 'Entity type (e.g., transaction, customer)' })
-  @ApiParam({ name: 'entityId', description: 'Entity ID' })
-  @ApiResponse({ status: 201, description: 'Compliance checks executed', type: [ComplianceCheckResponseDto] })
+  @ApiParam({ name: 'entityType', _description: any, transaction, customer)' })
+  @ApiParam({ name: 'entityId', _description: any)
+  @ApiResponse({ status: 201, _description: any, type: [ComplianceCheckResponseDto] })
   async runComplianceChecks(
     @Param('entityType') entityType: string,
     @Param('entityId') entityId: string,
@@ -420,16 +420,16 @@ export class AuditComplianceController {
   @Get('compliance/search')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Search compliance checks' })
-  @ApiQuery({ name: 'checkTypes', required: false, type: [String] })
-  @ApiQuery({ name: 'statuses', required: false, type: [String] })
-  @ApiQuery({ name: 'results', required: false, type: [String] })
-  @ApiQuery({ name: 'riskLevels', required: false, type: [String] })
-  @ApiQuery({ name: 'startDate', required: false, type: String })
-  @ApiQuery({ name: 'endDate', required: false, type: String })
-  @ApiQuery({ name: 'entityTypes', required: false, type: [String] })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiQuery({ name: 'offset', required: false, type: Number })
-  @ApiResponse({ status: 200, description: 'Compliance checks retrieved', type: [ComplianceCheckResponseDto] })
+  @ApiQuery({ name: 'checkTypes', _required: any, type: [String] })
+  @ApiQuery({ name: 'statuses', _required: any, type: [String] })
+  @ApiQuery({ name: 'results', _required: any, type: [String] })
+  @ApiQuery({ name: 'riskLevels', _required: any, type: [String] })
+  @ApiQuery({ name: 'startDate', _required: any, type: String })
+  @ApiQuery({ name: 'endDate', _required: any, type: String })
+  @ApiQuery({ name: 'entityTypes', _required: any, type: [String] })
+  @ApiQuery({ name: 'limit', _required: any, type: Number })
+  @ApiQuery({ name: 'offset', _required: any, type: Number })
+  @ApiResponse({ status: 200, _description: any, type: [ComplianceCheckResponseDto] })
   async searchComplianceChecks(
     @Query() query: ComplianceSearchDto,
   ): Promise<{
@@ -461,9 +461,9 @@ export class AuditComplianceController {
   @Get('compliance/:checkId')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Get compliance check by ID' })
-  @ApiParam({ name: 'checkId', description: 'Compliance check ID' })
-  @ApiResponse({ status: 200, description: 'Compliance check retrieved', type: ComplianceCheckResponseDto })
-  @ApiResponse({ status: 404, description: 'Compliance check not found' })
+  @ApiParam({ name: 'checkId', _description: any)
+  @ApiResponse({ status: 200, _description: any, type: ComplianceCheckResponseDto })
+  @ApiResponse({ status: 404, _description: any)
   async getComplianceCheck(
     @Param('checkId') checkId: string,
   ): Promise<ComplianceCheckResponseDto> {
@@ -481,7 +481,7 @@ export class AuditComplianceController {
   @Post('rules')
   @Roles(UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create compliance rule' })
-  @ApiResponse({ status: 201, description: 'Compliance rule created successfully', type: String })
+  @ApiResponse({ status: 201, _description: any, type: String })
   async createComplianceRule(
     @Body(ValidationPipe) createRuleDto: CreateComplianceRuleDto,
     @CurrentUser() user: any,
@@ -499,10 +499,10 @@ export class AuditComplianceController {
   @Get('rules')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Get compliance rules' })
-  @ApiQuery({ name: 'categories', required: false, type: [String] })
-  @ApiQuery({ name: 'ruleTypes', required: false, type: [String] })
-  @ApiQuery({ name: 'active', required: false, type: Boolean })
-  @ApiResponse({ status: 200, description: 'Compliance rules retrieved', type: [ComplianceRuleResponseDto] })
+  @ApiQuery({ name: 'categories', _required: any, type: [String] })
+  @ApiQuery({ name: 'ruleTypes', _required: any, type: [String] })
+  @ApiQuery({ name: 'active', _required: any, type: Boolean })
+  @ApiResponse({ status: 200, _description: any, type: [ComplianceRuleResponseDto] })
   async getComplianceRules(
     @Query() query: ComplianceRuleFiltersDto,
   ): Promise<ComplianceRuleResponseDto[]> {
@@ -519,9 +519,9 @@ export class AuditComplianceController {
   @Put('rules/:ruleId')
   @Roles(UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Update compliance rule' })
-  @ApiParam({ name: 'ruleId', description: 'Compliance rule ID' })
-  @ApiResponse({ status: 200, description: 'Compliance rule updated successfully' })
-  @ApiResponse({ status: 404, description: 'Compliance rule not found' })
+  @ApiParam({ name: 'ruleId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
+  @ApiResponse({ status: 404, _description: any)
   async updateComplianceRule(
     @Param('ruleId') ruleId: string,
     @Body(ValidationPipe) updateRuleDto: UpdateComplianceRuleDto,
@@ -545,9 +545,9 @@ export class AuditComplianceController {
   @Get('reports/compliance')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Generate compliance report' })
-  @ApiQuery({ name: 'startDate', required: true, type: String })
-  @ApiQuery({ name: 'endDate', required: true, type: String })
-  @ApiResponse({ status: 200, description: 'Compliance report generated' })
+  @ApiQuery({ name: 'startDate', _required: any, type: String })
+  @ApiQuery({ name: 'endDate', _required: any, type: String })
+  @ApiResponse({ status: 200, _description: any)
   async generateComplianceReport(
     @Query() query: ComplianceReportQueryDto,
     @CurrentUser() user: any,
@@ -572,7 +572,7 @@ export class AuditComplianceController {
   @Get('dashboard/compliance')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Get compliance dashboard data' })
-  @ApiResponse({ status: 200, description: 'Compliance dashboard data retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getComplianceDashboard(
     @CurrentUser() user: any,
   ): Promise<{
@@ -653,7 +653,7 @@ export class AuditComplianceController {
   @Get('dashboard/audit')
   @Roles(UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN, UserRole.AUDITOR)
   @ApiOperation({ summary: 'Get audit dashboard data' })
-  @ApiResponse({ status: 200, description: 'Audit dashboard data retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getAuditDashboard(
     @CurrentUser() user: any,
   ): Promise<{
@@ -705,26 +705,26 @@ export class AuditComplianceController {
 
     // Mock event type distribution
     const eventTypeDistribution = [
-      { eventType: AuditEventType.TRANSACTION_EVENT, count: 450, percentage: 45.0 },
-      { eventType: AuditEventType.USER_ACTION, count: 250, percentage: 25.0 },
-      { eventType: AuditEventType.ACCESS_EVENT, count: 150, percentage: 15.0 },
-      { eventType: AuditEventType.APPROVAL_EVENT, count: 100, percentage: 10.0 },
-      { eventType: AuditEventType.SECURITY_EVENT, count: 50, percentage: 5.0 },
+      { eventType: AuditEventType.TRANSACTION_EVENT, _count: any, percentage: 45.0 },
+      { eventType: AuditEventType.USER_ACTION, _count: any, percentage: 25.0 },
+      { eventType: AuditEventType.ACCESS_EVENT, _count: any, percentage: 15.0 },
+      { eventType: AuditEventType.APPROVAL_EVENT, _count: any, percentage: 10.0 },
+      { eventType: AuditEventType.SECURITY_EVENT, _count: any, percentage: 5.0 },
     ];
 
     // Mock risk score distribution
     const riskScoreDistribution = [
-      { range: '0-25', count: 600, percentage: 60.0 },
-      { range: '26-50', count: 250, percentage: 25.0 },
-      { range: '51-75', count: 100, percentage: 10.0 },
-      { range: '76-100', count: 50, percentage: 5.0 },
+      { range: '0-25', _count: any, percentage: 60.0 },
+      { range: '26-50', _count: any, percentage: 25.0 },
+      { range: '51-75', _count: any, percentage: 10.0 },
+      { range: '76-100', _count: any, percentage: 5.0 },
     ];
 
     // Mock activity trends
     const activityTrends = [
-      { date: '2024-01-01', totalEvents: 125, highRiskEvents: 8 },
-      { date: '2024-01-02', totalEvents: 142, highRiskEvents: 12 },
-      { date: '2024-01-03', totalEvents: 118, highRiskEvents: 6 },
+      { date: '2024-01-01', _totalEvents: any, highRiskEvents: 8 },
+      { date: '2024-01-02', _totalEvents: any, highRiskEvents: 12 },
+      { date: '2024-01-03', _totalEvents: any, highRiskEvents: 6 },
     ];
 
     return {
@@ -745,7 +745,7 @@ export class AuditComplianceController {
 
   @Get('health')
   @ApiOperation({ summary: 'Check audit and compliance service health' })
-  @ApiResponse({ status: 200, description: 'Service health status' })
+  @ApiResponse({ status: 200, _description: any)
   
   @Get('health')
   @ApiOperation({ summary: 'Get system health status' })
@@ -788,7 +788,7 @@ export class AuditComplianceController {
 
   @Get('enums')
   @ApiOperation({ summary: 'Get audit and compliance enums' })
-  @ApiResponse({ status: 200, description: 'Enums retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getEnums(): Promise<{
     auditEventTypes: AuditEventType[];
     auditActions: AuditAction[];
@@ -815,7 +815,7 @@ export class AuditComplianceController {
 
   // ===== PRIVATE HELPER METHODS =====
 
-  private mapAuditLogToResponse(auditLog: AuditLog): AuditLogResponseDto {
+  private mapAuditLogToResponse(_auditLog: any): AuditLogResponseDto {
     return {
       id: auditLog.id,
       companyId: auditLog.companyId,
@@ -839,7 +839,7 @@ export class AuditComplianceController {
     };
   }
 
-  private mapComplianceCheckToResponse(check: ComplianceCheck): ComplianceCheckResponseDto {
+  private mapComplianceCheckToResponse(_check: any): ComplianceCheckResponseDto {
     return {
       id: check.id,
       companyId: check.companyId,
@@ -861,7 +861,7 @@ export class AuditComplianceController {
     };
   }
 
-  private mapComplianceRuleToResponse(rule: ComplianceRule): ComplianceRuleResponseDto {
+  private mapComplianceRuleToResponse(_rule: any): ComplianceRuleResponseDto {
     return {
       id: rule.id,
       name: rule.name,

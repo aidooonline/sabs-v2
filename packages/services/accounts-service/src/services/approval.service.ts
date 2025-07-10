@@ -56,19 +56,19 @@ export class ApprovalService {
 
   // Approval rules configuration
   private readonly approvalRules: ApprovalRule[] = [
-    { condition: 'amount < 500', requiredRole: UserRole.CLERK, autoApprove: true, escalateIfFailed: false, weight: 1 },
-    { condition: 'amount >= 500 && amount < 2000', requiredRole: UserRole.CLERK, autoApprove: false, escalateIfFailed: false, weight: 2 },
-    { condition: 'amount >= 2000 && amount < 5000', requiredRole: UserRole.COMPANY_ADMIN, autoApprove: false, escalateIfFailed: true, weight: 3 },
-    { condition: 'amount >= 5000', requiredRole: UserRole.SUPER_ADMIN, autoApprove: false, escalateIfFailed: true, weight: 4 },
-    { condition: 'riskScore >= 70', requiredRole: UserRole.COMPANY_ADMIN, autoApprove: false, escalateIfFailed: true, weight: 3 },
-    { condition: 'riskScore >= 90', requiredRole: UserRole.SUPER_ADMIN, autoApprove: false, escalateIfFailed: true, weight: 4 },
+    { condition: 'amount < 500', _requiredRole: any, autoApprove: true, _escalateIfFailed: any, weight: 1 },
+    { condition: 'amount >= 500 && amount < 2000', _requiredRole: any, autoApprove: false, _escalateIfFailed: any, weight: 2 },
+    { condition: 'amount >= 2000 && amount < 5000', _requiredRole: any, autoApprove: false, _escalateIfFailed: any, weight: 3 },
+    { condition: 'amount >= 5000', _requiredRole: any, autoApprove: false, _escalateIfFailed: any, weight: 4 },
+    { condition: 'riskScore >= 70', _requiredRole: any, autoApprove: false, _escalateIfFailed: any, weight: 3 },
+    { condition: 'riskScore >= 90', _requiredRole: any, autoApprove: false, _escalateIfFailed: any, weight: 4 },
   ];
 
   // Queue configurations
   private readonly queueConfigurations: QueueConfiguration[] = [
-    { name: 'approval-clerk', maxCapacity: 50, slaMinutes: 30, autoAssign: true, roles: [UserRole.CLERK], priority: 1 },
-    { name: 'approval-manager', maxCapacity: 25, slaMinutes: 60, autoAssign: true, roles: [UserRole.COMPANY_ADMIN], priority: 2 },
-    { name: 'approval-admin', maxCapacity: 10, slaMinutes: 120, autoAssign: false, roles: [UserRole.SUPER_ADMIN], priority: 3 },
+    { name: 'approval-clerk', _maxCapacity: any, slaMinutes: 30, _autoAssign: any, roles: [UserRole.CLERK], _priority: any,
+    { name: 'approval-manager', _maxCapacity: any, slaMinutes: 60, _autoAssign: any, roles: [UserRole.COMPANY_ADMIN], _priority: any,
+    { name: 'approval-admin', _maxCapacity: any, slaMinutes: 120, _autoAssign: any, roles: [UserRole.SUPER_ADMIN], _priority: any,
   ];
 
   constructor(
@@ -639,7 +639,7 @@ export class ApprovalService {
     };
   }
 
-  async getDashboardStats(companyId: string): Promise<ApprovalDashboardStatsDto> {
+  async getDashboardStats(_companyId: any): Promise<ApprovalDashboardStatsDto> {
     // Get overall statistics
     const overall = await this.getOverallStats(companyId);
     
@@ -719,7 +719,7 @@ export class ApprovalService {
 
   // ===== PRIVATE HELPER METHODS =====
 
-  private async getWorkflowById(companyId: string, workflowId: string): Promise<ApprovalWorkflow> {
+  private async getWorkflowById(_companyId: any, workflowId: string): Promise<ApprovalWorkflow> {
     // Try cache first
     const cached = await this.cacheManager.get<ApprovalWorkflow>(`workflow:${workflowId}`);
     if (cached && cached.companyId === companyId) {
@@ -741,7 +741,7 @@ export class ApprovalService {
     return workflow;
   }
 
-  private determinePriority(transaction: Transaction): ApprovalPriority {
+  private determinePriority(_transaction: any): ApprovalPriority {
     // High amount = high priority
     if (transaction.amount >= 5000) return ApprovalPriority.HIGH;
     if (transaction.amount >= 2000) return ApprovalPriority.NORMAL;
@@ -753,7 +753,7 @@ export class ApprovalService {
     return ApprovalPriority.LOW;
   }
 
-  private calculateSLA(transaction: Transaction, priority: ApprovalPriority): number {
+  private calculateSLA(_transaction: any, priority: ApprovalPriority): number {
     let baseMinutes = 60; // Default 1 hour
     
     // Adjust based on priority
@@ -772,7 +772,7 @@ export class ApprovalService {
     return baseMinutes;
   }
 
-  private determineInitialStage(transaction: Transaction): ApprovalStage {
+  private determineInitialStage(_transaction: any): ApprovalStage {
     if (transaction.requiresAdminApproval) {
       return ApprovalStage.ADMIN_REVIEW;
     }
@@ -782,7 +782,7 @@ export class ApprovalService {
     return ApprovalStage.INITIAL_REVIEW;
   }
 
-  private addInitialChecklistItems(workflow: ApprovalWorkflow, transaction: Transaction): void {
+  private addInitialChecklistItems(_workflow: any, transaction: Transaction): void {
     // Standard checklist items
     workflow.addChecklistItem('Verify customer identity', true);
     workflow.addChecklistItem('Check account balance sufficiency', true);
@@ -806,7 +806,7 @@ export class ApprovalService {
     }
   }
 
-  private async autoAssignWorkflow(workflow: ApprovalWorkflow): Promise<void> {
+  private async autoAssignWorkflow(_workflow: any): Promise<void> {
     const queueConfig = this.queueConfigurations.find(q => q.name === workflow.queueName);
     
     if (queueConfig?.autoAssign) {
@@ -818,12 +818,12 @@ export class ApprovalService {
     }
   }
 
-  private async validateApprovalAuthority(userId: string, stage: ApprovalStage): Promise<void> {
+  private async validateApprovalAuthority(_userId: any, stage: ApprovalStage): Promise<void> {
     // This would integrate with the identity service to check user roles
     // For now, we'll assume validation passes
   }
 
-  private async validateCompletedChecklist(workflow: ApprovalWorkflow): Promise<void> {
+  private async validateCompletedChecklist(_workflow: any): Promise<void> {
     if (workflow.checklistItems && Object.values(workflow.checklistItems).length > 0) {
       const requiredItems = workflow.checklistItems.filter(item => item.required);
       const completedRequired = requiredItems.filter(item => item.completed);
@@ -834,11 +834,11 @@ export class ApprovalService {
     }
   }
 
-  private async updateTransactionStatus(transactionId: string, status: TransactionStatus): Promise<void> {
+  private async updateTransactionStatus(_transactionId: any, status: TransactionStatus): Promise<void> {
     await this.transactionRepository.update(transactionId, { status });
   }
 
-  private async getOverallStats(companyId: string): Promise<any> {
+  private async getOverallStats(_companyId: any): Promise<any> {
     // Implementation for overall statistics
     return {
       totalPending: 0,
@@ -851,17 +851,17 @@ export class ApprovalService {
     };
   }
 
-  private async getQueueStats(companyId: string): Promise<ApprovalQueueStatsDto[]> {
+  private async getQueueStats(_companyId: any): Promise<ApprovalQueueStatsDto[]> {
     // Implementation for queue statistics
     return [];
   }
 
-  private async getTopApprovers(companyId: string): Promise<any[]> {
+  private async getTopApprovers(_companyId: any): Promise<any[]> {
     // Implementation for top approvers
     return [];
   }
 
-  private async getEscalationStats(companyId: string): Promise<any> {
+  private async getEscalationStats(_companyId: any): Promise<any> {
     // Implementation for escalation statistics
     return {
       totalEscalated: 0,
@@ -871,7 +871,7 @@ export class ApprovalService {
     };
   }
 
-  private async getPerformanceTrends(companyId: string): Promise<any> {
+  private async getPerformanceTrends(_companyId: any): Promise<any> {
     // Implementation for performance trends
     return {
       dailyVolume: [],
@@ -880,7 +880,7 @@ export class ApprovalService {
     };
   }
 
-  private formatWorkflowResponse(workflow: ApprovalWorkflow): ApprovalWorkflowResponseDto {
+  private formatWorkflowResponse(_workflow: any): ApprovalWorkflowResponseDto {
     return {
       id: workflow.id,
       workflowNumber: workflow.workflowNumber,

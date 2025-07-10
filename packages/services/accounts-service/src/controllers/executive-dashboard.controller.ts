@@ -145,9 +145,9 @@ export class ExecutiveDashboardController {
   @Get('dashboards')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get executive dashboards' })
-  @ApiQuery({ name: 'executiveLevel', required: false, enum: ExecutiveLevel })
-  @ApiQuery({ name: 'type', required: false, enum: DashboardType })
-  @ApiResponse({ status: 200, description: 'Executive dashboards retrieved' })
+  @ApiQuery({ name: 'executiveLevel', _required: any, enum: ExecutiveLevel })
+  @ApiQuery({ name: 'type', _required: any, enum: DashboardType })
+  @ApiResponse({ status: 200, _description: any)
   async getExecutiveDashboards(
     @Headers('authorization') authorization: string,
     @Query('executiveLevel') executiveLevel?: ExecutiveLevel,
@@ -213,8 +213,8 @@ export class ExecutiveDashboardController {
   @Post('dashboards')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create executive dashboard' })
-  @ApiResponse({ status: 201, description: 'Dashboard created successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid dashboard configuration' })
+  @ApiResponse({ status: 201, _description: any)
+  @ApiResponse({ status: 400, _description: any)
   async createExecutiveDashboard(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) dashboardDto: CreateDashboardDto,
@@ -234,7 +234,7 @@ export class ExecutiveDashboardController {
       type: dashboardDto.type,
       audience: dashboardDto.audience,
       layout: dashboardDto.layout || {},
-      widgets: (dashboardDto.widgets || []).map(w => ({ ...w, type: w.type as any })),
+      widgets: (dashboardDto.widgets || []).map(w => ({ ...w, _type: any)),
     };
 
     const result = await this.executiveService.createExecutiveDashboard(request);
@@ -248,8 +248,8 @@ export class ExecutiveDashboardController {
   @Get('dashboards/:dashboardId')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get dashboard real-time data' })
-  @ApiParam({ name: 'dashboardId', description: 'Dashboard ID' })
-  @ApiResponse({ status: 200, description: 'Dashboard data retrieved' })
+  @ApiParam({ name: 'dashboardId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async getDashboardData(
     @Headers('authorization') authorization: string,
     @Param('dashboardId') dashboardId: string,
@@ -335,9 +335,9 @@ export class ExecutiveDashboardController {
   @Get('kpis')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get executive KPIs' })
-  @ApiQuery({ name: 'category', required: false, enum: KPICategory })
-  @ApiQuery({ name: 'status', required: false, enum: KPIStatus })
-  @ApiResponse({ status: 200, description: 'KPIs retrieved successfully' })
+  @ApiQuery({ name: 'category', _required: any, enum: KPICategory })
+  @ApiQuery({ name: 'status', _required: any, enum: KPIStatus })
+  @ApiResponse({ status: 200, _description: any)
   async getExecutiveKPIs(
     @Headers('authorization') authorization: string,
     @Query('category') category?: KPICategory,
@@ -417,8 +417,8 @@ export class ExecutiveDashboardController {
   @Put('kpis/:kpiId/value')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update KPI value' })
-  @ApiParam({ name: 'kpiId', description: 'KPI ID' })
-  @ApiResponse({ status: 200, description: 'KPI updated successfully' })
+  @ApiParam({ name: 'kpiId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async updateKPIValue(
     @Headers('authorization') authorization: string,
     @Param('kpiId') kpiId: string,
@@ -473,10 +473,10 @@ export class ExecutiveDashboardController {
   @Get('alerts')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get strategic alerts' })
-  @ApiQuery({ name: 'severity', required: false, enum: AlertSeverity })
-  @ApiQuery({ name: 'category', required: false, enum: AlertCategory })
-  @ApiQuery({ name: 'status', required: false, enum: AlertStatus })
-  @ApiResponse({ status: 200, description: 'Strategic alerts retrieved' })
+  @ApiQuery({ name: 'severity', _required: any, enum: AlertSeverity })
+  @ApiQuery({ name: 'category', _required: any, enum: AlertCategory })
+  @ApiQuery({ name: 'status', _required: any, enum: AlertStatus })
+  @ApiResponse({ status: 200, _description: any)
   async getStrategicAlerts(
     @Headers('authorization') authorization: string,
     @Query('severity') severity?: AlertSeverity,
@@ -561,7 +561,7 @@ export class ExecutiveDashboardController {
   @Post('alerts')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create strategic alert' })
-  @ApiResponse({ status: 201, description: 'Alert created successfully' })
+  @ApiResponse({ status: 201, _description: any)
   async createStrategicAlert(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) alertDto: CreateAlertDto,
@@ -600,8 +600,8 @@ export class ExecutiveDashboardController {
   @Put('alerts/:alertId/acknowledge')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Acknowledge strategic alert' })
-  @ApiParam({ name: 'alertId', description: 'Alert ID' })
-  @ApiResponse({ status: 200, description: 'Alert acknowledged' })
+  @ApiParam({ name: 'alertId', _description: any)
+  @ApiResponse({ status: 200, _description: any)
   async acknowledgeAlert(
     @Headers('authorization') authorization: string,
     @Param('alertId') alertId: string,
@@ -636,7 +636,7 @@ export class ExecutiveDashboardController {
   @Post('reports')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Generate executive report' })
-  @ApiResponse({ status: 201, description: 'Report generation initiated' })
+  @ApiResponse({ status: 201, _description: any)
   async generateExecutiveReport(
     @Headers('authorization') authorization: string,
     @Body(ValidationPipe) reportDto: GenerateReportDto,
@@ -683,9 +683,9 @@ export class ExecutiveDashboardController {
   @Get('reports')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get executive reports' })
-  @ApiQuery({ name: 'type', required: false, enum: ReportType })
-  @ApiQuery({ name: 'period', required: false, enum: ReportPeriod })
-  @ApiResponse({ status: 200, description: 'Reports retrieved successfully' })
+  @ApiQuery({ name: 'type', _required: any, enum: ReportType })
+  @ApiQuery({ name: 'period', _required: any, enum: ReportPeriod })
+  @ApiResponse({ status: 200, _description: any)
   async getExecutiveReports(
     @Headers('authorization') authorization: string,
     @Query('type') type?: ReportType,
@@ -763,7 +763,7 @@ export class ExecutiveDashboardController {
   @Get('board-dashboard')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get board meeting dashboard' })
-  @ApiResponse({ status: 200, description: 'Board dashboard retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getBoardMeetingDashboard(
     @Headers('authorization') authorization: string,
   ): Promise<{
@@ -865,7 +865,7 @@ export class ExecutiveDashboardController {
   @Get('performance-metrics')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get executive performance metrics' })
-  @ApiResponse({ status: 200, description: 'Performance metrics retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getPerformanceMetrics(
     @Headers('authorization') authorization: string,
   ): Promise<{
@@ -954,7 +954,7 @@ export class ExecutiveDashboardController {
 
   @Get('enums')
   @ApiOperation({ summary: 'Get executive dashboard related enums' })
-  @ApiResponse({ status: 200, description: 'Enums retrieved' })
+  @ApiResponse({ status: 200, _description: any)
   async getExecutiveEnums(): Promise<{
     dashboardTypes: DashboardType[];
     executiveLevels: ExecutiveLevel[];
@@ -983,7 +983,7 @@ export class ExecutiveDashboardController {
 
   @Get('health')
   @ApiOperation({ summary: 'Check executive dashboard service health' })
-  @ApiResponse({ status: 200, description: 'Service health status' })
+  @ApiResponse({ status: 200, _description: any)
   
   @Get('health')
   @ApiOperation({ summary: 'Get system health status' })
@@ -1025,7 +1025,7 @@ export class ExecutiveDashboardController {
   // ===== PRIVATE HELPER METHODS =====
 
   
-  private async extractUserId(authorization: string): Promise<string> {
+  private async extractUserId(_authorization: any): Promise<string> {
     if (!authorization || !authorization.startsWith('Bearer ')) {
       throw new HttpException('Invalid authorization header', HttpStatus.UNAUTHORIZED);
     }
@@ -1037,7 +1037,7 @@ export class ExecutiveDashboardController {
 
   }
 
-  private getKeyDrivers(category: KPICategory): string[] {
+  private getKeyDrivers(_category: any): string[] {
     const drivers = {
       [KPICategory.FINANCIAL]: ['Revenue growth', 'Cost optimization', 'Margin expansion'],
       [KPICategory.OPERATIONAL]: ['Process efficiency', 'Quality improvements', 'Automation'],
@@ -1050,7 +1050,7 @@ export class ExecutiveDashboardController {
     return drivers[category] || ['Market conditions', 'Operational efficiency'];
   }
 
-  private generateKPIImpactDescription(kpi: KPIMetric, status: KPIStatus): string {
+  private generateKPIImpactDescription(_kpi: any, status: KPIStatus): string {
     const descriptions = {
       [KPIStatus.ON_TARGET]: `${kpi.name} is performing within target range, indicating healthy progress.`,
       [KPIStatus.ABOVE_TARGET]: `${kpi.name} is exceeding targets, showing excellent performance.`,
@@ -1061,7 +1061,7 @@ export class ExecutiveDashboardController {
     return descriptions[status];
   }
 
-  private generateKPIRecommendations(kpi: KPIMetric, status: KPIStatus): string[] {
+  private generateKPIRecommendations(_kpi: any, status: KPIStatus): string[] {
     if (status === KPIStatus.ON_TARGET) {
       return ['Continue current strategy', 'Monitor for sustained performance'];
     } else if (status === KPIStatus.ABOVE_TARGET) {
@@ -1073,7 +1073,7 @@ export class ExecutiveDashboardController {
     }
   }
 
-  private getAffectedStakeholders(category: KPICategory): string[] {
+  private getAffectedStakeholders(_category: any): string[] {
     const stakeholders = {
       [KPICategory.FINANCIAL]: ['CFO', 'Finance team', 'Board', 'Investors'],
       [KPICategory.OPERATIONAL]: ['COO', 'Operations team', 'Process owners'],

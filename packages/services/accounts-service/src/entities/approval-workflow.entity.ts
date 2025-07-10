@@ -54,7 +54,7 @@ export class ApprovalWorkflow {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'workflow_number', length: 20, unique: true })
+  @Column({ name: 'workflow_number', _length: any, unique: true })
   workflowNumber: string;
 
   @Column({ name: 'company_id' })
@@ -89,67 +89,67 @@ export class ApprovalWorkflow {
   priority: ApprovalPriority;
 
   // Assignment and Ownership
-  @Column({ name: 'assigned_to', nullable: true })
+  @Column({ name: 'assigned_to', _nullable: any)
   assignedTo: string; // User ID of assigned approver
 
-  @Column({ name: 'assigned_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'assigned_at', _type: any, nullable: true })
   assignedAt: Date;
 
-  @Column({ name: 'assigned_by', nullable: true })
+  @Column({ name: 'assigned_by', _nullable: any)
   assignedBy: string; // User ID who assigned
 
-  @Column({ name: 'queue_name', length: 50, nullable: true })
+  @Column({ name: 'queue_name', _length: any, nullable: true })
   queueName: string; // approval-clerk, approval-manager, approval-admin
 
   // Timing and SLA
-  @Column({ name: 'sla_duration_minutes', default: 60 })
+  @Column({ name: 'sla_duration_minutes', _default: any)
   slaDurationMinutes: number; // SLA in minutes
 
-  @Column({ name: 'expires_at', type: 'timestamp' })
+  @Column({ name: 'expires_at', _type: any)
   expiresAt: Date;
 
-  @Column({ name: 'started_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'started_at', _type: any, nullable: true })
   startedAt: Date; // When review actually started
 
-  @Column({ name: 'completed_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'completed_at', _type: any, nullable: true })
   completedAt: Date;
 
-  @Column({ name: 'response_time_minutes', nullable: true })
+  @Column({ name: 'response_time_minutes', _nullable: any)
   responseTimeMinutes: number;
 
   // Escalation Management
-  @Column({ name: 'escalated', default: false })
+  @Column({ name: 'escalated', _default: any)
   escalated: boolean;
 
-  @Column({ name: 'escalation_level', default: 0 })
+  @Column({ name: 'escalation_level', _default: any)
   escalationLevel: number; // 0=none, 1=manager, 2=admin, 3=senior_admin
 
-  @Column({ name: 'escalation_reason', type: 'enum', enum: EscalationReason, nullable: true })
+  @Column({ name: 'escalation_reason', _type: any, enum: EscalationReason, _nullable: any)
   escalationReason: EscalationReason;
 
-  @Column({ name: 'escalated_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'escalated_at', _type: any, nullable: true })
   escalatedAt: Date;
 
-  @Column({ name: 'escalated_by', nullable: true })
+  @Column({ name: 'escalated_by', _nullable: any)
   escalatedBy: string;
 
-  @Column({ name: 'escalation_notes', type: 'text', nullable: true })
+  @Column({ name: 'escalation_notes', _type: any, nullable: true })
   escalationNotes: string;
 
-  @Column({ name: 'auto_escalated', default: false })
+  @Column({ name: 'auto_escalated', _default: any)
   autoEscalated: boolean;
 
   // Approval Decision
-  @Column({ name: 'approved_by', nullable: true })
+  @Column({ name: 'approved_by', _nullable: any)
   approvedBy: string;
 
-  @Column({ name: 'approved_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'approved_at', _type: any, nullable: true })
   approvedAt: Date;
 
-  @Column({ name: 'approval_notes', type: 'text', nullable: true })
+  @Column({ name: 'approval_notes', _type: any, nullable: true })
   approvalNotes: string;
 
-  @Column({ name: 'approval_conditions', type: 'json', nullable: true })
+  @Column({ name: 'approval_conditions', _type: any, nullable: true })
   approvalConditions: Array<{
     condition: string;
     required: boolean;
@@ -158,39 +158,39 @@ export class ApprovalWorkflow {
   }>;
 
   // Rejection Information
-  @Column({ name: 'rejected_by', nullable: true })
+  @Column({ name: 'rejected_by', _nullable: any)
   rejectedBy: string;
 
-  @Column({ name: 'rejected_at', type: 'timestamp', nullable: true })
+  @Column({ name: 'rejected_at', _type: any, nullable: true })
   rejectedAt: Date;
 
-  @Column({ name: 'rejection_reason', type: 'text', nullable: true })
+  @Column({ name: 'rejection_reason', _type: any, nullable: true })
   rejectionReason: string;
 
-  @Column({ name: 'rejection_category', length: 50, nullable: true })
+  @Column({ name: 'rejection_category', _length: any, nullable: true })
   rejectionCategory: string; // insufficient_funds, compliance_issue, documentation_incomplete, etc.
 
-  @Column({ name: 'allow_resubmission', default: true })
+  @Column({ name: 'allow_resubmission', _default: any)
   allowResubmission: boolean;
 
   // Review and Analysis
-  @Column({ name: 'risk_review_completed', default: false })
+  @Column({ name: 'risk_review_completed', _default: any)
   riskReviewCompleted: boolean;
 
-  @Column({ name: 'compliance_review_completed', default: false })
+  @Column({ name: 'compliance_review_completed', _default: any)
   complianceReviewCompleted: boolean;
 
-  @Column({ name: 'documentation_review_completed', default: false })
+  @Column({ name: 'documentation_review_completed', _default: any)
   documentationReviewCompleted: boolean;
 
-  @Column({ name: 'manager_review_required', default: false })
+  @Column({ name: 'manager_review_required', _default: any)
   managerReviewRequired: boolean;
 
-  @Column({ name: 'admin_review_required', default: false })
+  @Column({ name: 'admin_review_required', _default: any)
   adminReviewRequired: boolean;
 
   // Review Checklist
-  @Column({ name: 'checklist_items', type: 'json', nullable: true })
+  @Column({ name: 'checklist_items', _type: any, nullable: true })
   checklistItems: Array<{
     item: string;
     required: boolean;
@@ -200,11 +200,11 @@ export class ApprovalWorkflow {
     notes?: string;
   }>;
 
-  @Column({ name: 'checklist_completion_percentage', default: 0 })
+  @Column({ name: 'checklist_completion_percentage', _default: any)
   checklistCompletionPercentage: number;
 
   // Decision Factors
-  @Column({ name: 'decision_factors', type: 'json', nullable: true })
+  @Column({ name: 'decision_factors', _type: any, nullable: true })
   decisionFactors: Array<{
     factor: string;
     weight: number;
@@ -213,14 +213,14 @@ export class ApprovalWorkflow {
     impact: 'positive' | 'negative' | 'neutral';
   }>;
 
-  @Column({ name: 'decision_score', default: 0 })
+  @Column({ name: 'decision_score', _default: any)
   decisionScore: number; // Aggregate score from decision factors
 
-  @Column({ name: 'confidence_level', default: 0 })
+  @Column({ name: 'confidence_level', _default: any)
   confidenceLevel: number; // 0-100 confidence in the decision
 
   // Communication and Collaboration
-  @Column({ name: 'comments', type: 'json', default: '[]' })
+  @Column({ name: 'comments', _type: any, default: '[]' })
   comments: Array<{
     id: string;
     commentBy: string;
@@ -236,10 +236,10 @@ export class ApprovalWorkflow {
     }>;
   }>;
 
-  @Column({ name: 'internal_notes', type: 'text', nullable: true })
+  @Column({ name: 'internal_notes', _type: any, nullable: true })
   internalNotes: string;
 
-  @Column({ name: 'customer_communication', type: 'json', nullable: true })
+  @Column({ name: 'customer_communication', _type: any, nullable: true })
   customerCommunication: Array<{
     type: 'sms' | 'email' | 'phone' | 'in_person';
     sentAt: string;
@@ -249,39 +249,39 @@ export class ApprovalWorkflow {
   }>;
 
   // Performance and Analytics
-  @Column({ name: 'touches_count', default: 0 })
+  @Column({ name: 'touches_count', _default: any)
   touchesCount: number; // Number of times workflow was accessed/modified
 
-  @Column({ name: 'reviewers_count', default: 0 })
+  @Column({ name: 'reviewers_count', _default: any)
   reviewersCount: number; // Number of different reviewers
 
-  @Column({ name: 'stage_durations', type: 'json', default: '{}' })
+  @Column({ name: 'stage_durations', _type: any, default: '{}' })
   stageDurations: Record<ApprovalStage, number>; // Duration in each stage (minutes)
 
-  @Column({ name: 'bottleneck_stage', nullable: true })
+  @Column({ name: 'bottleneck_stage', _nullable: any)
   bottleneckStage: ApprovalStage; // Stage that took longest
 
-  @Column({ name: 'efficiency_score', default: 0 })
+  @Column({ name: 'efficiency_score', _default: any)
   efficiencyScore: number; // 0-100 based on SLA performance
 
   // System and Automation
-  @Column({ name: 'auto_decision_eligible', default: false })
+  @Column({ name: 'auto_decision_eligible', _default: any)
   autoDecisionEligible: boolean;
 
-  @Column({ name: 'auto_decision_applied', default: false })
+  @Column({ name: 'auto_decision_applied', _default: any)
   autoDecisionApplied: boolean;
 
-  @Column({ name: 'auto_decision_confidence', default: 0 })
+  @Column({ name: 'auto_decision_confidence', _default: any)
   autoDecisionConfidence: number; // 0-100
 
-  @Column({ name: 'manual_override_required', default: false })
+  @Column({ name: 'manual_override_required', _default: any)
   manualOverrideRequired: boolean;
 
-  @Column({ name: 'override_reason', type: 'text', nullable: true })
+  @Column({ name: 'override_reason', _type: any, nullable: true })
   overrideReason: string;
 
   // Compliance and Audit
-  @Column({ name: 'compliance_flags', type: 'json', nullable: true })
+  @Column({ name: 'compliance_flags', _type: any, nullable: true })
   complianceFlags: Array<{
     flag: string;
     severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
@@ -291,7 +291,7 @@ export class ApprovalWorkflow {
     resolvedBy?: string;
   }>;
 
-  @Column({ name: 'regulatory_requirements', type: 'json', nullable: true })
+  @Column({ name: 'regulatory_requirements', _type: any, nullable: true })
   regulatoryRequirements: Array<{
     requirement: string;
     applicable: boolean;
@@ -300,7 +300,7 @@ export class ApprovalWorkflow {
     verifiedBy?: string;
   }>;
 
-  @Column({ name: 'audit_trail', type: 'json', default: '[]' })
+  @Column({ name: 'audit_trail', _type: any, default: '[]' })
   auditTrail: Array<{
     action: string;
     performedBy: string;
@@ -313,10 +313,10 @@ export class ApprovalWorkflow {
   }>;
 
   // Additional Information
-  @Column({ type: 'json', nullable: true })
+  @Column({ type: 'json', _nullable: any)
   metadata: Record<string, any>;
 
-  @Column({ name: 'tags', type: 'json', nullable: true })
+  @Column({ name: 'tags', _type: any, nullable: true })
   tags: string[]; // For categorization and filtering
 
   @CreateDateColumn({ name: 'created_at' })
@@ -433,7 +433,7 @@ export class ApprovalWorkflow {
   }
 
   // Business Logic Methods
-  assign(assignedTo: string, assignedBy: string, queueName?: string): void {
+  assign(_assignedTo: any, assignedBy: string, queueName?: string): void {
     if (this.assignedTo) {
       throw new Error('Workflow is already assigned');
     }
@@ -447,7 +447,7 @@ export class ApprovalWorkflow {
     this.addAuditEntry('ASSIGNED', assignedBy, { assignedTo, queueName });
   }
 
-  reassign(newAssignee: string, reassignedBy: string, reason?: string): void {
+  reassign(_newAssignee: any, reassignedBy: string, reason?: string): void {
     const oldAssignee = this.assignedTo;
     
     this.assignedTo = newAssignee;
@@ -458,7 +458,7 @@ export class ApprovalWorkflow {
     this.addAuditEntry('REASSIGNED', reassignedBy, { oldAssignee, newAssignee, reason });
   }
 
-  startReview(reviewerId: string): void {
+  startReview(_reviewerId: any): void {
     if (this.assignedTo !== reviewerId) {
       throw new Error('Only assigned reviewer can start review');
     }
@@ -470,7 +470,7 @@ export class ApprovalWorkflow {
     this.addAuditEntry('REVIEW_STARTED', reviewerId);
   }
 
-  approve(approverId: string, notes?: string, conditions?: Array<any>): void {
+  approve(_approverId: any, notes?: string, conditions?: Array<any>): void {
     if (!this.canBeApproved(approverId)) {
       throw new Error('Workflow cannot be approved by this user');
     }
@@ -488,7 +488,7 @@ export class ApprovalWorkflow {
     this.addAuditEntry('APPROVED', approverId, { notes, conditions });
   }
 
-  reject(rejecterId: string, reason: string, category?: string, allowResubmission: boolean = true): void {
+  reject(_rejecterId: any, reason: string, category?: string, _allowResubmission: any): void {
     if (!this.canBeRejected(rejecterId)) {
       throw new Error('Workflow cannot be rejected by this user');
     }
@@ -507,7 +507,7 @@ export class ApprovalWorkflow {
     this.addAuditEntry('REJECTED', rejecterId, { reason, category, allowResubmission });
   }
 
-  escalate(escalatedBy: string, reason: EscalationReason, notes?: string): void {
+  escalate(_escalatedBy: any, reason: EscalationReason, notes?: string): void {
     if (!this.canBeEscalated) {
       throw new Error('Workflow cannot be escalated further');
     }
@@ -531,15 +531,15 @@ export class ApprovalWorkflow {
       this.queueName = 'approval-admin';
     }
 
-    this.addAuditEntry('ESCALATED', escalatedBy, { reason, notes, level: this.escalationLevel });
+    this.addAuditEntry('ESCALATED', escalatedBy, { reason, notes, _level: any);
   }
 
-  autoEscalate(reason: EscalationReason): void {
+  autoEscalate(_reason: any): void {
     this.autoEscalated = true;
     this.escalate('SYSTEM', reason, 'Auto-escalated due to SLA breach or system rules');
   }
 
-  addStageCompletion(stage: ApprovalStage, completedBy: string): void {
+  addStageCompletion(_stage: any, completedBy: string): void {
     const startTime = this.getStageStartTime(stage);
     const duration = startTime ? Math.round((new Date().getTime() - startTime.getTime()) / (1000 * 60)) : 0;
     
@@ -550,7 +550,7 @@ export class ApprovalWorkflow {
     this.addAuditEntry('STAGE_COMPLETED', completedBy, { stage, duration });
   }
 
-  addChecklistItem(item: string, required: boolean = true): void {
+  addChecklistItem(_item: any, required: boolean = true): void {
     if (!this.checklistItems) {
       this.checklistItems = [];
     }
@@ -564,7 +564,7 @@ export class ApprovalWorkflow {
     this.updateChecklistCompletion();
   }
 
-  completeChecklistItem(itemIndex: number, completedBy: string, notes?: string): void {
+  completeChecklistItem(_itemIndex: any, completedBy: string, notes?: string): void {
     if (!this.checklistItems || itemIndex >= Object.values(this.checklistItems).length) {
       throw new Error('Invalid checklist item index');
     }
@@ -575,10 +575,10 @@ export class ApprovalWorkflow {
     this.checklistItems[itemIndex].notes = notes;
 
     this.updateChecklistCompletion();
-    this.addAuditEntry('CHECKLIST_ITEM_COMPLETED', completedBy, { itemIndex, item: this.checklistItems[itemIndex].item });
+    this.addAuditEntry('CHECKLIST_ITEM_COMPLETED', completedBy, { itemIndex, _item: any);
   }
 
-  addComment(commentBy: string, comment: string, internal: boolean = false): string {
+  addComment(_commentBy: any, comment: string, _internal: any): string {
     const commentId = nanoid(8);
     
     this.comments.push({
@@ -598,7 +598,7 @@ export class ApprovalWorkflow {
     return commentId;
   }
 
-  addComplianceFlag(flag: string, severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL', description: string): void {
+  addComplianceFlag(_flag: any, severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL', _description: any): void {
     if (!this.complianceFlags) {
       this.complianceFlags = [];
     }
@@ -616,7 +616,7 @@ export class ApprovalWorkflow {
     }
   }
 
-  updatePriority(newPriority: ApprovalPriority, updatedBy: string, reason?: string): void {
+  updatePriority(_newPriority: any, updatedBy: string, reason?: string): void {
     const oldPriority = this.priority;
     this.priority = newPriority;
     this.updatedAt = new Date();
@@ -624,7 +624,7 @@ export class ApprovalWorkflow {
     this.addAuditEntry('PRIORITY_UPDATED', updatedBy, { oldPriority, newPriority, reason });
   }
 
-  extendSLA(additionalMinutes: number, extendedBy: string, reason: string): void {
+  extendSLA(_additionalMinutes: any, extendedBy: string, _reason: any): void {
     this.slaDurationMinutes += additionalMinutes;
     this.expiresAt = new Date(this.expiresAt.getTime() + (additionalMinutes * 60 * 1000));
     this.updatedAt = new Date();
@@ -632,7 +632,7 @@ export class ApprovalWorkflow {
     this.addAuditEntry('SLA_EXTENDED', extendedBy, { additionalMinutes, reason });
   }
 
-  cancel(cancelledBy: string, reason: string): void {
+  cancel(_cancelledBy: any, reason: string): void {
     this.status = WorkflowStatus.CANCELLED;
     this.completedAt = new Date();
     this.updatedAt = new Date();
@@ -640,21 +640,21 @@ export class ApprovalWorkflow {
     this.addAuditEntry('CANCELLED', cancelledBy, { reason });
   }
 
-  private canBeApproved(approverId: string): boolean {
+  private canBeApproved(_approverId: any): boolean {
     return this.isInReview && (this.assignedTo === approverId || this.requiresManagerApproval || this.requiresAdminApproval);
   }
 
-  private canBeRejected(rejecterId: string): boolean {
+  private canBeRejected(_rejecterId: any): boolean {
     return this.isInReview && (this.assignedTo === rejecterId || this.requiresManagerApproval || this.requiresAdminApproval);
   }
 
-  private getStageStartTime(stage: ApprovalStage): Date | null {
+  private getStageStartTime(_stage: any): Date | null {
     // Find when this stage started from audit trail
     const stageEntry = this.auditTrail.find(entry => entry.toStage === stage);
     return stageEntry ? new Date(stageEntry.performedAt) : this.createdAt;
   }
 
-  private getNextStage(currentStage: ApprovalStage): ApprovalStage {
+  private getNextStage(_currentStage: any): ApprovalStage {
     const stages = ApprovalStage;
     const currentIndex = Object.values(stages).indexOf(currentStage);
     return stages[Math.min(currentIndex + 1, Object.values(stages).length - 1)];
@@ -690,7 +690,7 @@ export class ApprovalWorkflow {
     this.efficiencyScore = Math.max(score, 0);
   }
 
-  private addAuditEntry(action: string, performedBy: string, details?: Record<string, any>): void {
+  private addAuditEntry(_action: any, performedBy: string, details?: Record<string, any>): void {
     this.auditTrail.push({
       action,
       performedBy,
