@@ -619,7 +619,7 @@ export class BusinessIntelligenceService {
 
   // ===== ANOMALY DETECTION =====
 
-  async detectAnomalies(timeRange, { start: Date; end: Date }): Promise<{
+  async detectAnomalies(timeRange: { start: Date; end: Date }): Promise<{
     anomalies: AnomalyDetection[];
     summary: {
       total: number;
@@ -882,7 +882,7 @@ export class BusinessIntelligenceService {
     if (featureName.includes('amount') || featureName.includes('count')) return 'numeric';
     if (featureName.includes('date') || featureName.includes('time')) return 'datetime';
     if (featureName.includes('text') || featureName.includes('description')) return 'text';
-
+    return 'categorical';
   }
 
   private getInitialPerformance(): ModelPerformance {

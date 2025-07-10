@@ -352,7 +352,7 @@ export class AIInsightsService {
     
     let recommendations: Recommendation[] = [];
     if (request.includeRecommendations) {
-      recommendations = await this.generateRecommendations(insights: [], request);
+      recommendations = await this.generateRecommendations([], request);
     }
 
     let predictions: PredictionResult[] = [];
@@ -361,7 +361,7 @@ export class AIInsightsService {
     }
 
     const summary = this.generateInsightsSummary(insights);
-    const naturalLanguageSummary = await this.generateNaturalLanguageSummary(insights: [], recommendations);
+    const naturalLanguageSummary = await this.generateNaturalLanguageSummary([], recommendations);
     const actionPlan = this.generateActionPlan(recommendations);
 
     this.eventEmitter.emit('ai.insights_generated', {
@@ -422,7 +422,7 @@ export class AIInsightsService {
     const report: BusinessIntelligenceReport = {
       id: reportId,
       title: `AI-Powered Business Intelligence Report - ${this.formatPeriod(period)}`,
-      summary: await this.generateExecutiveSummary(insights: [], recommendations),
+      summary: await this.generateExecutiveSummary([], recommendations),
       period,
       insights: [],
       recommendations,
@@ -430,7 +430,7 @@ export class AIInsightsService {
       trends: await this.analyzeTrends(period),
       predictions: [],
       actionItems: this.generateActionItems(recommendations),
-      executiveSummary: await this.generateDetailedExecutiveSummary(insights: [], recommendations, predictions),
+      executiveSummary: await this.generateDetailedExecutiveSummary([], recommendations, predictions),
       generated: new Date(),
     };
 
@@ -457,9 +457,9 @@ export class AIInsightsService {
 
     const performanceScore = {
       overall: this.calculateOverallPerformance(insights),
-      financial: this.calculateCategoryPerformance(insights: [], InsightCategory.FINANCIAL_PERFORMANCE),
-      operational: this.calculateCategoryPerformance(insights: [], InsightCategory.OPERATIONAL_EFFICIENCY),
-      strategic: this.calculateCategoryPerformance(insights: [], InsightCategory.STRATEGIC_PLANNING),
+      financial: this.calculateCategoryPerformance([], InsightCategory.FINANCIAL_PERFORMANCE),
+      operational: this.calculateCategoryPerformance([], InsightCategory.OPERATIONAL_EFFICIENCY),
+      strategic: this.calculateCategoryPerformance([], InsightCategory.STRATEGIC_PLANNING),
     };
 
     const competitiveAnalysis = await this.performCompetitiveAnalysis();
@@ -1169,7 +1169,7 @@ interface InfluencingFactor {
   factor: string;
   impact: number;
   confidence: number;
-  private generateExecutiveSummary(request: any): string {
+  private generateExecutiveSummary(insights: any[], recommendations: any[]): string {
     return 'Executive summary generated based on current performance metrics and strategic objectives.';
   }
 }

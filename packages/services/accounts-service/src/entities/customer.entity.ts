@@ -383,7 +383,7 @@ export class Customer {
   }
 
   // Static factory methods
-  static createBasicCustomer(data, {
+  static createIndividual(data: {
     companyId: string;
     firstName: string;
     lastName: string;
@@ -412,7 +412,7 @@ export class Customer {
     };
   }
 
-  static createBusinessCustomer(data, {
+  static createBusiness(data: {
     companyId: string;
     firstName: string;
     lastName: string;
@@ -430,7 +430,7 @@ export class Customer {
     onboardedBy: string;
   }): Partial<Customer> {
     return {
-      ...Customer.createBasicCustomer(data),
+      ...Customer.createIndividual(data),
       isBusiness: true,
       businessName: data.businessName,
       businessRegistrationNumber: data.businessRegistrationNumber,

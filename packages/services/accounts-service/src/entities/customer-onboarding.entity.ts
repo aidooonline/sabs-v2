@@ -573,7 +573,7 @@ export class CustomerOnboarding {
   }
 
   // Static factory methods
-  static create(data, {
+  static createInitial(data: {
     companyId: string;
     agentId: string;
     agentName: string;

@@ -723,7 +723,7 @@ export class ApprovalWorkflow {
   }
 
   // Static factory methods
-  static createForTransaction(data, {
+  static createForTransaction(data: {
     companyId: string;
     transactionId: string;
     priority?: ApprovalPriority;

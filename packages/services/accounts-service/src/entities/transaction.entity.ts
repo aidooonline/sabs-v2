@@ -804,7 +804,7 @@ export class Transaction {
   }
 
   // Static factory methods
-  static createWithdrawalRequest(data, {
+  static create(data: {
     companyId: string;
     customerId: string;
     accountId: string;
