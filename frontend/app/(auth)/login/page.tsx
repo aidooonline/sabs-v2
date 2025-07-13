@@ -39,15 +39,15 @@ export default function LoginPage() {
   // Clear errors when user types
   useEffect(() => {
     if (emailError) setEmailError('');
-  }, [email]);
+  }, [email, emailError]);
 
   useEffect(() => {
     if (passwordError) setPasswordError('');
-  }, [password]);
+  }, [password, passwordError]);
 
   useEffect(() => {
     if (mfaError) setMfaError('');
-  }, [mfaCode]);
+  }, [mfaCode, mfaError]);
 
   // Redirect if already authenticated
   useEffect(() => {

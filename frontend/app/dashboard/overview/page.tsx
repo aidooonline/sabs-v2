@@ -168,22 +168,28 @@ const mockDashboardData = {
 
 export default function DashboardOverviewPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
+
+  const showNotification = (message: string) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
+  };
 
   // Event handlers for interactive components
   const handleBalanceCardClick = () => {
-    console.log('Balance card clicked - navigate to balance details');
+    showNotification('Navigating to balance details');
   };
 
   const handleAccountCardAction = (actionType: string, accountId: string) => {
-    console.log(`Account action: ${actionType} for account ${accountId}`);
+    showNotification(`Account action: ${actionType} for account ${accountId}`);
   };
 
   const handleQuickAction = (actionType: string, actionId: string) => {
-    console.log(`Quick action: ${actionType} (${actionId})`);
+    showNotification(`Quick action: ${actionType} (${actionId})`);
   };
 
   const handleAlertClick = () => {
-    console.log('Alerts card clicked - navigate to alerts page');
+    showNotification('Navigating to alerts page');
   };
 
   const formatDate = (dateString: string) => {
@@ -478,6 +484,13 @@ export default function DashboardOverviewPage() {
             </div>
           </Link>
         </div>
+
+        {/* Notification Toast */}
+        {notification && (
+          <div className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+            {notification}
+          </div>
+        )}
       </div>
     </div>
   );

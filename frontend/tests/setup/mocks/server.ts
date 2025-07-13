@@ -1,6 +1,6 @@
 // MSW Server Setup for Test Environment
 import { setupServer } from 'msw/node';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 // API response generators
 const generateWorkflow = (overrides = {}) => ({

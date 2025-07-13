@@ -87,26 +87,32 @@ export default function AnalyticsDashboardPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [viewType, setViewType] = useState<'overview' | 'detailed'>('overview');
+  const [notification, setNotification] = useState<string | null>(null);
+
+  const showNotification = (message: string) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
+  };
 
   // Event handlers for interactive features
   const handlePeriodChange = (period: string) => {
     setSelectedPeriod(period);
-    console.log('Period changed to:', period);
+    showNotification(`Analytics period changed to: ${period}`);
   };
 
   const handleCategoryFilter = (category: string) => {
     setSelectedCategory(category);
-    console.log('Category filter:', category);
+    showNotification(`Category filter applied: ${category}`);
   };
 
   const handleCategoryDrillDown = (category: string) => {
-    console.log('Drilling down into category:', category);
+    showNotification(`Drilling down into category: ${category}`);
     setSelectedCategory(category);
     setViewType('detailed');
   };
 
   const handleExportData = (format: 'pdf' | 'csv' | 'excel') => {
-    console.log('Exporting data as:', format);
+    showNotification(`Exporting analytics data as ${format.toUpperCase()}`);
   };
 
   const formatCurrency = (amount: number) => {
@@ -372,6 +378,13 @@ export default function AnalyticsDashboardPage() {
             </div>
           </Link>
         </div>
+
+        {/* Notification Toast */}
+        {notification && (
+          <div className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+            {notification}
+          </div>
+        )}
       </div>
     </div>
   );

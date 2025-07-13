@@ -35,10 +35,10 @@ export default function ApprovalDashboard() {
   // WebSocket for real-time updates
   const { isConnected, error: wsError } = useApprovalWebSocket({
     onWorkflowUpdate: (workflow) => {
-      console.log('Workflow updated:', workflow);
+      // Handle workflow update - refresh data or update state
     },
     onNewWorkflow: (workflow) => {
-      console.log('New workflow:', workflow);
+      // Handle new workflow - add to list or refresh data
     }
   });
 

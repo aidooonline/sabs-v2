@@ -48,7 +48,7 @@ const WorkflowCard: React.FC<{
 
   const handleConfirmApproval = () => {
     // Here you would call the actual approval API
-    console.log(`Approving workflow ${workflow.workflowNumber}`);
+    // API call would be: approveWorkflow(workflow.id)
     setShowApprovalDialog(false);
     
     // Mock success notification

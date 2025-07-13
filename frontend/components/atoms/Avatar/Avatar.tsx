@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 export interface AvatarProps {
   src?: string;
@@ -52,15 +53,19 @@ export const Avatar: React.FC<AvatarProps> = ({
 
   if (src) {
     return (
-      <img
-        src={src}
-        alt={alt || 'Avatar'}
-        className={classes}
-        onError={(e) => {
-          // Hide image on error and show fallback
-          e.currentTarget.style.display = 'none';
-        }}
-      />
+      <div className={classes} style={{ position: 'relative', overflow: 'hidden' }}>
+        <Image
+          src={src}
+          alt={alt || 'Avatar'}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          style={{ objectFit: 'cover' }}
+          onError={(e) => {
+            // Hide image on error and show fallback
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+      </div>
     );
   }
 

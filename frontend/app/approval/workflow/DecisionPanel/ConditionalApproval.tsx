@@ -376,7 +376,7 @@ export const ConditionalApproval: React.FC<ConditionalApprovalProps> = ({
           <h5 className="text-sm font-medium text-blue-900 mb-2">💡 Conditional Approval Guidelines</h5>
           <ul className="text-sm text-blue-800 space-y-1">
             <li>• Conditions should be specific, measurable, and achievable</li>
-            <li>• Consider the customer's ability to fulfill requirements</li>
+            <li>• Consider the customer&apos;s ability to fulfill requirements</li>
             <li>• Balance security needs with customer convenience</li>
             <li>• Estimated times help set proper expectations</li>
             <li>• Each condition must be verified before final disbursement</li>

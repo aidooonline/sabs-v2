@@ -75,7 +75,7 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
           break;
       }
 
-      console.log(`Bulk ${pendingAction} completed:`, result);
+      // Bulk action completed successfully
       
       // Reset form and close modal
       setShowAuthModal(false);
@@ -86,8 +86,8 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
       onRefresh();
       
     } catch (error) {
-      console.error(`Bulk ${pendingAction} failed:`, error);
       // Handle error - show notification or error message
+      // Error logging would be handled by proper logging service
     }
   };
 

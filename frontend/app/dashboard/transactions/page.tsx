@@ -33,6 +33,12 @@ export default function TransactionsPage() {
   // Modal state
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
   const [showTransactionDetails, setShowTransactionDetails] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
+
+  const showNotification = (message: string) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
+  };
 
   // Debounce search text
   useEffect(() => {
@@ -134,14 +140,12 @@ export default function TransactionsPage() {
       selectedTransactions.has(t.id)
     ) || [];
     
-    console.log('Bulk export:', selectedTxns);
+    showNotification(`Exporting ${selectedTxns.length} transactions as CSV`);
     // Implement CSV export logic
-    alert(`Exporting ${selectedTxns.length} transactions...`);
   };
 
   const handleBulkCategorize = () => {
-    console.log('Bulk categorize:', Array.from(selectedTransactions));
-    alert(`Categorizing ${selectedTransactions.size} transactions...`);
+    showNotification(`Categorizing ${selectedTransactions.size} transactions`);
   };
 
   // Transaction details modal
@@ -655,6 +659,13 @@ export default function TransactionsPage() {
           </svg>
           <h3 className="text-lg font-medium text-gray-900 mb-2">No transactions found</h3>
           <p className="text-gray-500">Try adjusting your search criteria or date range.</p>
+        </div>
+      )}
+
+      {/* Notification Toast */}
+      {notification && (
+        <div className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+          {notification}
         </div>
       )}
     </div>

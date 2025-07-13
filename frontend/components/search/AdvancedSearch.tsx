@@ -554,7 +554,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <p className="mt-2 text-sm">No search criteria added yet</p>
-                <p className="text-xs">Click "Add Criterion" to build advanced search filters</p>
+                <p className="text-xs">Click &quot;Add Criterion&quot; to build advanced search filters</p>
               </div>
             ) : (
               <div className="space-y-2">

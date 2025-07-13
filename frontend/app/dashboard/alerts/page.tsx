@@ -184,27 +184,33 @@ export default function AlertsDashboardPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'overview' | 'active' | 'create' | 'settings' | 'history'>('overview');
   const [selectedAlert, setSelectedAlert] = useState<string | null>(null);
+  const [notification, setNotification] = useState<string | null>(null);
+
+  const showNotification = (message: string) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
+  };
 
   // Event handlers for interactive features
   const handleCreateAlert = (alertData: any) => {
-    console.log('Creating alert:', alertData);
+    showNotification('Alert created successfully');
   };
 
   const handleAcknowledgeAlert = (alertId: string) => {
-    console.log('Acknowledging alert:', alertId);
+    showNotification(`Alert ${alertId} acknowledged`);
   };
 
   const handleResolveAlert = (alertId: string) => {
-    console.log('Resolving alert:', alertId);
+    showNotification(`Alert ${alertId} resolved`);
   };
 
   const handleUpdateSettings = (settings: any) => {
-    console.log('Updating alert settings:', settings);
+    showNotification('Alert settings updated successfully');
   };
 
   const handleAlertClick = (alertId: string) => {
     setSelectedAlert(alertId);
-    console.log('Alert clicked:', alertId);
+    showNotification(`Viewing details for alert ${alertId}`);
   };
 
   const formatDate = (date: Date) => {
@@ -513,6 +519,13 @@ export default function AlertsDashboardPage() {
             📝 Next: Transactions (Day 5)
           </Link>
         </div>
+
+        {/* Notification Toast */}
+        {notification && (
+          <div className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+            {notification}
+          </div>
+        )}
       </div>
     </div>
   );

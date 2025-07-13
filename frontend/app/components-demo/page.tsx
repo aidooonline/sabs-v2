@@ -16,6 +16,12 @@ export default function ComponentsDemoPage() {
   const [showDialog, setShowDialog] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [notification, setNotification] = useState<string | null>(null);
+
+  const showNotification = (message: string) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
+  };
 
   // Mock data for demonstrations
   const tabs = [
@@ -41,8 +47,8 @@ export default function ComponentsDemoPage() {
       status: 'active' as const,
       badge: 'VIP',
       actions: [
-        { id: 'view', label: 'View', onClick: () => console.log('View customer') },
-        { id: 'edit', label: 'Edit', onClick: () => console.log('Edit customer') },
+        { id: 'view', label: 'View', onClick: () => showNotification('View customer action triggered') },
+        { id: 'edit', label: 'Edit', onClick: () => showNotification('Edit customer action triggered') },
       ]
     },
     {
@@ -52,8 +58,8 @@ export default function ComponentsDemoPage() {
       description: 'Pending verification',
       status: 'pending' as const,
       actions: [
-        { id: 'approve', label: 'Approve', onClick: () => console.log('Approve customer') },
-        { id: 'reject', label: 'Reject', variant: 'danger' as const, onClick: () => console.log('Reject customer') },
+        { id: 'approve', label: 'Approve', onClick: () => showNotification('Customer approved') },
+        { id: 'reject', label: 'Reject', variant: 'danger' as const, onClick: () => showNotification('Customer rejected') },
       ]
     },
     {
@@ -63,7 +69,7 @@ export default function ComponentsDemoPage() {
       description: 'Account suspended',
       status: 'error' as const,
       actions: [
-        { id: 'reactivate', label: 'Reactivate', onClick: () => console.log('Reactivate customer') },
+        { id: 'reactivate', label: 'Reactivate', onClick: () => showNotification('Customer reactivated') },
       ]
     },
   ];
@@ -74,26 +80,26 @@ export default function ComponentsDemoPage() {
       label: 'Add Customer',
       icon: <span>➕</span>,
       variant: 'primary' as const,
-      onClick: () => console.log('Add customer'),
+      onClick: () => showNotification('Add customer dialog would open'),
       shortcut: 'n',
     },
     {
       id: 'import',
       label: 'Import',
       icon: <span>📥</span>,
-      onClick: () => console.log('Import data'),
+      onClick: () => showNotification('Import data initiated'),
     },
     {
       id: 'export',
       label: 'Export',
       icon: <span>📤</span>,
-      onClick: () => console.log('Export data'),
+      onClick: () => showNotification('Export data started'),
     },
     {
       id: 'refresh',
       label: 'Refresh',
       icon: <span>🔄</span>,
-      onClick: () => console.log('Refresh data'),
+      onClick: () => showNotification('Data refreshed'),
       shortcut: 'r',
     },
   ];
@@ -181,7 +187,7 @@ export default function ComponentsDemoPage() {
                     onChange={setSearchValue}
                     suggestions={searchSuggestions}
                     onSuggestionSelect={(suggestion) => {
-                      console.log('Selected:', suggestion);
+                      showNotification(`Selected: ${suggestion.label}`);
                       setSearchValue(suggestion.label);
                     }}
                     showSearchButton
@@ -336,7 +342,7 @@ export default function ComponentsDemoPage() {
           isOpen={showDialog}
           onClose={() => setShowDialog(false)}
           onConfirm={() => {
-            console.log('Confirmed!');
+            showNotification('Customer deleted successfully');
             setShowDialog(false);
           }}
           title="Delete Customer"
@@ -345,6 +351,13 @@ export default function ComponentsDemoPage() {
           cancelText="Cancel"
           variant="danger"
         />
+
+        {/* Notification Toast */}
+        {notification && (
+          <div className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+            {notification}
+          </div>
+        )}
       </div>
     </div>
   );
