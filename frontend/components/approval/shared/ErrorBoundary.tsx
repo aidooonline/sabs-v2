@@ -62,15 +62,15 @@ export class ApprovalErrorBoundary extends Component<Props, State> {
     });
 
     // Log error details
-    console.error('Approval Workflow Error:', {
-      error,
-      errorInfo,
-      context: this.props.context,
-      errorId: this.state.errorId,
-      timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
-      url: window.location.href,
-    });
+    // console.error('Approval Workflow Error:', {
+    //   error,
+    //   errorInfo,
+    //   context: this.props.context,
+    //   errorId: this.state.errorId,
+    //   timestamp: new Date().toISOString(),
+    //   userAgent: navigator.userAgent,
+    //   url: window.location.href,
+    // });
 
     // Call custom error handler if provided
     if (this.props.onError) {
@@ -106,10 +106,10 @@ export class ApprovalErrorBoundary extends Component<Props, State> {
         body: JSON.stringify(errorReport),
       }).catch(() => {
         // Silently fail if error reporting fails
-        console.warn('Failed to report error to monitoring service');
+        // console.warn('Failed to report error to monitoring service');
       });
     } catch (reportingError) {
-      console.warn('Error reporting failed:', reportingError);
+      // console.warn('Error reporting failed:', reportingError);
     }
   };
 

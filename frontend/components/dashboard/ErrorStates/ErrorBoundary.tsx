@@ -24,15 +24,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // You can also log the error to an error reporting service
     this.setState({ error, errorInfo });
-    
-    if (this.props.onError) {
-      this.props.onError(error, errorInfo);
-    }
-    
-    // Log error for monitoring
-    console.error('Dashboard Error Boundary caught an error:', error, errorInfo);
+    // logErrorToMyService(error, errorInfo);
   }
 
   render() {

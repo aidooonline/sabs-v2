@@ -264,14 +264,49 @@ export const SmartFilters: React.FC<SmartFiltersProps> = ({
   const [availableFilters, setAvailableFilters] = useState<FilterDefinition[]>(FILTER_DEFINITIONS);
   const [presets, setPresets] = useState<FilterPreset[]>(FILTER_PRESETS);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [filterCounts, setFilterCounts] = useState<Record<string, Record<string, number>>>({});
   const [suggestedFilters, setSuggestedFilters] = useState<FilterDefinition[]>([]);
 
-  // Initialize filters from props
-  useEffect(() => {
-    updateActiveFiltersFromProps();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentFilters]);
+  const formatDisplayValue = useCallback((filter: FilterDefinition, value: any) => {
+    if (filter.type === 'boolean') {
+      return value ? 'Yes' : 'No';
+    }
+    if (filter.values && filter.values.length > 0) {
+      if (Array.isArray(value)) {
+        return value.map(v => filter.values.find(f => f.value === v)?.label || v).join(', ');
+      }
+      return filter.values.find(f => f.value === value)?.label || value;
+    }
+    return value;
+  }, []);
+
+  const buildFiltersObject = useCallback((active: ActiveFilter[]) => {
+    const filters: Record<string, any> = {};
+    active.forEach(af => {
+      filters[af.definition.field] = af.value;
+    });
+    return filters;
+  }, []);
+
+  // Update active filters from props
+  const updateActiveFiltersFromProps = useCallback(() => {
+    const newActiveFilters: ActiveFilter[] = [];
+    
+    Object.entries(currentFilters).forEach(([key, value]) => {
+      const definition = availableFilters.find(f => f.field === key);
+      if (definition) {
+        newActiveFilters.push({
+          id: definition.id,
+          definition: definition,
+          value: value,
+          displayValue: formatDisplayValue(definition, value),
+        });
+      }
+    });
+
+    setActiveFilters(newActiveFilters);
+  }, [currentFilters, availableFilters, formatDisplayValue]);
 
   // Update filter counts based on current results
   useEffect(() => {
@@ -285,25 +320,10 @@ export const SmartFilters: React.FC<SmartFiltersProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFilters, context]);
 
-  // Update active filters from props
-  const updateActiveFiltersFromProps = useCallback(() => {
-    const newActiveFilters: ActiveFilter[] = [];
-    
-    Object.entries(currentFilters).forEach(([key, value]) => {
-      const definition = availableFilters.find(f => f.field === key);
-      if (definition && value !== null && value !== undefined) {
-        const displayValue = formatDisplayValue(definition, value);
-        newActiveFilters.push({
-          id: `${definition.id}_${Date.now()}`,
-          definition,
-          value,
-          displayValue
-        });
-      }
-    });
-
-    setActiveFilters(newActiveFilters);
-  }, [currentFilters, availableFilters]);
+  // Initialize filters from props
+  useEffect(() => {
+    updateActiveFiltersFromProps();
+  }, [updateActiveFiltersFromProps]);
 
   // Update filter counts (mock implementation)
   const updateFilterCounts = useCallback(() => {
@@ -358,81 +378,6 @@ export const SmartFilters: React.FC<SmartFiltersProps> = ({
     setSuggestedFilters(contextSuggestions.slice(0, 4));
   }, [activeFilters, availableFilters, context]);
 
-  // Format display value for filter
-  const formatDisplayValue = useCallback((definition: FilterDefinition, value: any): string => {
-    if (Array.isArray(value)) {
-      if (value.length === 0) return '';
-      if (value.length === 1) {
-        const filterValue = definition.values.find(v => v.value === value[0]);
-        return filterValue?.label || String(value[0]);
-      }
-      return `${value.length} selected`;
-    }
-
-    if (typeof value === 'object' && value.min !== undefined) {
-      if (value.max === null) {
-        return `> ₵${value.min.toLocaleString()}`;
-      }
-      return `₵${value.min.toLocaleString()} - ₵${value.max.toLocaleString()}`;
-    }
-
-    const filterValue = definition.values.find(v => v.value === value);
-    return filterValue?.label || String(value);
-  }, []);
-
-  // Add filter
-  const addFilter = useCallback((definition: FilterDefinition, value?: any) => {
-    const filterValue = value || definition.defaultValue || (
-      definition.type === 'multi_select' ? [] :
-      definition.type === 'boolean' ? false :
-      definition.type === 'range' ? { min: 0, max: 1000 } :
-      ''
-    );
-
-    const displayValue = formatDisplayValue(definition, filterValue);
-    
-    const newFilter: ActiveFilter = {
-      id: `${definition.id}_${Date.now()}`,
-      definition,
-      value: filterValue,
-      displayValue
-    };
-
-    const newActiveFilters = [...activeFilters, newFilter];
-    setActiveFilters(newActiveFilters);
-    
-    // Build filters object and notify parent
-    const filtersObject = buildFiltersObject(newActiveFilters);
-    onFiltersChange(filtersObject);
-    
-    setShowFilterMenu(false);
-  }, [activeFilters, formatDisplayValue, onFiltersChange]);
-
-  // Remove filter
-  const removeFilter = useCallback((filterId: string) => {
-    const newActiveFilters = activeFilters.filter(f => f.id !== filterId);
-    setActiveFilters(newActiveFilters);
-    
-    const filtersObject = buildFiltersObject(newActiveFilters);
-    onFiltersChange(filtersObject);
-  }, [activeFilters, onFiltersChange]);
-
-  // Update filter value
-  const updateFilterValue = useCallback((filterId: string, newValue: any) => {
-    const newActiveFilters = activeFilters.map(f => {
-      if (f.id === filterId) {
-        const displayValue = formatDisplayValue(f.definition, newValue);
-        return { ...f, value: newValue, displayValue };
-      }
-      return f;
-    });
-
-    setActiveFilters(newActiveFilters);
-    
-    const filtersObject = buildFiltersObject(newActiveFilters);
-    onFiltersChange(filtersObject);
-  }, [activeFilters, formatDisplayValue, onFiltersChange]);
-
   // Apply preset
   const applyPreset = useCallback((preset: FilterPreset) => {
     // Clear existing filters
@@ -450,17 +395,49 @@ export const SmartFilters: React.FC<SmartFiltersProps> = ({
     setShowFilterMenu(false);
   }, [presets, onFiltersChange]);
 
-  // Build filters object for API
-  const buildFiltersObject = useCallback((filters: ActiveFilter[]): Record<string, any> => {
-    const filtersObj: Record<string, any> = {};
+  // Apply filters
+  const applyFilters = useCallback(() => {
+    const filtersObject = buildFiltersObject(activeFilters);
+    onFiltersChange(filtersObject);
     
-    filters.forEach(filter => {
-      filtersObj[filter.definition.field] = filter.value;
-    });
-    
-    return filtersObj;
-  }, []);
+    setShowFilterMenu(false);
+  }, [activeFilters, onFiltersChange, buildFiltersObject]);
 
+  // Remove filter
+  const removeFilter = useCallback((filterId: string) => {
+    const newActiveFilters = activeFilters.filter(f => f.id !== filterId);
+    setActiveFilters(newActiveFilters);
+    
+    const filtersObject = buildFiltersObject(newActiveFilters);
+    onFiltersChange(filtersObject);
+  }, [activeFilters, onFiltersChange, buildFiltersObject]);
+
+  // Add a new filter
+  const addFilter = useCallback((definition: FilterDefinition) => {
+    const newFilter: ActiveFilter = {
+      id: definition.id,
+      definition,
+      value: definition.defaultValue ?? '',
+      displayValue: formatDisplayValue(definition, definition.defaultValue ?? ''),
+    };
+    const newActiveFilters = [...activeFilters, newFilter];
+    setActiveFilters(newActiveFilters);
+    onFiltersChange(buildFiltersObject(newActiveFilters));
+  }, [activeFilters, buildFiltersObject, formatDisplayValue, onFiltersChange]);
+
+  // Update filter value
+  const updateFilterValue = useCallback((filterId: string, newValue: any) => {
+    const newActiveFilters = activeFilters.map(f =>
+      f.id === filterId
+        ? { ...f, value: newValue, displayValue: formatDisplayValue(f.definition, newValue) }
+        : f
+    );
+    setActiveFilters(newActiveFilters);
+    
+    const filtersObject = buildFiltersObject(newActiveFilters);
+    onFiltersChange(filtersObject);
+  }, [activeFilters, formatDisplayValue, onFiltersChange, buildFiltersObject]);
+  
   // Clear all filters
   const clearAllFilters = useCallback(() => {
     setActiveFilters([]);

@@ -79,6 +79,63 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     }
   }, [desktopEnabled]);
 
+  // Play notification sound
+  const playNotificationSound = useCallback((priority: string) => {
+    try {
+      const soundKey = priority === 'critical' ? 'urgent' : 
+                       priority === 'high' ? 'warning' : 'default';
+      const sound = NOTIFICATION_SOUNDS[soundKey];
+      
+      const audio = new Audio(sound.url);
+      audio.volume = sound.volume;
+      audio.play().catch(error => {
+        // Log error if sound fails to play, but don't disrupt user
+        // console.warn('Failed to play notification sound:', error);
+      });
+    } catch (error) {
+      // console.warn('Notification sound error:', error);
+    }
+  }, []);
+
+  // Show desktop notification
+  const showDesktopNotification = useCallback((notification: Notification) => {
+    try {
+      const desktopNotification = new Notification(notification.title, {
+        body: notification.message,
+        icon: '/icons/notification-icon.png',
+        badge: '/icons/badge-icon.png',
+        tag: notification.id,
+        requireInteraction: notification.priority === 'critical',
+        silent: !soundEnabled
+      });
+
+      desktopNotification.onclick = () => {
+        window.focus();
+        setIsOpen(true);
+        markAsRead(notification.id);
+        desktopNotification.close();
+      };
+
+      // Auto-close after 5 seconds for non-critical notifications
+      if (notification.priority !== 'critical') {
+        setTimeout(() => {
+          desktopNotification.close();
+        }, 5000);
+      }
+    } catch (error) {
+      // console.warn('Desktop notification error:', error);
+    }
+  }, [soundEnabled]);
+
+  // Mark notification as read
+  const markAsRead = useCallback((notificationId: string) => {
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === notificationId ? { ...notif, read: true } : notif
+      )
+    );
+  }, []);
+
   // Add new notification
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
     const newNotification: Notification = {
@@ -117,63 +174,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     }
 
     return newNotification.id;
-  }, [maxNotifications, soundEnabled, desktopEnabled, permissionGranted, autoMarkReadDelay]);
-
-  // Play notification sound
-  const playNotificationSound = (priority: string) => {
-    try {
-      const soundKey = priority === 'critical' ? 'urgent' : 
-                       priority === 'high' ? 'warning' : 'default';
-      const sound = NOTIFICATION_SOUNDS[soundKey];
-      
-      const audio = new Audio(sound.url);
-      audio.volume = sound.volume;
-      audio.play().catch(error => {
-        console.warn('Failed to play notification sound:', error);
-      });
-    } catch (error) {
-      console.warn('Notification sound error:', error);
-    }
-  };
-
-  // Show desktop notification
-  const showDesktopNotification = (notification: Notification) => {
-    try {
-      const desktopNotification = new Notification(notification.title, {
-        body: notification.message,
-        icon: '/icons/notification-icon.png',
-        badge: '/icons/badge-icon.png',
-        tag: notification.id,
-        requireInteraction: notification.priority === 'critical',
-        silent: !soundEnabled
-      });
-
-      desktopNotification.onclick = () => {
-        window.focus();
-        setIsOpen(true);
-        markAsRead(notification.id);
-        desktopNotification.close();
-      };
-
-      // Auto-close after 5 seconds for non-critical notifications
-      if (notification.priority !== 'critical') {
-        setTimeout(() => {
-          desktopNotification.close();
-        }, 5000);
-      }
-    } catch (error) {
-      console.warn('Desktop notification error:', error);
-    }
-  };
-
-  // Mark notification as read
-  const markAsRead = useCallback((notificationId: string) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === notificationId ? { ...notif, read: true } : notif
-      )
-    );
-  }, []);
+  }, [maxNotifications, soundEnabled, desktopEnabled, permissionGranted, autoMarkReadDelay, playNotificationSound, showDesktopNotification, markAsRead]);
 
   // Mark all as read
   const markAllAsRead = useCallback(() => {

@@ -179,12 +179,6 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
   const searchLoading = false; // Placeholder until API hook is implemented
 
   // Initialize with saved searches
-  useEffect(() => {
-    loadSavedSearches();
-    loadSearchHistory();
-  }, []);
-
-  // Load saved searches from localStorage/API
   const loadSavedSearches = useCallback(() => {
     try {
       const saved = localStorage.getItem('approval_saved_searches');
@@ -207,6 +201,11 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
       console.error('Failed to load search history:', error);
     }
   }, []);
+
+  useEffect(() => {
+    loadSavedSearches();
+    loadSearchHistory();
+  }, [loadSavedSearches, loadSearchHistory]);
 
   // Add search criterion
   const addCriterion = useCallback(() => {
