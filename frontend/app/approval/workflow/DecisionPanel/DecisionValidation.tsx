@@ -162,11 +162,12 @@ export const DecisionValidation: React.FC<DecisionValidationProps> = ({
     }
   };
 
-  // Run validation when decision data changes
+  // Run validation when decision data changes  
   useEffect(() => {
     if (decisionData.action && decisionData.notes) {
       runValidation();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [decisionData, selectedAction]);
 
   const runValidation = async () => {

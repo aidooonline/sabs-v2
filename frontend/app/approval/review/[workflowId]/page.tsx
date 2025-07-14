@@ -62,7 +62,7 @@ export default function WorkflowReviewPage() {
   const { isConnected } = useApprovalWebSocket({
     onWorkflowUpdate: (updatedWorkflow) => {
       if (updatedWorkflow.id === workflowId) {
-        console.log('Workflow updated via WebSocket:', updatedWorkflow);
+        // Workflow updated via WebSocket
         refetchWorkflow();
         refetchComments();
         setRefreshKey(prev => prev + 1);

@@ -117,11 +117,6 @@ export function withAuth<P extends object>(
       user,
       hasAnyRole,
       hasAnyPermission,
-      requiredRoles,
-      requiredPermissions,
-      requireEmailVerified,
-      showUnauthorized,
-      redirectTo,
     ]);
 
     // Handle redirects

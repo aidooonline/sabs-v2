@@ -228,7 +228,7 @@ export const PolicyEnforcement: React.FC<PolicyEnforcementProps> = ({
     if (onEnforcePolicy && testContext) {
       const result = onEnforcePolicy(testContext);
       // Handle result display - could show in a modal or alert
-      console.log('Enforcement Result:', result);
+      // Policy enforcement completed
     }
   }, [onEnforcePolicy, testContext]);
 

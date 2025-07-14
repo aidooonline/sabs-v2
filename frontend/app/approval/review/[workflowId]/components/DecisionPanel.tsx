@@ -94,11 +94,11 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
           result = await requestInfo(payload).unwrap();
           break;
         default:
-          console.error('Unknown action:', selectedAction);
+          throw new Error(`Unknown action: ${selectedAction}`);
           return;
       }
 
-      console.log(`${selectedAction} completed:`, result);
+      // Action completed successfully
       
       // Reset form and close modal
       setShowAuthModal(false);

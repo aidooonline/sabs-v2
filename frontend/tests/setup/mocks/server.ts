@@ -1,6 +1,6 @@
 // MSW Server Setup for Test Environment
 import { setupServer } from 'msw/node';
-import { http, HttpResponse } from 'msw';
+import { rest } from 'msw';
 
 // API response generators
 const generateWorkflow = (overrides = {}) => ({
@@ -171,12 +171,11 @@ export const handlers = [
     );
   }),
 
-  rest.get('/api/workflows/:id', (req, res, ctx) => {
-    const { id } = req.params;
+  http.get('/api/workflows/:id', ({ params }) => {
+    const { id } = params;
     const workflow = generateWorkflow({ id });
     
-    return res(
-      ctx.json({
+    return HttpResponse.json({
         workflow: {
           ...workflow,
           customer: {
@@ -212,51 +211,44 @@ export const handlers = [
               action: 'submitted',
               performedBy: workflow.customerName,
               performedAt: workflow.submittedAt,
-              comments: 'Withdrawal request submitted'
-            }
-          ]
-        }
-      })
-    );
+                          comments: 'Withdrawal request submitted'
+          }
+        ]
+      }
+      });
   }),
 
-  rest.post('/api/workflows/:id/approve', (req, res, ctx) => {
-    const { id } = req.params;
+  http.post('/api/workflows/:id/approve', ({ params }) => {
+    const { id } = params;
     
-    return res(
-      ctx.json({
-        success: true,
-        message: 'Workflow approved successfully',
-        workflowId: id,
-        approvedAt: new Date().toISOString()
-      })
-    );
+    return HttpResponse.json({
+      success: true,
+      message: 'Workflow approved successfully',
+      workflowId: id,
+      approvedAt: new Date().toISOString()
+    });
   }),
 
-  rest.post('/api/workflows/:id/reject', (req, res, ctx) => {
-    const { id } = req.params;
+  http.post('/api/workflows/:id/reject', ({ params }) => {
+    const { id } = params;
     
-    return res(
-      ctx.json({
-        success: true,
-        message: 'Workflow rejected successfully',
-        workflowId: id,
-        rejectedAt: new Date().toISOString()
-      })
-    );
+    return HttpResponse.json({
+      success: true,
+      message: 'Workflow rejected successfully',
+      workflowId: id,
+      rejectedAt: new Date().toISOString()
+    });
   }),
 
-  rest.post('/api/workflows/:id/escalate', (req, res, ctx) => {
-    const { id } = req.params;
+  http.post('/api/workflows/:id/escalate', ({ params }) => {
+    const { id } = params;
     
-    return res(
-      ctx.json({
-        success: true,
-        message: 'Workflow escalated successfully',
-        workflowId: id,
-        escalatedAt: new Date().toISOString()
-      })
-    );
+    return HttpResponse.json({
+      success: true,
+      message: 'Workflow escalated successfully',
+      workflowId: id,
+      escalatedAt: new Date().toISOString()
+    });
   }),
 
   rest.post('/api/workflows/:id/comments', (req, res, ctx) => {
@@ -279,24 +271,21 @@ export const handlers = [
   }),
 
   // Dashboard endpoints
-  rest.get('/api/dashboard/stats', (req, res, ctx) => {
-    return res(
-      ctx.json({
-        totalPending: 125,
-        highPriority: 23,
-        overdueCount: 8,
-        avgProcessingTime: 4.5,
-        completionRate: 92.3,
-        slaCompliance: 89.7,
-        todayProcessed: 45,
-        weeklyTrend: [32, 45, 38, 42, 51, 39, 45]
-      })
-    );
+  http.get('/api/dashboard/stats', () => {
+    return HttpResponse.json({
+      totalPending: 125,
+      highPriority: 23,
+      overdueCount: 8,
+      avgProcessingTime: 4.5,
+      completionRate: 92.3,
+      slaCompliance: 89.7,
+      todayProcessed: 45,
+      weeklyTrend: [32, 45, 38, 42, 51, 39, 45]
+    });
   }),
 
-  rest.get('/api/approval-workflow/dashboard/stats', (req, res, ctx) => {
-    return res(
-      ctx.json({
+  http.get('/api/approval-workflow/dashboard/stats', () => {
+    return HttpResponse.json({
         queueStats: {
           totalPending: 125,
           totalApproved: 890,
@@ -335,25 +324,22 @@ export const handlers = [
         ],
         weeklyTarget: 100,
         currentWeekProcessed: 78
-      })
-    );
+      });
   }),
 
-  rest.get('/api/approval-workflow/dashboard/queue-metrics', (req, res, ctx) => {
-    return res(
-      ctx.json({
-        totalPending: 125,
-        totalApproved: 890,
-        totalRejected: 45,
-        averageProcessingTime: 270,
-        slaCompliance: 0.89,
-        riskDistribution: [
-          { riskLevel: 'Low', count: 45, percentage: 36 },
-          { riskLevel: 'Medium', count: 52, percentage: 42 },
-          { riskLevel: 'High', count: 28, percentage: 22 }
-        ]
-      })
-    );
+  http.get('/api/approval-workflow/dashboard/queue-metrics', () => {
+    return HttpResponse.json({
+      totalPending: 125,
+      totalApproved: 890,
+      totalRejected: 45,
+      averageProcessingTime: 270,
+      slaCompliance: 0.89,
+      riskDistribution: [
+        { riskLevel: 'Low', count: 45, percentage: 36 },
+        { riskLevel: 'Medium', count: 52, percentage: 42 },
+        { riskLevel: 'High', count: 28, percentage: 22 }
+      ]
+    });
   }),
 
   rest.get('/api/dashboard/queue-distribution', (req, res, ctx) => {

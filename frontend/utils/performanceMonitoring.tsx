@@ -161,7 +161,7 @@ export const analyzeBundleSize = async (componentPath: string) => {
     
     return size;
   } catch (error) {
-    console.log('Bundle analysis not available in this environment');
+          // Bundle analysis not available in this environment
   }
 };
 
@@ -243,7 +243,7 @@ export const registerServiceWorker = async () => {
 
   try {
     const registration = await navigator.serviceWorker.register('/sw.js');
-    console.log('SW registered: ', registration);
+            // Service worker registered successfully
     
     // Update available
     registration.addEventListener('updatefound', () => {

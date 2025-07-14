@@ -270,16 +270,19 @@ export const SmartFilters: React.FC<SmartFiltersProps> = ({
   // Initialize filters from props
   useEffect(() => {
     updateActiveFiltersFromProps();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFilters]);
 
   // Update filter counts based on current results
   useEffect(() => {
     updateFilterCounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resultCount]);
 
   // Generate suggested filters based on context and current selection
   useEffect(() => {
     generateSuggestedFilters();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFilters, context]);
 
   // Update active filters from props

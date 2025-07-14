@@ -103,7 +103,7 @@ export const QuickActionBar: React.FC<QuickActionBarProps> = ({
     
     if (action.requiresAuth) {
       // Handle authentication if needed
-      console.log('Action requires authentication:', action.type);
+              // Action requires authentication - redirecting to login
     }
     
     if (action.endpoint) {
@@ -137,7 +137,7 @@ export const QuickActionBar: React.FC<QuickActionBarProps> = ({
           window.location.href = '/dashboard/atm-locator';
           break;
         default:
-          console.log('Quick action clicked:', action.type);
+          // Execute quick action
       }
     }
   };
