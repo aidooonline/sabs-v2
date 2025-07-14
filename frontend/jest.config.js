@@ -11,6 +11,9 @@ const customJestConfig = {
   testEnvironment: 'jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    // Add specific mappings for MSW
+    '^msw$': '<rootDir>/node_modules/msw/lib/core/index.js',
+    '^msw/node$': '<rootDir>/node_modules/msw/lib/node/index.js',
   },
   testPathIgnorePatterns: [
     '/node_modules/',
